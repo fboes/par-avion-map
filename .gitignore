@@ -1,0 +1,4 @@
+*.code-workspace
+*.map
+*.php
+node_modules
