@@ -18,4 +18,16 @@ export default class Degree {
   get oppositeDegree(): number {
     return this._oppositeDegree;
   }
+
+  isBetween(min: number, max: number) {
+    min = (min + 360) % 360;
+    max = (max + 360) % 360;
+
+    if (min > max) {
+      // searching over end of circle
+      max += 360;
+    }
+
+    return min <= this._degree && this._degree <= max;
+  }
 }

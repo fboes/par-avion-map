@@ -23,5 +23,8 @@ export default class Coordinates {
     static rad2deg(rad) {
         return rad / (Math.PI / 180);
     }
+    getDistance(coord2) {
+        return Math.sqrt(Math.pow(coord2.y - this.y, 2) + Math.pow(coord2.x - this.x, 2));
+    }
 }
 //# sourceMappingURL=Coordinates.js.map

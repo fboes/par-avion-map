@@ -10,11 +10,7 @@ function init() {
   const map = new LocationsMap(16, randomizer);
   const terrain = new TerrainMap(map, randomizer);
 
-
-  console.log(
-    map,
-    terrain
-  );
+  console.log(map);
 
   if (canvas) {
     new Canvas(canvas, map, terrain);

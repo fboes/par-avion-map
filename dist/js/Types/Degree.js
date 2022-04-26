@@ -14,5 +14,14 @@ export default class Degree {
     get oppositeDegree() {
         return this._oppositeDegree;
     }
+    isBetween(min, max) {
+        min = (min + 360) % 360;
+        max = (max + 360) % 360;
+        if (min > max) {
+            // searching over end of circle
+            max += 360;
+        }
+        return min <= this._degree && this._degree <= max;
+    }
 }
 //# sourceMappingURL=Degree.js.map

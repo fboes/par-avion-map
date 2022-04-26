@@ -3,7 +3,7 @@ import TerrainMap from "../ParAvion/TerrainMap.js";
 import Degree from "./Degree.js";
 
 export default class Coordinates {
-  public constructor(public x: number, public y: number, public elevation: number|null = null) {
+  public constructor(public x: number, public y: number, public elevation: number | null = null) {
   }
 
   public getTerrainCoordinates() {
@@ -35,5 +35,9 @@ export default class Coordinates {
 
   public static rad2deg(rad: number): number {
     return rad / (Math.PI / 180);
+  }
+
+  getDistance(coord2: Coordinates) {
+    return Math.sqrt(Math.pow(coord2.y - this.y, 2) + Math.pow(coord2.x - this.x, 2));
   }
 }

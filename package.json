@@ -1,7 +1,7 @@
 {
   "name": "par-avion-map",
   "version": "1.0.0",
-  "description": "",
+  "description": "A map generator for random VFR / IFR flight maps.",
   "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

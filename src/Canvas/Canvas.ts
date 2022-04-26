@@ -4,33 +4,41 @@ import Airport from "../ParAvion/Airport.js";
 import TerrainMap from "../ParAvion/TerrainMap.js";
 import CanvasTool from "./CanvasTool.js";
 import Waypoint from "../ParAvion/Waypoint.js";
+import Coordinates from "../Types/Coordinates.js";
+import HoldingPattern from "../ParAvion/HoldingPattern.js";
+import Runway from "../ParAvion/Runway.js";
 
 export default class Canvas {
   colors = {
-    'blue': '#002da3',
-    'blueTransparent': 'rgba(0, 45, 163, 0.5)',
-    'magenta': '#800033',
-    'magentaTransparent': 'rgba(128, 0, 51, 0.5)',
-    'river': '#0c2a6c',
-    'greyHue': 'rgba(0, 0, 0, 0.5)',
+    blue: "#002da3",
+    blueTransparent: "rgba(0, 45, 163, 0.5)",
+    magenta: "#800033",
+    magentaTransparent: "rgba(128, 0, 51, 0.5)",
+    whiteTransparent: "rgba(255, 255, 255, 0.5)",
+    blackTransparent: "rgba(0, 0, 0, 0.5)",
+    river: "#0c2a6c",
   };
 
-  elevationColors = {
-    '0': '#e8fcfd', // 0 blue
-    '5': '#d7e4c6', // 0+ green
-    '1000': '#bac7ab', // 1000+ green
-    '2000': '#fbf1cd', // 2000+ yellow
-    '3000': '#fbeca9', // 3000+ yellow
-    '4000': '#e8c899', // 5000+ orange
-    '5000': '#c58c3e', // 7000+ orange
-    '6000': '#775843', // 9000+ brown
-  }
+  elevationColors: { [key: string]: string } = {
+    "0": "#e8fcfd", // 0 blue
+    "5": "#d7e4c6", // 0+ green
+    "1000": "#bac7ab", // 1000+ green
+    "2000": "#fbf1cd", // 2000+ yellow
+    "3000": "#fbeca9", // 3000+ yellow
+    "4000": "#e8c899", // 5000+ orange
+    "5000": "#c58c3e", // 7000+ orange
+    "6000": "#775843", // 9000+ brown
+  };
 
   protected ctx: CanvasRenderingContext2D;
   protected multiplier: number;
 
-  constructor(protected canvas: HTMLCanvasElement, protected map: LocationsMap, protected terrain: TerrainMap) {
-    const ctx = canvas.getContext('2d');
+  constructor(
+    protected canvas: HTMLCanvasElement,
+    protected map: LocationsMap,
+    protected terrain: TerrainMap
+  ) {
+    const ctx = canvas.getContext("2d");
     if (!ctx) {
       throw new Error("No CanvasRenderingContext2D found");
     }
@@ -50,15 +58,60 @@ export default class Canvas {
   }
 
   makeTopography() {
-    this.ctx.fillStyle = this.elevationColors['5'];
+    const t = this.getNewCanvasTool(0, 0);
+    this.ctx.fillStyle = this.elevationColors["5"];
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    const mapDimension = this.map.mapDimension * TerrainMap.RESOLUTION;
+    for (let a = 0; a <= mapDimension; a += 1) {
+      for (let b = 0; b <= mapDimension; b += 1) {
+        const elevation = this.terrain.getRoundedElevation(a, b);
+        if (elevation !== 5) {
+          this.ctx.fillStyle = this.elevationColors[String(elevation)];
+          t.fillRect(
+            (a - 0.5) / TerrainMap.RESOLUTION,
+            (b - 0.5) / TerrainMap.RESOLUTION,
+            1 / TerrainMap.RESOLUTION + 0.01,
+            1 / TerrainMap.RESOLUTION + 0.01
+          );
+        }
+      }
+    }
+
+    for (let i = 0; i < mapDimension + 1; i += 1) {
+      for (let j = 0; j < mapDimension; j += 1) {
+        const inclinationColors = this.terrain.getInclinationColors(i, j);
+        if (inclinationColors[0]) {
+          this.ctx.fillStyle = inclinationColors[0];
+          t.polygon(
+            [
+              [i, j],
+              [i - 1, j + 1],
+              [i - 1, j],
+            ],
+            TerrainMap.RESOLUTION
+          ).fill();
+        }
+        if (inclinationColors[1]) {
+          this.ctx.fillStyle = inclinationColors[1];
+          t.polygon(
+            [
+              [i, j],
+              [i - 1, j + 1],
+              [i, j + 1],
+            ],
+            TerrainMap.RESOLUTION
+          ).fill();
+        }
+      }
+    }
   }
 
   makeGrid() {
     const t = this.getNewCanvasTool(0, 0);
-    t.style(this.colors.greyHue);
+    t.style(this.colors.blackTransparent);
     t.textStyle();
-    t.rect(0, 0, this.map.mapDimension, this.map.mapDimension).stroke();
+    t.strokeRect(0, 0, this.map.mapDimension, this.map.mapDimension);
 
     t.lineWidth = 0.01;
     t.setLineDash([0.2, 0.1]);
@@ -72,68 +125,84 @@ export default class Canvas {
       if ((i - offset) % 10 === 0) {
         t.lineWidth = oldlineWidth * 5;
       }
+      this.ctx.beginPath();
       if ((i - offset) % 5 === 0) {
-        t.line(0, i, this.map.mapDimension, i).stroke();
-        t.line(i, 0, i, this.map.mapDimension).stroke();
+        t.lineRaw(0, i, this.map.mapDimension, i);
+        t.lineRaw(i, 0, i, this.map.mapDimension);
       } else {
-        t.line(0, i, 0.25, i).stroke();
-        t.line(this.map.mapDimension - 0.25, i, this.map.mapDimension, i).stroke();
-        t.line(i, 0, i, 0.25).stroke();
-        t.line(i, this.map.mapDimension - 0.25, i, this.map.mapDimension).stroke();
+        t.lineRaw(0, i, 0.25, i);
+        t.lineRaw(this.map.mapDimension - 0.25, i, this.map.mapDimension, i);
+        t.lineRaw(i, 0, i, 0.25);
+        t.lineRaw(i, this.map.mapDimension - 0.25, i, this.map.mapDimension);
       }
+      this.ctx.stroke();
+      this.ctx.closePath();
       if ((i - offset) % 10 === 0) {
         t.lineWidth = oldlineWidth;
       }
     }
 
-    /*
-    <text class="outline" x="<?= $p.center.x ?>" y="1.1"><a xlink:href="<?= Svg.xml($_SERVER['SCRIPT_NAME'] . '?salt=' . urlencode($salt) . '&maxdimension=' . $maxDimension) ?>">MAP: <?= Svg.xml($salt) ?></a></text>
-    <text class="outline" x="<?= $p.center.x ?>" y="<?= $p.mapDimension - 0.7 ?>"><?= $p.mapDimension / 2 ?> / <?= $p.mapDimension ?>NM</text>
-  </g>
-</g>
-    */
+    t.style("black");
+    // TODO
+    // <text class="outline" x=" p.center.x " y="1.1"><a xlink:href=" Svg.xml(_SERVER['SCRIPT_NAME'] . '?salt=' . urlencode(salt) . '&maxdimension=' . maxDimension) ">MAP:  Svg.xml(salt) </a></text>
+
+    t.text(
+      this.map.center.x,
+      this.map.mapDimension - 0.7,
+      String(this.map.mapDimension / 2) +
+      " / " +
+      String(this.map.mapDimension) +
+      " NM"
+    );
   }
   makeMaximumElevationFigures() {
-    /*
-    <g id="maximum-elevation-figure" inkscape:groupmode="layer" inkscape:label="Maximum Elevation Figures">
-    $start = $offset >= 5 ? $offset : ($offset + 10) ?>
-    for (i = $start; i <= $p.mapDimension + $offset; i += 10) {
-      for ($j = $start; $j <= $p.mapDimension + $offset; $j += 10) {
-        <text x="<?= i - 5 ?>" y="<?= $j - 4.5 ?>" class="maximum-elevation-figure outline">
-          <title>Maximum elevation: $elevation = max($t.getHighestElevationNm(new Coordinates(i - 10, $j - 10), 11, 11), $p.getHighestObstruction(i - 10, $j - 10, 10, 10));
-                                    echo ($elevation);
-                                    $h = Svg.terrain_elevations($elevation) ?> ft</title>
-          <tspan><?= $h[0]; ?></tspan><tspan class="small" dy="-0.2"><?= $h[1]; ?></tspan>
-        </text>
+    const t = this.getNewCanvasTool(0, 0);
+    t.style(this.colors.blueTransparent);
+
+    const offset = (this.map.mapDimension % 10) / 2;
+    const start = offset >= 5 ? offset : offset + 10;
+    for (let i = start; i <= this.map.mapDimension + offset; i += 10) {
+      for (let j = start; j <= this.map.mapDimension + offset; j += 10) {
+        const elevation = CanvasTool.terrainElevations(
+          Math.max(
+            this.terrain.getHighestElevationNm(
+              new Coordinates(i - 10, j - 10),
+              11,
+              11
+            ),
+            this.map.getHighestObstruction(i - 10, j - 10, 10, 10)
+          )
+        );
+        t.textStyle(1.5, "right", "bold");
+        t.text(i - 4.9, j - 4.5, String(elevation.thousand));
+
+        t.textStyle(1, "left", "bold");
+        t.text(i - 4.9, j - 4.8, String(elevation.hundred));
       }
     }
-  </g>
-    */
   }
 
   makePeaks() {
     this.terrain.peaks.forEach((peak) => {
       if (peak.coordinates.elevation) {
-
         const t = this.getNewCanvasTool(peak.coordinates.x, peak.coordinates.y);
-        t.style('black');
+        t.style("black");
         t.textStyle();
         t.circle(0, 0, 0.1).fill();
-        t.textMultiline(
-          0,
-          peak.isSwitchLabelPosition ? -1 : 0.7,
-          [
-            String(Math.ceil(peak.coordinates.elevation)),
-            peak.name
-          ]
-        );
+        t.textMultiline(0, peak.isSwitchLabelPosition ? -1 : 0.7, [
+          String(Math.ceil(peak.coordinates.elevation)),
+          peak.name,
+        ]);
       }
     });
   }
 
   makeObstructions() {
     this.map.obstructions.forEach((obstruction) => {
-      const t = this.getNewCanvasTool(obstruction.coordinates.x, obstruction.coordinates.y);
+      const t = this.getNewCanvasTool(
+        obstruction.coordinates.x,
+        obstruction.coordinates.y
+      );
 
       t.style(this.colors.blue);
       t.textStyle();
@@ -146,10 +215,17 @@ export default class Canvas {
           [-0.025, -2],
           [-0.02, -1.25, -0.1, -0.2, -0.5, 0.1],
           [-0.3, 0, -0.1, -0.2, 0, -0.4],
-          [0.1, -0.2, 0.3, 0, 0.5, 0.1]
+          [0.1, -0.2, 0.3, 0, 0.5, 0.1],
         ]).fill();
       } else {
-        t.polygon([[0.5, 0.1], [0, -1], [-0.5, 0.1], [-0.3, 0.1], [0, -0.6], [0.3, 0.1]]).fill();
+        t.polygon([
+          [0.5, 0.1],
+          [0, -1],
+          [-0.5, 0.1],
+          [-0.3, 0.1],
+          [0, -0.6],
+          [0.3, 0.1],
+        ]).fill();
       }
 
       if (obstruction.hasHighIntensityLight) {
@@ -163,10 +239,13 @@ export default class Canvas {
       t.reset();
 
       t.textMultiline(0, obstruction.isSwitchLabelPosition ? -3 : 0.8, [
-        String((obstruction.coordinates.elevation || 0) + obstruction.heightAboveGround),
-        '(' + String(obstruction.heightAboveGround) + ')'
+        String(
+          (obstruction.coordinates.elevation || 0) +
+          obstruction.heightAboveGround
+        ),
+        "(" + String(obstruction.heightAboveGround) + ")",
       ]);
-    })
+    });
   }
 
   makeNavaids() {
@@ -178,11 +257,9 @@ export default class Canvas {
       t.circle(0, 0, 0.15).fill();
 
       if (navaid.type === Navaid.NDB) {
-        t.circle(0, 0, 0.7).stroke();
-        this.getNavaidNdbRing(navaid.coordinates.x, navaid.coordinates.y);
+        this.makeNavaidNdb(navaid.coordinates.x, navaid.coordinates.y);
       } else {
-        t.polygon([[0.5, 0.7], [0.8, 0], [0.5, -0.7], [-0.5, -0.7], [-0.8, 0], [-0.5, 0.7]]).stroke();
-        this.getNavaidVorRing(navaid.coordinates.x, navaid.coordinates.y);
+        this.makeNavaidVor(navaid.coordinates.x, navaid.coordinates.y);
       }
 
       t.style(navaid.type === Navaid.VOR ? this.colors.blue : this.colors.magenta);
@@ -192,30 +269,60 @@ export default class Canvas {
 
       if (navaid.holdingPattern) {
         t.rotate(0, 0, navaid.holdingPattern.direction.degree);
-        /*
-        <g class="holding-pattern" transform="rotate(<?= navaid.holdingPattern.direction[0] ?> 0 0)">
-          <use xlink:href="#holding-pattern" class="navaid-pattern" transform="scale(<?= navaid.holdingPattern.isRight ? 1 : -1 ?> 1)" />
-          <text class="outline" x="0.5" y="0.2" transform="translate(0 1.25) rotate(90 0 0)"><?= Svg.num_pad(navaid.holdingPattern.direction[0]) ?>°</text>
-          <g transform="rotate(180 0 0) translate(<?= navaid.holdingPattern.isRight ? -HoldingPattern.WIDTH : HoldingPattern.WIDTH ?> <?= HoldingPattern.WIDTH - HoldingPattern.LENGTH ?>)">
-            <text class="outline" x="0.5" y="0.2" transform="translate(0 1.25) rotate(90 0 0)"><?= Svg.num_pad(navaid.holdingPattern.direction[1]) ?>°</text>
-          </g>
-        </g>*/
+        t.roundedRect(
+          navaid.holdingPattern.isRight ? 0 : -HoldingPattern.WIDTH,
+          -HoldingPattern.WIDTH / 2,
+          HoldingPattern.WIDTH,
+          HoldingPattern.LENGTH,
+          HoldingPattern.WIDTH / 2
+        ).stroke();
+        this.makePointerArrow(navaid.coordinates.x, navaid.coordinates.y);
+        this.makePointerArrow(
+          navaid.coordinates.x +
+          (navaid.holdingPattern.isRight
+            ? HoldingPattern.WIDTH
+            : -HoldingPattern.WIDTH),
+          navaid.coordinates.y + HoldingPattern.LENGTH - HoldingPattern.WIDTH,
+          -1
+        );
+
+        t.rotate(0, 0, 90);
+        t.text(
+          1.25,
+          0.2,
+          CanvasTool.numPad(
+            Math.round(navaid.holdingPattern.direction.degree),
+            3
+          ) + "°"
+        );
+        t.rotate(0, 0, 180);
+        t.text(
+          1.25 - HoldingPattern.WIDTH,
+          navaid.holdingPattern.isRight
+            ? 0.2 + HoldingPattern.WIDTH
+            : -0.2 - HoldingPattern.WIDTH,
+          CanvasTool.numPad(
+            Math.round(navaid.holdingPattern.direction.oppositeDegree),
+            3
+          ) + "°"
+        );
+
         t.reset();
       }
 
       t.textMultiline(
         0,
-        (navaid.type === Navaid.NDB)
-          ? (navaid.isSwitchLabelPosition ? -3 : 2.7)
-          : (navaid.isSwitchLabelPosition ? -1.6 : 1.3),
+        navaid.type === Navaid.NDB
+          ? navaid.isSwitchLabelPosition ? -3 : 2.7
+          : navaid.isSwitchLabelPosition ? -1.6 : 1.3,
         [
           navaid.name,
-          CanvasTool.frequency(navaid.frequency) + ' ' + navaid.code
+          CanvasTool.frequency(navaid.frequency) + " " + navaid.code,
         ]
       );
 
-      this.getPin(navaid.coordinates.x - 0.75, navaid.coordinates.y - 1.7, id + 1);
-    })
+      this.makePin(navaid.coordinates.x - 0.75, navaid.coordinates.y - 1.7, id + 1);
+    });
   }
 
   makeAirports() {
@@ -237,27 +344,80 @@ export default class Canvas {
 
       airport.runways.forEach((runway) => {
         t.rotate(0, 0, runway.heading.degree);
-        /*
-                if ($runway.trafficPatterns[0]) {
-          <use xlink:href="#traffic-pattern" x="0" y="0" transform="scale(<?= $runway.trafficPatterns[0].isRight ? 1 : -1 ?> 1)" />
+
+        if (runway.trafficPatterns[0]) {
+          t.style(accentColor);
+
+          t.setLineDash([0.2, 0.1]);
+          this.ctx.beginPath();
+          t.roundedRectRaw(
+            runway.trafficPatterns[0].isRight
+              ? -Runway.TRAFFICPATTERN_WIDTH
+              : 0,
+            -Runway.TRAFFICPATTERN_LENGTH / 2,
+            Runway.TRAFFICPATTERN_WIDTH,
+            Runway.TRAFFICPATTERN_LENGTH,
+            0.5
+          );
+
+          t.lineRaw(
+            runway.trafficPatterns[0].isRight
+              ? -Runway.TRAFFICPATTERN_WIDTH - 1
+              : Runway.TRAFFICPATTERN_WIDTH + 1,
+            1,
+            runway.trafficPatterns[0].isRight
+              ? -Runway.TRAFFICPATTERN_WIDTH
+              : Runway.TRAFFICPATTERN_WIDTH,
+            0
+          );
+          t.lineRaw(
+            0,
+            0.5 * Runway.TRAFFICPATTERN_LENGTH,
+            0,
+            0.7 * Runway.TRAFFICPATTERN_LENGTH
+          );
+          this.ctx.stroke();
+          this.ctx.closePath();
+
+          t.setLineDash([]);
+          this.makePointerArrow(
+            airport.coordinates.x +
+            (runway.trafficPatterns[0].isRight
+              ? -Runway.TRAFFICPATTERN_WIDTH
+              : Runway.TRAFFICPATTERN_WIDTH),
+            airport.coordinates.y + 0.33 * Runway.TRAFFICPATTERN_LENGTH
+          );
+          this.makePointerArrow(
+            airport.coordinates.x,
+            airport.coordinates.y - 0.33 * Runway.TRAFFICPATTERN_LENGTH,
+            -1
+          );
+          this.makePointerArrow(
+            airport.coordinates.x,
+            airport.coordinates.y + 0.75 * Runway.TRAFFICPATTERN_LENGTH,
+            -1
+          );
+
+          t.polygon([
+            [runway.trafficPatterns[0].isRight ? -Runway.TRAFFICPATTERN_WIDTH - 1 : Runway.TRAFFICPATTERN_WIDTH + 1, 1,],
+            [runway.trafficPatterns[0].isRight ? -Runway.TRAFFICPATTERN_WIDTH - 1 : Runway.TRAFFICPATTERN_WIDTH + 1, 1.35,],
+            [runway.trafficPatterns[0].isRight ? -Runway.TRAFFICPATTERN_WIDTH - 1.35 : Runway.TRAFFICPATTERN_WIDTH + 1.35, 1,],
+          ]).fill();
+
+          t.style(baseColor);
         }
-        */
 
-        this.ctx.fillStyle = 'white';
-        t.fillRect(
-          runway.width / 500 / -2,
-          runway.length / 6076 / -2,
-          runway.width / 500,
-          runway.length / 6076
-        );
+        this.ctx.fillStyle = "white";
+        t.fillRect(runway.width / 500 / -2, runway.length / 6076 / -2, runway.width / 500, runway.length / 6076);
 
-        t.style(accentColor);
         if (runway.ilsFrequencies.first) {
-          this.getIls(airport.coordinates.x, airport.coordinates.y);
+          t.style(accentColor);
+          this.makeIls(airport.coordinates.x, airport.coordinates.y);
         }
         if (runway.ilsFrequencies.second) {
+          t.style(accentColor);
           t.rotate(0, 0, 180);
-          this.getIls(airport.coordinates.x, airport.coordinates.y);
+          this.makeIls(airport.coordinates.x, airport.coordinates.y);
         }
 
         t.reset();
@@ -265,63 +425,73 @@ export default class Canvas {
 
       if (airport.hasBeacon) {
         const offset = 1.1;
-        t.style('white', baseColor, 0.05);
+        t.style("white", baseColor, 0.05);
         t.polygon([
-          [0, -0.2 - offset], [+0.065, -0.05 - offset],
-          [+0.2, -0.05 - offset], [+0.08, 0.06 - offset],
-          [+0.15, 0.2 - offset], [0, 0.12 - offset],
-          [-0.15, 0.2 - offset], [-0.08, 0.06 - offset],
-          [-0.2, -0.05 - offset], [-0.065, -0.05 - offset]
-        ]).fill()
+          [0, -0.2 - offset],
+          [+0.065, -0.05 - offset],
+          [+0.2, -0.05 - offset],
+          [+0.08, 0.06 - offset],
+          [+0.15, 0.2 - offset],
+          [0, 0.12 - offset],
+          [-0.15, 0.2 - offset],
+          [-0.08, 0.06 - offset],
+          [-0.2, -0.05 - offset],
+          [-0.065, -0.05 - offset],
+        ]).fill();
         this.ctx.stroke();
       }
 
       t.style(baseColor);
-      t.textMultiline(
-        0,
-        airport.isSwitchLabelPosition ? -2 : 1.75,
-        [
-          airport.name + ' (' + airport.code + ')',
-          (airport.hasTower ? 'CT ' : 'UNICOM ') + CanvasTool.frequency(airport.frequency) +
-          (airport.runways[0].ilsFrequencies.first ? ' ILS ' + CanvasTool.frequency(airport.runways[0].ilsFrequencies.first) : '')
-        ]
-      )
+      t.textMultiline(0, airport.isSwitchLabelPosition ? -2 : 1.75, [
+        airport.name + " (" + airport.code + ")",
+        (airport.hasTower ? "CT " : "UNICOM ") +
+        CanvasTool.frequency(airport.frequency) +
+        (airport.runways[0].ilsFrequencies.first
+          ? " ILS " +
+          CanvasTool.frequency(airport.runways[0].ilsFrequencies.first)
+          : ""),
+      ]);
 
       airport.approachPoints.forEach((approachPoint) => {
-        this.getWaypoint(approachPoint);
-      })
+        this.makeWaypoint(approachPoint);
+      });
 
-      this.getPin(airport.coordinates.x - 1.1, airport.coordinates.y - 1.75, id + 1);
+      this.makePin(
+        airport.coordinates.x - 1.1,
+        airport.coordinates.y - 1.75,
+        id + 1
+      );
     });
   }
 
   makeWind() {
     const t = this.getNewCanvasTool(1.2, this.map.mapDimension - 1.2);
 
-    this.ctx.fillStyle = 'black';
+    this.ctx.fillStyle = "black";
     t.textStyle();
 
     t.circle(0, 0, 0.9).fill();
-    t.text(0, -1.45, 'N')
+    t.text(0, -1.45, "N", false);
     t.polygon([
       [-0.3, -1],
       [0.3, -1],
-      [0, -1.3]
+      [0, -1.3],
     ]).fill();
 
-    this.ctx.fillStyle = 'white';
+    this.ctx.fillStyle = "white";
     t.rotate(0, 0, this.map.windDirection.degree);
     t.polygon([
       [-0.5, 0.5],
       [0, 0.2],
       [0.5, 0.5],
-      [0, -0.65]
+      [0, -0.65],
     ]).fill();
     t.reset();
   }
 
-  protected getNavaidNdbRing(x: number, y: number) {
+  protected makeNavaidNdb(x: number, y: number) {
     const t = this.getNewCanvasTool(x, y);
+    t.circle(0, 0, 0.7).stroke();
 
     t.style(this.colors.magentaTransparent);
     for (let i = 0; i < 360; i += 20) {
@@ -339,84 +509,99 @@ export default class Canvas {
     t.reset();
   }
 
-  protected getNavaidVorRing(x: number, y: number) {
+  protected makeNavaidVor(x: number, y: number) {
     const t = this.getNewCanvasTool(x, y);
+
+    t.polygon([
+      [0.5, 0.7],
+      [0.8, 0],
+      [0.5, -0.7],
+      [-0.5, -0.7],
+      [-0.8, 0],
+      [-0.5, 0.7],
+    ]).stroke();
 
     t.style(this.colors.blueTransparent);
     t.textStyle();
 
-    t.polygon([[-0.2, -3.2], [0.2, -3.2], [0, -3.5]]).fill();
+    t.polygon([
+      [-0.2, -3.2],
+      [0.2, -3.2],
+      [0, -3.5],
+    ]).fill();
     t.circle(0, 0, 3).stroke();
 
     for (let i = 0; i < 360; i += 15) {
-      t.line(0, 3, 0, (i % 45 === 0) ? 2.6 : 2.8).stroke();
+      t.line(0, 3, 0, i % 45 === 0 ? 2.6 : 2.8).stroke();
       if (i % 90 === 0) {
-        t.text(0, -2.1, CanvasTool.numPad(i / 10, 2));
+        t.text(0, -2.1, CanvasTool.numPad(i / 10, 2), false);
       }
       t.rotate(0, 0, 15);
     }
     t.reset();
   }
 
-  protected getWaypoint(approachPoint: Waypoint) {
-    const t = this.getNewCanvasTool(approachPoint.coordinates.x, approachPoint.coordinates.y);
+  protected makeWaypoint(approachPoint: Waypoint) {
+    const t = this.getNewCanvasTool(
+      approachPoint.coordinates.x,
+      approachPoint.coordinates.y
+    );
 
     t.style(this.colors.blue);
     t.polygon([
-      [0.35, 0], [0.15, 0, 0, 0.15, 0, 0.35], [0, 0.15, -0.15, 0, -0.35, 0], [-0.15, 0, 0, -0.15, 0, -0.35], [0, -0.15, 0.15, 0, 0.35, 0]
+      [0.35, 0],
+      [0.15, 0, 0, 0.15, 0, 0.35],
+      [0, 0.15, -0.15, 0, -0.35, 0],
+      [-0.15, 0, 0, -0.15, 0, -0.35],
+      [0, -0.15, 0.15, 0, 0.35, 0],
     ]).fill();
-    t.text(0, approachPoint.isSwitchLabelPosition ? -0.5 : 0.9, approachPoint.code);
+    t.text(
+      0,
+      approachPoint.isSwitchLabelPosition ? -0.5 : 0.9,
+      approachPoint.code
+    );
 
-    t.style('white');
+    t.style("white");
     t.circle(0, 0, 0.1).fill();
   }
 
-  protected getPin(x: number, y: number, pin: number) {
+  protected makePin(x: number, y: number, pin: number) {
     const t = this.getNewCanvasTool(x, y);
-    t.style('black', 'black', 0.05);
+    t.style("black", "black", 0.05);
     t.textStyle(0.4);
     t.line(0.5, 1, 0, 0).stroke();
     t.circle(0, 0, 0.25).fill();
 
-    this.ctx.fillStyle = 'white';
-    t.text(0.01, 0.14, String(pin));
+    this.ctx.fillStyle = "white";
+    t.text(0.01, 0.14, String(pin), false);
   }
 
-  protected getIls(x: number, y: number) {
+  protected makeIls(x: number, y: number) {
     const t = this.getNewCanvasTool(x, y);
     t.polygon([
       [0.0, -1.2],
       [0.4, -Airport.ILS_RANGE / 2 - 0.3],
       [0, -Airport.ILS_RANGE / 2],
-      [-0.4, -Airport.ILS_RANGE / 2 - 0.3]
+      [-0.4, -Airport.ILS_RANGE / 2 - 0.3],
     ]).fill();
-    //<path class="airport-ils white" d="M 0,-1.4 L 0,<?= -Airport.ILS_RANGE / 2 + 0.1 ?> L 0.3,<?= -Airport.ILS_RANGE / 2 - 0.1 ?> z" />
+    this.ctx.fillStyle = this.colors.whiteTransparent;
+    t.polygon([
+      [0, -1.4],
+      [0, -Airport.ILS_RANGE / 2 + 0.1],
+      [0.3, -Airport.ILS_RANGE / 2 - 0.1],
+    ]).fill();
+  }
+
+  protected makePointerArrow(x: number, y: number, scale = 1) {
+    const t = this.getNewCanvasTool(x, y);
+    t.polygon([
+      [-0.25, scale * 0.4],
+      [0.25, scale * 0.4],
+      [0, scale * 0.1],
+    ]).fill();
   }
 
   protected getNewCanvasTool(x: number, y: number) {
     return new CanvasTool(this.ctx, x, y, this.multiplier);
   }
 }
-
-
-/*
- <defs>
-    <polygon id="pointer-arrow" points="-0.25,0.4 0.25,0.4 0,0.1" />
-    <g id="holding-pattern">
-      <rect x="0" y="-<?= HoldingPattern.WIDTH / 2 ?>" rx="<?= HoldingPattern.WIDTH / 2 ?>" ry="<?= HoldingPattern.WIDTH / 2 ?>" width="<?= HoldingPattern.WIDTH ?>" height="<?= HoldingPattern.LENGTH ?>" class="stroke" />
-      <use href="#pointer-arrow" />
-      <use href="#pointer-arrow" transform="translate(<?= HoldingPattern.WIDTH ?> <?= HoldingPattern.LENGTH - HoldingPattern.WIDTH ?>) rotate(180)" />
-    </g>
-    <g id="traffic-pattern" class="airport-pattern">
-      <rect x="-<?= Runway.TRAFFICPATTERN_WIDTH ?>" y="-<?= Runway.TRAFFICPATTERN_LENGTH / 2 ?>" rx="0.5" ry="0.5" width="<?= Runway.TRAFFICPATTERN_WIDTH ?>" height="<?= Runway.TRAFFICPATTERN_LENGTH ?>" class="stroke" />
-      <use href="#pointer-arrow" transform="translate(-<?= Runway.TRAFFICPATTERN_WIDTH ?> <?= 0.33 * Runway.TRAFFICPATTERN_LENGTH ?>)" />
-      <use href="#pointer-arrow" transform="translate(0 <?= -0.33 * Runway.TRAFFICPATTERN_LENGTH ?>) rotate(180)" />
-      <line x1="0" y1="<?= 0.5 * Runway.TRAFFICPATTERN_LENGTH ?>" x2="0" y2="<?= 0.7 * Runway.TRAFFICPATTERN_LENGTH ?>" />
-      <use href="#pointer-arrow" transform="translate(0 <?= 0.75 * Runway.TRAFFICPATTERN_LENGTH ?>) rotate(180)" />
-      <line x1="<?= -Runway.TRAFFICPATTERN_WIDTH - 1 ?>" y1="1" x2="<?= -Runway.TRAFFICPATTERN_WIDTH ?>" y2="0" />
-      <use href="#pointer-arrow" transform="translate(<?= -Runway.TRAFFICPATTERN_WIDTH - 0.75 ?> 0.75) rotate(45)" />
-    </g>
-
-  </defs>
-
-  */
