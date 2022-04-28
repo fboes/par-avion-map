@@ -62,17 +62,17 @@ export default class Canvas {
     this.ctx.fillStyle = this.elevationColors["5"];
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    const mapDimension = this.map.mapDimension * TerrainMap.RESOLUTION;
+    const mapDimension = this.map.mapDimension * this.terrain.resolution;
     for (let a = 0; a <= mapDimension; a += 1) {
       for (let b = 0; b <= mapDimension; b += 1) {
         const elevation = this.terrain.getRoundedElevation(a, b);
         if (elevation !== 5) {
           this.ctx.fillStyle = this.elevationColors[String(elevation)];
           t.fillRect(
-            (a - 0.5) / TerrainMap.RESOLUTION,
-            (b - 0.5) / TerrainMap.RESOLUTION,
-            1 / TerrainMap.RESOLUTION + 0.01,
-            1 / TerrainMap.RESOLUTION + 0.01
+            (a - 0.5) / this.terrain.resolution,
+            (b - 0.5) / this.terrain.resolution,
+            1 / this.terrain.resolution + 0.01,
+            1 / this.terrain.resolution + 0.01
           );
         }
       }
@@ -89,7 +89,7 @@ export default class Canvas {
               [i - 1, j + 1],
               [i - 1, j],
             ],
-            TerrainMap.RESOLUTION
+            this.terrain.resolution
           ).fill();
         }
         if (inclinationColors[1]) {
@@ -100,7 +100,7 @@ export default class Canvas {
               [i - 1, j + 1],
               [i, j + 1],
             ],
-            TerrainMap.RESOLUTION
+            this.terrain.resolution
           ).fill();
         }
       }
