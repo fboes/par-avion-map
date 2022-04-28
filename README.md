@@ -8,6 +8,10 @@ A map generator for random VFR / IFR flight maps. In a nutshell it generates:
 * Zero or more obstacles like radio towers
 * A topographical map
 
+The model will be generated a bundle of JavaScript classes. There is also a visible map painting on `<Canvas>`:
+
+https://fboes.github.io/par-avion-map/dist/
+
 Legal stuff
 -----------
 
