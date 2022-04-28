@@ -9,7 +9,7 @@ export default class LocationsMap {
         this.airports = [];
         this.navAids = [];
         this.obstructions = [];
-        this.mapDimension = Math.max(6, Math.ceil(mapDimension / 2) * 2) + LocationsMap.PADDING * 2;
+        this.mapDimension = Math.max(6 + LocationsMap.PADDING * 2, Math.ceil(mapDimension / 2) * 2);
         this.center = new Coordinates(this.mapDimension / 2, this.mapDimension / 2);
         this.windDirection = this.randomizer.getDegree();
         this.rand();

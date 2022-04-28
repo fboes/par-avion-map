@@ -3,19 +3,33 @@ import Randomizer from './Helper/Randomizer.js';
 import LocationsMap from './ParAvion/LocationsMap.js';
 import TerrainMap from './ParAvion/TerrainMap.js';
 
-const canvas = <HTMLCanvasElement>document.getElementById('canvas');
+const elements = {
+  canvas: <HTMLCanvasElement>document.getElementById('canvas'),
+  seedInput: <HTMLInputElement>document.getElementById('seed'),
+  mapDimensionInput : <HTMLInputElement>document.getElementById('mapdimension'),
+  clearButton : <HTMLInputElement>document.getElementById('clear'),
+  generateButton : <HTMLInputElement>document.getElementById('generate'),
+};
 
-function init() {
-  const randomizer = new Randomizer();
-  const map = new LocationsMap(16, randomizer);
+function generateMap() {
+  const randomizer = new Randomizer(elements.seedInput ? elements.seedInput.value : '');
+  const map = new LocationsMap(elements.mapDimensionInput ? elements.mapDimensionInput.valueAsNumber : 16, randomizer);
+  randomizer.seed = randomizer.seed;
   const terrain = new TerrainMap(map, randomizer);
 
   console.log(map);
 
-  if (canvas) {
-    new Canvas(canvas, map, terrain);
+  if (elements.canvas) {
+    new Canvas(elements.canvas, map, terrain);
   }
 }
 
-init();
-canvas.addEventListener('click', init);
+generateMap();
+elements.clearButton.addEventListener('click', () => {
+  elements.seedInput.value = '';
+  elements.mapDimensionInput.valueAsNumber = 16;
+  generateMap();
+});
+elements.generateButton.addEventListener('click', generateMap);
+elements.seedInput.addEventListener('change', generateMap);
+elements.mapDimensionInput.addEventListener('change', generateMap);

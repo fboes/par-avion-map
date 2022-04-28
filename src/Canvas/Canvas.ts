@@ -143,8 +143,11 @@ export default class Canvas {
     }
 
     t.style("black");
-    // TODO
-    // <text class="outline" x=" p.center.x " y="1.1"><a xlink:href=" Svg.xml(_SERVER['SCRIPT_NAME'] . '?salt=' . urlencode(salt) . '&maxdimension=' . maxDimension) ">MAP:  Svg.xml(salt) </a></text>
+    t.text(
+      this.map.center.x,
+      1.1,
+      "MAP: " + this.map.randomizer.seed
+    );
 
     t.text(
       this.map.center.x,

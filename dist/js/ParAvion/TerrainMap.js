@@ -17,27 +17,25 @@ export default class TerrainMap {
         for (let i = 0; i < this.mapDimension; i++) {
             this.elevations[i] = new Float32Array(this.mapDimension);
         }
-        if (this.randomizer) {
-            const averageHeight = (this.elevationMin + this.elevationMax) / 2;
-            this.elevations[0][0] = this.randElevation(averageHeight);
-            this.elevations[0][this.mapDimension - 1] = this.randElevation(averageHeight);
-            this.elevations[this.mapDimension - 1][0] = this.randElevation(averageHeight);
-            this.elevations[this.mapDimension - 1][this.mapDimension - 1] = this.randElevation(averageHeight);
-            this.nextStep(this.mapDimension);
-            this.map.navAids.forEach((navAid) => {
-                const elevation = this.flattenTerrain(navAid.coordinates);
-                navAid.coordinates.elevation = elevation;
-            });
-            this.map.obstructions.forEach((obstruction) => {
-                const elevation = this.flattenTerrain(obstruction.coordinates);
-                obstruction.coordinates.elevation = elevation;
-            });
-            this.map.airports.forEach((airport) => {
-                const elevation = this.flattenTerrain(airport.coordinates, 2, airport.runways[0].heading.degree);
-                airport.coordinates.elevation = elevation;
-            });
-            this.makePeaks();
-        }
+        const averageHeight = (this.elevationMin + this.elevationMax) / 2;
+        this.elevations[0][0] = this.randElevation(averageHeight);
+        this.elevations[0][this.mapDimension - 1] = this.randElevation(averageHeight);
+        this.elevations[this.mapDimension - 1][0] = this.randElevation(averageHeight);
+        this.elevations[this.mapDimension - 1][this.mapDimension - 1] = this.randElevation(averageHeight);
+        this.nextStep(this.mapDimension);
+        this.map.navAids.forEach((navAid) => {
+            const elevation = this.flattenTerrain(navAid.coordinates);
+            navAid.coordinates.elevation = elevation;
+        });
+        this.map.obstructions.forEach((obstruction) => {
+            const elevation = this.flattenTerrain(obstruction.coordinates);
+            obstruction.coordinates.elevation = elevation;
+        });
+        this.map.airports.forEach((airport) => {
+            const elevation = this.flattenTerrain(airport.coordinates, 2, airport.runways[0].heading.degree);
+            airport.coordinates.elevation = elevation;
+        });
+        this.makePeaks();
     }
     nextStep(range) {
         const halfRange = Math.floor(range / 2);

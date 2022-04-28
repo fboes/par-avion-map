@@ -34,7 +34,7 @@ export default class Map {
             )
           );
         }
-    
+
         if (this.mapDimension > (10 + 2 * Map.PADDING)) {
           this.navAids[0].randHoldingPattern(
             this.navAids[0].coordinates.getBearing(this.airports[1].approachPoints[0].coordinates)
