@@ -4,15 +4,16 @@ import HslColor from "../Types/HslColor.js";
 export default class TerrainMap {
     // @see https://en.wikipedia.org/wiki/Diamond-square_algorithm
     // @see https://github.com/A1essandro/Diamond-And-Square/blob/master/src/DiamondAndSquare.php
-    constructor(map, randomizer) {
+    constructor(map, randomizer, resolution = 4) {
         this.map = map;
         this.randomizer = randomizer;
+        this.resolution = resolution;
         this.peaks = [];
         this.elevationMin = 0;
         this.elevationMax = 5000;
         // Round up to nearest x^2 + 1
         this.mapDimension =
-            Math.pow(2, Math.ceil(Math.log(map.mapDimension * TerrainMap.RESOLUTION - 1) / Math.log(2))) + 1;
+            Math.pow(2, Math.ceil(Math.log(map.mapDimension * this.resolution - 1) / Math.log(2))) + 1;
         this.elevations = Array(this.mapDimension);
         for (let i = 0; i < this.mapDimension; i++) {
             this.elevations[i] = new Float32Array(this.mapDimension);
@@ -69,16 +70,16 @@ export default class TerrainMap {
     }
     // ---------------------------------------------------------------------------
     makePeaks() {
-        const searchRadius = 2 * TerrainMap.RESOLUTION;
-        const searchDiameter = TerrainMap.RESOLUTION + searchRadius * 2;
-        const maxDimension = this.map.mapDimension * TerrainMap.RESOLUTION - searchRadius;
+        const searchRadius = 2 * this.resolution;
+        const searchDiameter = this.resolution + searchRadius * 2;
+        const maxDimension = this.map.mapDimension * this.resolution - searchRadius;
         for (let a = searchRadius; a < maxDimension; a++) {
             for (let b = searchRadius; b < maxDimension; b++) {
                 const elevation = this.getElevation(new TerrainCoordinates(a, b));
                 if (elevation > 2000) {
                     const highest = this.getHighestElevation(new TerrainCoordinates(a - searchRadius, b - searchRadius), searchDiameter, searchDiameter);
                     if (highest === elevation) {
-                        this.addPeak(new TerrainCoordinates(a, b).getCoordinates(Math.ceil(elevation)));
+                        this.addPeak(new TerrainCoordinates(a, b).getCoordinates(this.resolution, Math.ceil(elevation)));
                     }
                 }
             }
@@ -127,8 +128,8 @@ export default class TerrainMap {
         return count ? sum / count : 0;
     }
     flattenTerrain(coordinates, extraRadius = 1, direction = 0) {
-        extraRadius *= TerrainMap.RESOLUTION;
-        const innerCoords = coordinates.getTerrainCoordinates();
+        extraRadius *= this.resolution;
+        const innerCoords = coordinates.getTerrainCoordinates(this.resolution);
         const clearing = 1;
         const clearingDegree = 20;
         const x = this.clamp(innerCoords.a);
@@ -144,7 +145,7 @@ export default class TerrainMap {
         for (let i = minX; i <= maxX; i++) {
             for (let j = minY; j <= maxY; j++) {
                 const refCoords = new TerrainCoordinates(i, j);
-                const maxElevation = elevation + (300 / innerCoords.getDistance(refCoords) * TerrainMap.RESOLUTION); // 300ft = 3° / 1 NM
+                const maxElevation = elevation + (300 / innerCoords.getDistance(refCoords) * this.resolution); // 300ft = 3° / 1 NM
                 const angle = innerCoords.getBearing(refCoords);
                 if (x - clearing <= i &&
                     i <= x + clearing &&
@@ -178,7 +179,7 @@ export default class TerrainMap {
         return circle;
     }
     getHighestElevationNm(coordinates, sliceX, sliceY) {
-        return this.getHighestElevation(coordinates.getTerrainCoordinates(), sliceX * TerrainMap.RESOLUTION, sliceY * TerrainMap.RESOLUTION);
+        return this.getHighestElevation(coordinates.getTerrainCoordinates(this.resolution), sliceX * this.resolution, sliceY * this.resolution);
     }
     getHighestElevation(coordinates, sliceA, sliceB) {
         const x1 = this.clamp(coordinates.a);
@@ -216,7 +217,7 @@ export default class TerrainMap {
                 if (id === 1) {
                     inclinitation *= -1;
                 }
-                const alpha = Math.max(0, Math.min(1, Math.abs(inclinitation * TerrainMap.RESOLUTION) / 2000));
+                const alpha = Math.max(0, Math.min(1, Math.abs(inclinitation * this.resolution) / 2000));
                 if (alpha > 0.05) {
                     classes[id] = new HslColor(0, 0, inclinitation >= 0 ? 0 : 1, alpha).value;
                 }

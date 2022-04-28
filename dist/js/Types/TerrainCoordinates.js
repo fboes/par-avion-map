@@ -1,4 +1,3 @@
-import TerrainMap from "../ParAvion/TerrainMap.js";
 import Coordinates from "./Coordinates.js";
 import Degree from "./Degree.js";
 export default class TerrainCoordinates {
@@ -6,8 +5,8 @@ export default class TerrainCoordinates {
         this.a = a;
         this.b = b;
     }
-    getCoordinates(elevation = null) {
-        return new Coordinates(this.a / TerrainMap.RESOLUTION, this.b / TerrainMap.RESOLUTION, elevation);
+    getCoordinates(resolution, elevation) {
+        return new Coordinates(this.a / resolution, this.b / resolution, elevation);
     }
     getBearing(coord2) {
         let degree = Coordinates.rad2deg(Math.atan2((coord2.b - this.b), (coord2.a - this.a)));

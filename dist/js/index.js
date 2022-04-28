@@ -6,6 +6,7 @@ const elements = {
     canvas: document.getElementById('canvas'),
     seedInput: document.getElementById('seed'),
     mapDimensionInput: document.getElementById('mapdimension'),
+    resolutionInput: document.getElementById('resolution'),
     clearButton: document.getElementById('clear'),
     generateButton: document.getElementById('generate'),
 };
@@ -13,7 +14,7 @@ function generateMap() {
     const randomizer = new Randomizer(elements.seedInput ? elements.seedInput.value : '');
     const map = new LocationsMap(elements.mapDimensionInput ? elements.mapDimensionInput.valueAsNumber : 16, randomizer);
     randomizer.seed = randomizer.seed;
-    const terrain = new TerrainMap(map, randomizer);
+    const terrain = new TerrainMap(map, randomizer, elements.resolutionInput ? elements.resolutionInput.valueAsNumber : 4);
     console.log(map);
     if (elements.canvas) {
         new Canvas(elements.canvas, map, terrain);
@@ -28,4 +29,5 @@ elements.clearButton.addEventListener('click', () => {
 elements.generateButton.addEventListener('click', generateMap);
 elements.seedInput.addEventListener('change', generateMap);
 elements.mapDimensionInput.addEventListener('change', generateMap);
+elements.resolutionInput.addEventListener('change', generateMap);
 //# sourceMappingURL=index.js.map

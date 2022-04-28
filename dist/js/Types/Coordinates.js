@@ -1,13 +1,12 @@
 import TerrainCoordinates from "./TerrainCoordinates.js";
-import TerrainMap from "../ParAvion/TerrainMap.js";
 export default class Coordinates {
     constructor(x, y, elevation = null) {
         this.x = x;
         this.y = y;
         this.elevation = elevation;
     }
-    getTerrainCoordinates() {
-        return new TerrainCoordinates(this.x * TerrainMap.RESOLUTION, this.y * TerrainMap.RESOLUTION);
+    getTerrainCoordinates(resolution) {
+        return new TerrainCoordinates(this.x * resolution, this.y * resolution);
     }
     getNewCoordinates(degree, distance) {
         let rad = Coordinates.deg2rad(degree);

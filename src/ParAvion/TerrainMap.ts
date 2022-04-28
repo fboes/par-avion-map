@@ -18,13 +18,13 @@ export default class TerrainMap {
 
   // @see https://en.wikipedia.org/wiki/Diamond-square_algorithm
   // @see https://github.com/A1essandro/Diamond-And-Square/blob/master/src/DiamondAndSquare.php
-  public constructor(protected map: LocationsMap, protected randomizer: Randomizer) {
+  public constructor(protected map: LocationsMap, protected randomizer: Randomizer, public resolution = 4) {
     // Round up to nearest x^2 + 1
     this.mapDimension =
       Math.pow(
         2,
         Math.ceil(
-          Math.log(map.mapDimension * TerrainMap.RESOLUTION - 1) / Math.log(2)
+          Math.log(map.mapDimension * this.resolution - 1) / Math.log(2)
         )
       ) + 1;
 
@@ -100,9 +100,9 @@ export default class TerrainMap {
   // ---------------------------------------------------------------------------
 
   protected makePeaks() {
-    const searchRadius = 2 * TerrainMap.RESOLUTION;
-    const searchDiameter = TerrainMap.RESOLUTION + searchRadius * 2;
-    const maxDimension = this.map.mapDimension * TerrainMap.RESOLUTION - searchRadius;
+    const searchRadius = 2 * this.resolution;
+    const searchDiameter = this.resolution + searchRadius * 2;
+    const maxDimension = this.map.mapDimension * this.resolution - searchRadius;
 
     for (let a = searchRadius; a < maxDimension; a++) {
       for (let b = searchRadius; b < maxDimension; b++) {
@@ -112,7 +112,7 @@ export default class TerrainMap {
           const highest = this.getHighestElevation(new TerrainCoordinates(a - searchRadius, b - searchRadius), searchDiameter, searchDiameter);
 
           if (highest === elevation) {
-            this.addPeak(new TerrainCoordinates(a, b).getCoordinates(Math.ceil(elevation)));
+            this.addPeak(new TerrainCoordinates(a, b).getCoordinates(this.resolution, Math.ceil(elevation)));
           }
         }
       }
@@ -176,8 +176,8 @@ export default class TerrainMap {
 
 
   protected flattenTerrain(coordinates: Coordinates, extraRadius = 1, direction = 0) {
-    extraRadius *= TerrainMap.RESOLUTION;
-    const innerCoords = coordinates.getTerrainCoordinates();
+    extraRadius *= this.resolution;
+    const innerCoords = coordinates.getTerrainCoordinates(this.resolution);
     const clearing = 1;
     const clearingDegree = 20;
 
@@ -198,7 +198,7 @@ export default class TerrainMap {
     for (let i = minX; i <= maxX; i++) {
       for (let j = minY; j <= maxY; j++) {
         const refCoords = new TerrainCoordinates(i, j);
-        const maxElevation = elevation + (300 / innerCoords.getDistance(refCoords) * TerrainMap.RESOLUTION); // 300ft = 3° / 1 NM
+        const maxElevation = elevation + (300 / innerCoords.getDistance(refCoords) * this.resolution); // 300ft = 3° / 1 NM
         const angle = innerCoords.getBearing(refCoords);
         if (
           x - clearing <= i &&
@@ -243,9 +243,9 @@ export default class TerrainMap {
 
   public getHighestElevationNm(coordinates: Coordinates, sliceX: number, sliceY: number) {
     return this.getHighestElevation(
-      coordinates.getTerrainCoordinates(),
-      sliceX * TerrainMap.RESOLUTION,
-      sliceY * TerrainMap.RESOLUTION
+      coordinates.getTerrainCoordinates(this.resolution),
+      sliceX * this.resolution,
+      sliceY * this.resolution
     );
   }
 
@@ -299,7 +299,7 @@ export default class TerrainMap {
           inclinitation *= -1;
         }
 
-        const alpha = Math.max(0, Math.min(1, Math.abs(inclinitation * TerrainMap.RESOLUTION) / 2000));
+        const alpha = Math.max(0, Math.min(1, Math.abs(inclinitation * this.resolution) / 2000));
         if (alpha > 0.05) {
           classes[id] = new HslColor(
             0,
