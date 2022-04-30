@@ -1,3 +1,4 @@
 *.code-workspace
 *.map
 node_modules
+.vscode
