@@ -3,12 +3,17 @@
 
 A map generator for random VFR / IFR flight maps. In a nutshell it generates:
 
-* Two or more airports
+* A general wind direction
+* Two or more airports, oriented according to the general wind direction
 * One or more navigational aids, like VOR or NDB
 * Zero or more obstacles like radio towers
 * A topographical map
 
-This generator can be used for simple civilian IFR flight simulators.
+This generator can be used for simple civilian IFR flight simulators without GPS support, like back in the days of [Solo Flight](https://www.mobygames.com/game/solo-flight-2nd-edition). It allows for a random flight adventure:
+
+1. Take off at airport 1
+2. Find your way to airport 2 by calculating your position using NAV 1 (and NAV 2 if present)
+3. Land at airport 2, possibly with the help of an ILS
 
 The generator takes two parameters:
 
