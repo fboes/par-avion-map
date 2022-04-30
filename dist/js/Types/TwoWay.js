@@ -16,4 +16,3 @@ export default class TwoWay {
         }
     }
 }
-//# sourceMappingURL=TwoWay.js.map

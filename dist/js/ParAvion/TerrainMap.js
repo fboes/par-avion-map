@@ -128,7 +128,9 @@ export default class TerrainMap {
         return count ? sum / count : 0;
     }
     flattenTerrain(coordinates, extraRadius = 1, direction = 0) {
-        extraRadius *= this.resolution;
+        if (extraRadius > 1) {
+            extraRadius *= this.resolution;
+        }
         const innerCoords = coordinates.getTerrainCoordinates(this.resolution);
         const clearing = 1;
         const clearingDegree = 20;
@@ -145,7 +147,11 @@ export default class TerrainMap {
         for (let i = minX; i <= maxX; i++) {
             for (let j = minY; j <= maxY; j++) {
                 const refCoords = new TerrainCoordinates(i, j);
-                const maxElevation = elevation + (300 / innerCoords.getDistance(refCoords) * this.resolution); // 300ft = 3° / 1 NM
+                const distance = innerCoords.getDistance(refCoords);
+                if (Math.round(distance) > extraRadius) {
+                    continue;
+                }
+                const maxElevation = elevation + (300 / distance * this.resolution); // 300ft = 3° / 1 NM
                 const angle = innerCoords.getBearing(refCoords);
                 if (x - clearing <= i &&
                     i <= x + clearing &&
@@ -239,4 +245,3 @@ export default class TerrainMap {
 TerrainMap.JAGGEDNESS = 2; // Multiplier for elevation randomizer
 TerrainMap.RESOLUTION = 4; // How many parts per nautical mile
 TerrainMap.MINIMUM_LAND = 5; // Minimum height for non-water
-//# sourceMappingURL=TerrainMap.js.map

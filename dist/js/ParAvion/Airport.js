@@ -33,4 +33,3 @@ export default class Airport extends Point {
     }
 }
 Airport.ILS_RANGE = 10;
-//# sourceMappingURL=Airport.js.map

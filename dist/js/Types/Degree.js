@@ -24,4 +24,3 @@ export default class Degree {
         return min <= this._degree && this._degree <= max;
     }
 }
-//# sourceMappingURL=Degree.js.map

@@ -39,4 +39,3 @@ export default class Navaid extends Point {
 }
 Navaid.VOR = 'VOR';
 Navaid.NDB = 'NDB';
-//# sourceMappingURL=Navaid.js.map

@@ -57,12 +57,12 @@ export default class LocationsMap
       ));
     }
 
-    if (this.mapDimension > (10 + 2 * LocationsMap.PADDING)) {
+    if (this.mapDimension >= (10 + 2 * LocationsMap.PADDING)) {
       this.navAids[0].randHoldingPattern(
         this.navAids[0].coordinates.getBearing(this.airports[1].approachPoints[0].coordinates)
       );
     }
-    if (this.mapDimension > (15 + 2 * LocationsMap.PADDING)) {
+    if (this.mapDimension >= (15 + 2 * LocationsMap.PADDING)) {
       this.navAids[1] = new Navaid(
         this.getCoordinates(
           this.randomizer.getInt(5, allowedRadius + LocationsMap.PADDING / 2),
@@ -80,7 +80,7 @@ export default class LocationsMap
         ));
       }
     }
-    if (this.mapDimension > (20 + 2 * LocationsMap.PADDING)) {
+    if (this.mapDimension >= (20 + 2 * LocationsMap.PADDING)) {
       this.navAids[1].randHoldingPattern(
         this.navAids[1].coordinates.getBearing(this.airports[0].approachPoints[0].coordinates)
       );
@@ -90,6 +90,16 @@ export default class LocationsMap
         this.randomizer
       );
       this.airports[2].addRunway(this.randomizer.getDegree(this.windDirection.degree, deviation));
+    }
+
+    if (this.mapDimension >= (25 + 2 * LocationsMap.PADDING)) {
+      this.navAids[2] = new Navaid(
+        this.getCoordinates(
+          this.randomizer.getInt(5, allowedRadius + LocationsMap.PADDING / 2),
+          this.randomizer.getDegree(destinationDegree.degree + 90, 70)
+        ),
+        this.randomizer
+      );
     }
   }
 

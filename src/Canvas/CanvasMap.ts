@@ -8,7 +8,7 @@ import Coordinates from "../Types/Coordinates.js";
 import HoldingPattern from "../ParAvion/HoldingPattern.js";
 import Runway from "../ParAvion/Runway.js";
 
-export default class Canvas {
+export default class CanvasMap {
   colors = {
     blue: "#002da3",
     blueTransparent: "rgba(0, 45, 163, 0.5)",

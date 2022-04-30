@@ -14,14 +14,15 @@ export default class Runway {
 
   public static ILS = 'ILS';
 
-  public static PAPI = 'PAPI';
-  public static VASI = 'VASI';
+  public static PAPI = 'PAPI'; // P
+  public static VASI = 'VASI'; // V
 
   // @see https://www.euroga.org/system/1/user_files/files/000/017/859/17859/1d13e220b/large/IMG_0075.PNG
-  public static ALSF2 = 'ALSF-2';
-  public static ALSF1 = 'ALSF-1';
-  public static MALSR = 'MALSR';
-  public static ODALS = 'ODALS';
+  // @see https://www.flightlearnings.com/wp-content/uploads/2017/07/8-22a.jpg
+  public static ALSF2 = 'ALSF-2'; // A
+  public static ALSF1 = 'ALSF-1'; // A1
+  public static MALSR = 'MALSR'; // A5
+  public static ODALS = 'ODALS'; // +⦾
 
   public static TRAFFICPATTERN_WIDTH = 2;
   public static TRAFFICPATTERN_LENGTH = 6;
@@ -48,8 +49,6 @@ export default class Runway {
   }
 
   protected rand(index = 0): void {
-
-
     this.trafficPatterns[index] = new HoldingPattern(this.coordinates, this.randomizer);
     this.trafficPatterns[index].direction = new Degree(index === 0
       ? this.heading.degree
@@ -91,26 +90,5 @@ export default class Runway {
         slope
       );
     }
-  }
-
-  public getFeatures() {
-    let features = {};
-
-    /*[this.approachLights, this.slopeIndicators].forEach((feature) => {
-      feature.forEach((value, key) => {
-        if (value) {
-          features[key].push(value);
-        }
-      });
-    });*/
-
-    /*
-    this.ilsFrequencies.forEach() as key => value) {
-       if (!empty(value)) {
-         features[key][] = this.ILS;
-       }
-     }*/
-
-    return features;
   }
 }

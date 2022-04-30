@@ -26,4 +26,3 @@ export default class Coordinates {
         return Math.sqrt(Math.pow(coord2.y - this.y, 2) + Math.pow(coord2.x - this.x, 2));
     }
 }
-//# sourceMappingURL=Coordinates.js.map

@@ -10,4 +10,3 @@ export default class HslColor {
         return `hsl(${this.hue}, ${this.saturation * 100}%, ${this.luminosity * 100}%, ${this.alpha})`;
     }
 }
-//# sourceMappingURL=HslColor.js.map

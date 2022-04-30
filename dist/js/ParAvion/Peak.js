@@ -62,4 +62,3 @@ export default class Peak extends Point {
         return this.randomizer.fromArray(words[index]);
     }
 }
-//# sourceMappingURL=Peak.js.map

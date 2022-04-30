@@ -151,6 +151,8 @@ export default class Point {
         'Roads',
         'Rock',
         'Sea',
+        'Sister',
+        'Sisters',
         'State',
         'Station',
         'Stone',

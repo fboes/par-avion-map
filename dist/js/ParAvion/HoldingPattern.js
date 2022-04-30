@@ -10,4 +10,3 @@ export default class HoldingPattern extends Point {
 }
 HoldingPattern.LENGTH = 6;
 HoldingPattern.WIDTH = 3;
-//# sourceMappingURL=HoldingPattern.js.map

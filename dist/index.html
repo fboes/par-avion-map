@@ -8,35 +8,62 @@
   <style>
     * { margin: 0; padding: 0;}
     body { background: #eee; font-family: sans-serif; }
-    main { margin: 0 auto; width: 96vmin; background: white; padding: 2vmin; outline: 1px solid #ddd; box-shadow:4px 4px 6px rgba(0,0,0,0.5); margin-bottom: 0.5em;  text-align:center;}
-    div { margin-top: 1em; }
+    header, h2 { display: none; }
+    main { margin: 0 auto; width: 96vmin; background: white; padding: 2vmin; text-align:center; position: relative;}
+    section + * { margin-top: 0.75em; }
+    section.approaches {display: none; }
     canvas { width: 100%; height: auto; }
     input { max-width: 4em; text-transform: uppercase; }
     input, button { background: #ddd; padding: 0.15em 0.5em 0.35em; border-radius: 0.2em; border: 1px solid #ccc; margin-top: -0.1em; font-size: inherit; text-align: center; }
     button { background: #007bff; border: 1px outset #007bff; color: white; cursor: pointer;}
     button.secondary { background: #5a6268; border-color: #5a6268; }
-    span { display: inline-block; margin: 0 0.75em; }
+    span { display: inline-block; padding: 0.25em 0.75em; }
+    .footer { color: black; display: inline-block; font-size: 0.5em; position: absolute; top: 12em; right: -9em; transform: rotate(90deg); }
+
+    @media screen {
+      main { outline: 1px solid #ddd; box-shadow:4px 4px 6px rgba(0,0,0,0.5); margin-bottom: 0.5em; }
+    }
+
+    @media print {
+      section.configuration { display: none; }
+    }
 
     @media (prefers-color-scheme: dark) {
       body { color: white; background: black; }
       main { background: #222; outline-color: #111; }
       input { background: #666; color: white; }
+      .footer { color: white;}
     }
   </style>
   <link rel="icon" href="https://cdn.3960.org/favicon.svg" sizes="any" type="image/svg+xml" />
 </head>
 
 <body>
+  <header>
+    <h1>Par Avion - Carte</h1>
+  </header>
   <main>
-    <canvas id="canvas" height="1280" width="1280"></canvas>
-    <div>
+    <section class="map">
+      <h2>Map</h2>
+      <canvas id="map" height="1280" width="1280"></canvas>
+    </section>
+    <section class="approaches">
+      <h2>Approaches</h2>
+      <div>
+        <canvas id="airport-1" height="400" width="400"></canvas>
+        <canvas id="airport-2" height="400" width="400"></canvas>
+        <canvas id="airport-3" height="400" width="400"></canvas>
+      </div>
+    </section>
+    <section class="configuration">
+      <h2>Configuration</h2>
       <span>
         <label for="seed">Map Name</label>
         <input name="seed" id="seed" type="text" />
       </span>
       <span>
         <label for="mapdimension">Dimension (NM)</label>
-        <input name="mapdimension" id="mapdimension" type="number" min="18" max="48" step="2" value="24" />
+        <input name="mapdimension" id="mapdimension" type="number" min="18" max="48" step="2" value="28" />
       </span>
       <span>
         <label for="resolution">Resolution (/NM)</label>
@@ -44,9 +71,11 @@
       </span>
       <span>
         <button id="generate">Generate</button>
+        <button id="keep" class="secondary">Keep</button>
         <button id="clear" class="secondary">Clear</button>
       </span>
     </div>
+    <a href="https://github.com/fboes/par-avion-map" class="footer">https://github.com/fboes/par-avion-map</a>
   </main>
   <script type="module" src="./js/index.js"></script>
 </body>

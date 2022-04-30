@@ -16,4 +16,3 @@ export default class TerrainCoordinates {
         return Math.sqrt(Math.pow(coord2.b - this.b, 2) + Math.pow(coord2.a - this.a, 2));
     }
 }
-//# sourceMappingURL=TerrainCoordinates.js.map

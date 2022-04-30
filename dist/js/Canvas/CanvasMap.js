@@ -5,7 +5,7 @@ import CanvasTool from "./CanvasTool.js";
 import Coordinates from "../Types/Coordinates.js";
 import HoldingPattern from "../ParAvion/HoldingPattern.js";
 import Runway from "../ParAvion/Runway.js";
-export default class Canvas {
+export default class CanvasMap {
     constructor(canvas, map, terrain) {
         this.canvas = canvas;
         this.map = map;
@@ -440,4 +440,3 @@ export default class Canvas {
         return new CanvasTool(this.ctx, x, y, this.multiplier);
     }
 }
-//# sourceMappingURL=Canvas.js.map

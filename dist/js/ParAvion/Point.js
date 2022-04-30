@@ -139,6 +139,8 @@ export default class Point {
                 'Roads',
                 'Rock',
                 'Sea',
+                'Sister',
+                'Sisters',
                 'State',
                 'Station',
                 'Stone',
@@ -161,4 +163,3 @@ export default class Point {
         return this.randomizer.fromArray(words[index]);
     }
 }
-//# sourceMappingURL=Point.js.map

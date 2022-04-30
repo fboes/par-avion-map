@@ -176,4 +176,3 @@ export default class CanvasTool {
         };
     }
 }
-//# sourceMappingURL=CanvasTool.js.map

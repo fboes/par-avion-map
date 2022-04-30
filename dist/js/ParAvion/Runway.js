@@ -60,32 +60,15 @@ export default class Runway {
             this.slopeIndicators.set(index, slope);
         }
     }
-    getFeatures() {
-        let features = {};
-        /*[this.approachLights, this.slopeIndicators].forEach((feature) => {
-          feature.forEach((value, key) => {
-            if (value) {
-              features[key].push(value);
-            }
-          });
-        });*/
-        /*
-        this.ilsFrequencies.forEach() as key => value) {
-           if (!empty(value)) {
-             features[key][] = this.ILS;
-           }
-         }*/
-        return features;
-    }
 }
 Runway.ILS = 'ILS';
-Runway.PAPI = 'PAPI';
-Runway.VASI = 'VASI';
+Runway.PAPI = 'PAPI'; // P
+Runway.VASI = 'VASI'; // V
 // @see https://www.euroga.org/system/1/user_files/files/000/017/859/17859/1d13e220b/large/IMG_0075.PNG
-Runway.ALSF2 = 'ALSF-2';
-Runway.ALSF1 = 'ALSF-1';
-Runway.MALSR = 'MALSR';
-Runway.ODALS = 'ODALS';
+// @see https://www.flightlearnings.com/wp-content/uploads/2017/07/8-22a.jpg
+Runway.ALSF2 = 'ALSF-2'; // A
+Runway.ALSF1 = 'ALSF-1'; // A1
+Runway.MALSR = 'MALSR'; // A5
+Runway.ODALS = 'ODALS'; // +⦾
 Runway.TRAFFICPATTERN_WIDTH = 2;
 Runway.TRAFFICPATTERN_LENGTH = 6;
-//# sourceMappingURL=Runway.js.map
