@@ -1,3 +1,4 @@
+import CanvasApproach from './Canvas/CanvasApproach.js';
 import CanvasMap from './Canvas/CanvasMap.js';
 import Randomizer from './Helper/Randomizer.js';
 import LocationsMap from './ParAvion/LocationsMap.js';
@@ -5,12 +6,13 @@ import TerrainMap from './ParAvion/TerrainMap.js';
 
 const elements = {
   mapCanvas: <HTMLCanvasElement>document.getElementById('map'),
+  airportsCanvases: <NodeListOf<HTMLCanvasElement>>document.querySelectorAll('.approaches canvas'),
   seedInput: <HTMLInputElement>document.getElementById('seed'),
-  mapDimensionInput : <HTMLInputElement>document.getElementById('mapdimension'),
-  resolutionInput : <HTMLInputElement>document.getElementById('resolution'),
-  clearButton : <HTMLInputElement>document.getElementById('clear'),
-  keepButton : <HTMLInputElement>document.getElementById('keep'),
-  generateButton : <HTMLInputElement>document.getElementById('generate'),
+  mapDimensionInput: <HTMLInputElement>document.getElementById('mapdimension'),
+  resolutionInput: <HTMLInputElement>document.getElementById('resolution'),
+  clearButton: <HTMLInputElement>document.getElementById('clear'),
+  keepButton: <HTMLInputElement>document.getElementById('keep'),
+  generateButton: <HTMLInputElement>document.getElementById('generate'),
 };
 const randomizer = new Randomizer(elements.seedInput ? elements.seedInput.value : '');
 
@@ -25,6 +27,13 @@ function generateMap() {
   if (elements.mapCanvas) {
     new CanvasMap(elements.mapCanvas, map, terrain);
   }
+
+  elements.airportsCanvases.forEach((airportCanvas, id) => {
+    airportCanvas.style.display = map.airports[id] ? 'block' : 'none';
+    if (map.airports[id]) {
+      new CanvasApproach(airportCanvas, map.airports[id]);
+    }
+  });
 }
 
 generateMap();

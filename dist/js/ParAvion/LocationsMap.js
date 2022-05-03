@@ -64,7 +64,7 @@ export default class LocationsMap {
         return max;
     }
     getCoordinates(distanceFromCenter, degreeFromCenter) {
-        const rad = Coordinates.deg2rad(degreeFromCenter);
+        const rad = degreeFromCenter.rad;
         return new Coordinates((-Math.cos(rad) * distanceFromCenter) + (this.mapDimension / 2), (Math.sin(rad) * distanceFromCenter) + (this.mapDimension / 2));
     }
 }

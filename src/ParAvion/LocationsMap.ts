@@ -5,8 +5,7 @@ import Airport from "./Airport.js";
 import Obstruction from "./Obstruction.js";
 import Degree from "../Types/Degree.js";
 
-export default class LocationsMap
-{
+export default class LocationsMap {
   public windDirection: Degree;
   public center: Coordinates;
   public airports: Airport[] = [];
@@ -15,17 +14,15 @@ export default class LocationsMap
 
   public static PADDING = 6;
 
-  public constructor(public mapDimension: number, public randomizer: Randomizer)
-  {
-    this.mapDimension = Math.max(6  + LocationsMap.PADDING * 2, Math.ceil(mapDimension / 2) * 2);
+  public constructor(public mapDimension: number, public randomizer: Randomizer) {
+    this.mapDimension = Math.max(6 + LocationsMap.PADDING * 2, Math.ceil(mapDimension / 2) * 2);
     this.center = new Coordinates(this.mapDimension / 2, this.mapDimension / 2);
     this.windDirection = this.randomizer.getDegree();
 
     this.rand();
   }
 
-  protected rand(deviation = 30)
-  {
+  protected rand(deviation = 30) {
     const allowedRadius = (this.mapDimension - LocationsMap.PADDING * 2) / 2;
     const departureDegree = this.randomizer.getDegree();
     this.airports[0] = new Airport(
@@ -106,8 +103,7 @@ export default class LocationsMap
   /**
    * ...including elevation
    */
-  public getHighestObstruction(x1: number, y1: number, sliceX: number, sliceY: number)
-  {
+  public getHighestObstruction(x1: number, y1: number, sliceX: number, sliceY: number) {
     let max = 0;
 
     this.obstructions.forEach((obstruction) => {
@@ -127,9 +123,8 @@ export default class LocationsMap
     return max;
   }
 
-  protected getCoordinates(distanceFromCenter: number, degreeFromCenter: Degree)
-  {
-    const rad = Coordinates.deg2rad(degreeFromCenter);
+  protected getCoordinates(distanceFromCenter: number, degreeFromCenter: Degree) {
+    const rad = degreeFromCenter.rad;
 
     return new Coordinates(
       (-Math.cos(rad) * distanceFromCenter) + (this.mapDimension / 2),

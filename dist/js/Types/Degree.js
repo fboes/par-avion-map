@@ -14,6 +14,9 @@ export default class Degree {
     get oppositeDegree() {
         return this._oppositeDegree;
     }
+    get rad() {
+        return this._degree * (Math.PI / 180);
+    }
     isBetween(min, max) {
         min = (min + 360) % 360;
         max = (max + 360) % 360;

@@ -1,9 +1,11 @@
+import CanvasApproach from './Canvas/CanvasApproach.js';
 import CanvasMap from './Canvas/CanvasMap.js';
 import Randomizer from './Helper/Randomizer.js';
 import LocationsMap from './ParAvion/LocationsMap.js';
 import TerrainMap from './ParAvion/TerrainMap.js';
 const elements = {
     mapCanvas: document.getElementById('map'),
+    airportsCanvases: document.querySelectorAll('.approaches canvas'),
     seedInput: document.getElementById('seed'),
     mapDimensionInput: document.getElementById('mapdimension'),
     resolutionInput: document.getElementById('resolution'),
@@ -21,6 +23,12 @@ function generateMap() {
     if (elements.mapCanvas) {
         new CanvasMap(elements.mapCanvas, map, terrain);
     }
+    elements.airportsCanvases.forEach((airportCanvas, id) => {
+        airportCanvas.style.display = map.airports[id] ? 'block' : 'none';
+        if (map.airports[id]) {
+            new CanvasApproach(airportCanvas, map.airports[id]);
+        }
+    });
 }
 generateMap();
 elements.clearButton.addEventListener('click', () => {

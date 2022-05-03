@@ -47,14 +47,18 @@ export default class CanvasTool {
     return this.ctx;
   }
 
-  text(x: number, y: number, text: string, outline = true) {
+  textOutline(x: number, y: number, text: string, outline = 0.1) {
+    return this.text(x, y, text, outline);
+  }
+
+  text(x: number, y: number, text: string, outline = 0) {
     const oldStrokeStyle = this.ctx.strokeStyle;
     const oldLineJoin = this.ctx.lineJoin;
     const oldLineWidth = this.ctx.lineWidth;
     if (outline) {
       this.ctx.strokeStyle = "rgba(255,255,255,0.75)";
       this.ctx.lineJoin = "round";
-      this.lineWidth = 0.1;
+      this.lineWidth = outline;
       this.ctx.strokeText(text, this.dX(x), this.dY(y));
     }
     this.ctx.fillText(text, this.dX(x), this.dY(y));

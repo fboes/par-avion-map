@@ -33,11 +33,7 @@ export default class CanvasMap {
   protected ctx: CanvasRenderingContext2D;
   protected multiplier: number;
 
-  constructor(
-    protected canvas: HTMLCanvasElement,
-    protected map: LocationsMap,
-    protected terrain: TerrainMap
-  ) {
+  constructor(protected canvas: HTMLCanvasElement, protected map: LocationsMap, protected terrain: TerrainMap) {
     const ctx = canvas.getContext("2d");
     if (!ctx) {
       throw new Error("No CanvasRenderingContext2D found");
@@ -143,13 +139,13 @@ export default class CanvasMap {
     }
 
     t.style("black");
-    t.text(
+    t.textOutline(
       this.map.center.x,
       1.1,
       "MAP: " + this.map.randomizer.seed
     );
 
-    t.text(
+    t.textOutline(
       this.map.center.x,
       this.map.mapDimension - 0.7,
       String(this.map.mapDimension / 2) +
@@ -177,10 +173,10 @@ export default class CanvasMap {
           )
         );
         t.textStyle(1.5, "right", "bold");
-        t.text(i - 4.9, j - 4.5, String(elevation.thousand));
+        t.textOutline(i - 4.9, j - 4.5, String(elevation.thousand));
 
         t.textStyle(1, "left", "bold");
-        t.text(i - 4.9, j - 4.8, String(elevation.hundred));
+        t.textOutline(i - 4.9, j - 4.8, String(elevation.hundred));
       }
     }
   }
@@ -290,7 +286,7 @@ export default class CanvasMap {
         );
 
         t.rotate(0, 0, 90);
-        t.text(
+        t.textOutline(
           1.25,
           0.2,
           CanvasTool.numPad(
@@ -299,7 +295,7 @@ export default class CanvasMap {
           ) + "°"
         );
         t.rotate(0, 0, 180);
-        t.text(
+        t.textOutline(
           1.25 - HoldingPattern.WIDTH,
           navaid.holdingPattern.isRight
             ? 0.2 + HoldingPattern.WIDTH
@@ -434,9 +430,9 @@ export default class CanvasMap {
           [+0.065, -0.05 - offset],
           [+0.2, -0.05 - offset],
           [+0.08, 0.06 - offset],
-          [+0.15, 0.2 - offset],
+          [+0.13, 0.2 - offset],
           [0, 0.12 - offset],
-          [-0.15, 0.2 - offset],
+          [-0.13, 0.2 - offset],
           [-0.08, 0.06 - offset],
           [-0.2, -0.05 - offset],
           [-0.065, -0.05 - offset],
@@ -474,7 +470,7 @@ export default class CanvasMap {
     t.textStyle();
 
     t.circle(0, 0, 0.9).fill();
-    t.text(0, -1.45, "N", false);
+    t.text(0, -1.45, "N");
     t.polygon([
       [-0.3, -1],
       [0.3, -1],
@@ -537,7 +533,7 @@ export default class CanvasMap {
     for (let i = 0; i < 360; i += 15) {
       t.line(0, 3, 0, i % 45 === 0 ? 2.6 : 2.8).stroke();
       if (i % 90 === 0) {
-        t.text(0, -2.1, CanvasTool.numPad(i / 10, 2), false);
+        t.text(0, -2.1, CanvasTool.numPad(i / 10, 2));
       }
       t.rotate(0, 0, 15);
     }
@@ -558,7 +554,7 @@ export default class CanvasMap {
       [-0.15, 0, 0, -0.15, 0, -0.35],
       [0, -0.15, 0.15, 0, 0.35, 0],
     ]).fill();
-    t.text(
+    t.textOutline(
       0,
       approachPoint.isSwitchLabelPosition ? -0.5 : 0.9,
       approachPoint.code
@@ -576,7 +572,7 @@ export default class CanvasMap {
     t.circle(0, 0, 0.25).fill();
 
     this.ctx.fillStyle = "white";
-    t.text(0.01, 0.14, String(pin), false);
+    t.text(0.01, 0.14, String(pin));
   }
 
   protected makeIls(x: number, y: number) {

@@ -17,7 +17,7 @@
     }
 
     #container {
-      width: 100vmin;
+      width: 98vmin;
       text-align: center;
       margin: 0 auto;
     }
@@ -37,13 +37,22 @@
       margin-top: 0.75em;
     }
 
-    section.approaches {
-      display: none;
-    }
-
     canvas {
       width: 100%;
       height: auto;
+    }
+
+    .approaches div {
+      display: flex;
+      gap: 2vmin;
+      justify-content: center;
+      align-items: stretch;
+      flex-wrap: wrap
+    }
+
+    .approaches canvas {
+      flex: 1 1;
+      min-width: 10em;
     }
 
     input {
@@ -122,6 +131,7 @@
       }
     }
   </style>
+  <meta name="theme-color" content="#eeeeee" />
   <link rel="icon" href="https://cdn.3960.org/favicon.svg" sizes="any" type="image/svg+xml" />
 </head>
 
@@ -138,9 +148,9 @@
       <section class="approaches">
         <h2>Approaches</h2>
         <div>
-          <canvas id="airport-1" height="400" width="400"></canvas>
-          <canvas id="airport-2" height="400" width="400"></canvas>
-          <canvas id="airport-3" height="400" width="400"></canvas>
+          <canvas id="airport-1" height="720" width="600"></canvas>
+          <canvas id="airport-2" height="720" width="600"></canvas>
+          <canvas id="airport-3" height="720" width="600"></canvas>
         </div>
       </section>
       <section class="configuration">

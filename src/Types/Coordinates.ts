@@ -11,7 +11,7 @@ export default class Coordinates {
 
 
   public getNewCoordinates(degree: Degree, distance: number): Coordinates {
-    let rad = Coordinates.deg2rad(degree);
+    let rad = degree.rad;
 
     return new Coordinates(
       (Math.sin(rad) * distance) + this.x,
@@ -26,10 +26,6 @@ export default class Coordinates {
     ));
 
     return (degree + 360 + 90) % 360;
-  }
-
-  public static deg2rad(degree: Degree): number {
-    return degree.degree * (Math.PI / 180);
   }
 
   public static rad2deg(rad: number): number {
