@@ -15,6 +15,7 @@ export default class CanvasApproach {
   protected maxY = 180;
 
   static OUTLINE = 1;
+  static FACTOR = 75;
 
   constructor(protected canvas: HTMLCanvasElement, protected airport: Airport) {
     const ctx = canvas.getContext("2d");
@@ -71,7 +72,7 @@ export default class CanvasApproach {
     }
 
     t.textStyle(4, 'right');
-    t.text(this.maxX - 3, this.maxY - 3, CanvasTool.frequency(this.airport.coordinates.x) + 'X - ' + CanvasTool.frequency(this.airport.coordinates.y) + 'Y')
+    t.text(this.maxX - 3, this.maxY - 3, CanvasTool.frequency(this.airport.coordinates.x) + 'X | ' + CanvasTool.frequency(this.airport.coordinates.y) + 'Y')
 
     t.strokeRect(0, 10, this.maxX, this.maxY - 10);
   }
@@ -107,7 +108,7 @@ export default class CanvasApproach {
     // Coordinate grid
     if (this.airport.coordinates) {
       t.style(this.colors.blackTransparent);
-      const mile = 6076 / 100;
+      const mile = 6076 / CanvasApproach.FACTOR;
       const xOffset = (this.airport.coordinates.x % 1) * -mile;
       const yOffset = (this.airport.coordinates.y % 1) * -mile;
       for (let i = -2; i <= 2; i++) {
@@ -120,12 +121,17 @@ export default class CanvasApproach {
     this.airport.runways.forEach((runway) => {
       t.style(this.colors.black);
       t.rotate(0, 0, runway.heading.degree - 90);
-      t.fillRect(runway.length / -200, runway.width / -200, runway.length / 100, runway.width / 100);
+      t.fillRect(
+        runway.length / CanvasApproach.FACTOR / -2,
+        runway.width / CanvasApproach.FACTOR / -2,
+        runway.length / CanvasApproach.FACTOR,
+        runway.width / CanvasApproach.FACTOR
+      );
 
       [0, 1].forEach((i) => {
         t.textStyle(4);
         const multiplier = (i === 0) ? 1 : -1;
-        const posY = runway.length / 200;
+        const posY = runway.length / CanvasApproach.FACTOR / 2;
         const deg = (i === 0) ? runway.heading.degree : runway.heading.oppositeDegree;
         t.rotate(0, 0, multiplier * -90);
 
@@ -158,7 +164,7 @@ export default class CanvasApproach {
   // @see https://www.euroga.org/system/1/user_files/files/000/017/859/17859/1d13e220b/large/IMG_0075.PNG
   // @see https://www.flightlearnings.com/wp-content/uploads/2017/07/8-22a.jpg
   protected makeLight(x: number, y: number, t: CanvasTool, label: string) {
-    const pilotControlledLight = true;
+    const pilotControlledLight = !this.airport.hasTower;
     t.textStyle(4);
     t.style(pilotControlledLight ? this.colors.black : this.colors.white, pilotControlledLight ? this.colors.white : this.colors.black, 0.5);
     t.circle(x, y, 3).fill();
@@ -191,15 +197,27 @@ export default class CanvasApproach {
     t.style(this.colors.blackTransparent);
     t.lineWidth = 0.5;
 
-    t.line(x, y + 1, x, y + (label === Runway.ODALS ? 1500 : 2500) / 100).stroke();
+    t.line(x, y + 1, x, y + (label === Runway.ODALS ? 1500 : 2500) / CanvasApproach.FACTOR).stroke();
 
     if (label !== Runway.ODALS) {
-      t.line(x - 200 / 100, y + 1, x + 200 / 100, y + 1).stroke();
-      t.line(x - 100 / 100, y + 1000 / 100, x + 100 / 100, y + 1000 / 100).stroke();
+      t.line(
+        x - 200 / CanvasApproach.FACTOR, y + 1,
+        x + 200 / CanvasApproach.FACTOR, y + 1
+      ).stroke();
+      t.line(
+        x - 100 / CanvasApproach.FACTOR, y + 1000 / CanvasApproach.FACTOR,
+        x + 100 / CanvasApproach.FACTOR, y + 1000 / CanvasApproach.FACTOR
+      ).stroke();
     }
     if (label === Runway.ALSF1) {
-      t.line(x - 100 / 100, y + 1, x - 100 / 100, y + 1000 / 100).stroke();
-      t.line(x + 100 / 100, y + 1, x + 100 / 100, y + 1000 / 100).stroke();
+      t.line(
+        x - 100 / CanvasApproach.FACTOR, y + 1,
+        x - 100 / CanvasApproach.FACTOR, y + 1000 / CanvasApproach.FACTOR
+      ).stroke();
+      t.line(
+        x + 100 / CanvasApproach.FACTOR, y + 1,
+        x + 100 / CanvasApproach.FACTOR, y + 1000 / CanvasApproach.FACTOR
+      ).stroke();
     }
 
     t.style(this.colors.black);
