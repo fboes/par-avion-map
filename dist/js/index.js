@@ -19,7 +19,15 @@ function generateMap() {
     const map = new LocationsMap(elements.mapDimensionInput ? elements.mapDimensionInput.valueAsNumber : 16, randomizer);
     randomizer.seed = randomizer.seed;
     const terrain = new TerrainMap(map, randomizer, elements.resolutionInput ? elements.resolutionInput.valueAsNumber : 4);
+    history.pushState({
+        seed: randomizer.seed,
+        dimension: map.mapDimension,
+        resoultion: terrain.resolution
+    }, '', '#' + randomizer.seed + '-' + map.mapDimension + '-' + terrain.resolution);
     console.log(map);
+    drawMap(map, terrain);
+}
+function drawMap(map, terrain) {
     if (elements.mapCanvas) {
         new CanvasMap(elements.mapCanvas, map, terrain);
     }
@@ -29,6 +37,12 @@ function generateMap() {
             new CanvasApproach(airportCanvas, map.airports[id]);
         }
     });
+}
+if (location.hash) {
+    const parts = location.hash.slice(1).split('-');
+    elements.seedInput.value = parts[0];
+    elements.mapDimensionInput.value = parts[1];
+    elements.resolutionInput.value = parts[2];
 }
 generateMap();
 elements.clearButton.addEventListener('click', () => {
@@ -43,3 +57,10 @@ elements.generateButton.addEventListener('click', generateMap);
 elements.seedInput.addEventListener('change', generateMap);
 elements.mapDimensionInput.addEventListener('change', generateMap);
 elements.resolutionInput.addEventListener('change', generateMap);
+window.addEventListener('popstate', (event) => {
+    randomizer.seed = event.state.seed;
+    const map = new LocationsMap(event.state.dimension, randomizer);
+    randomizer.seed = randomizer.seed;
+    const terrain = new TerrainMap(map, randomizer, event.state.resolution);
+    drawMap(map, terrain);
+});
