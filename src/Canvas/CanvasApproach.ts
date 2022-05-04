@@ -7,6 +7,7 @@ export default class CanvasApproach {
     white: "#ffffff",
     black: "#000000",
     blackTransparent: "rgba(0, 0, 0, 0.3)",
+    grey: "#bbbbbb",
   };
 
   protected ctx: CanvasRenderingContext2D;
@@ -79,8 +80,8 @@ export default class CanvasApproach {
 
   makeAirport() {
     const rad = this.airport.runways[0].heading.rad;
-    const xCenter = this.maxX / 2 + Math.cos(rad) * 5;
-    const yCenter = (this.maxY - 27) / 2 + 27 + Math.sin(rad) * 5;
+    const xCenter = this.maxX / 2 + Math.cos(rad) * (600 / CanvasApproach.FACTOR);
+    const yCenter = (this.maxY - 27) / 2 + 27 + Math.sin(rad) * (600 / CanvasApproach.FACTOR);
     const t = this.getNewCanvasTool(xCenter, yCenter);
     t.style(this.colors.white, this.colors.black, 0.5);
     if (this.airport.hasBeacon) {
@@ -107,7 +108,7 @@ export default class CanvasApproach {
 
     // Coordinate grid
     if (this.airport.coordinates) {
-      t.style(this.colors.blackTransparent);
+      t.style(this.colors.grey);
       const mile = 6076 / CanvasApproach.FACTOR;
       const xOffset = (this.airport.coordinates.x % 1) * -mile;
       const yOffset = (this.airport.coordinates.y % 1) * -mile;
@@ -119,19 +120,39 @@ export default class CanvasApproach {
       }
     }
     this.airport.runways.forEach((runway) => {
-      t.style(this.colors.black);
       t.rotate(0, 0, runway.heading.degree - 90);
+
+      const runwayX = runway.length / CanvasApproach.FACTOR;
+      const runwayY = runway.width / CanvasApproach.FACTOR;
+
+      t.style(this.colors.grey, this.colors.grey, 50 / CanvasApproach.FACTOR);
+      t.polygonRaw([
+        [runwayX / 2.1, runwayY / 2],
+        [runwayX / 2.1, runwayY / 2 + 100 / CanvasApproach.FACTOR],
+        [runwayX / 2.1 - 100 / CanvasApproach.FACTOR, runwayY / 2 + 200 / CanvasApproach.FACTOR],
+        [runwayX / -2.1 + 100 / CanvasApproach.FACTOR, runwayY / 2 + 200 / CanvasApproach.FACTOR],
+        [runwayX / -2.1, runwayY / 2 + 100 / CanvasApproach.FACTOR],
+        [runwayX / -2.1, runwayY / 2],
+      ]).stroke();
       t.fillRect(
-        runway.length / CanvasApproach.FACTOR / -2,
-        runway.width / CanvasApproach.FACTOR / -2,
-        runway.length / CanvasApproach.FACTOR,
-        runway.width / CanvasApproach.FACTOR
+        runwayX / -4,
+        runwayY / 2 + 200 / CanvasApproach.FACTOR,
+        runwayX / 2,
+        150 / CanvasApproach.FACTOR
+      );
+
+      t.style(this.colors.black);
+      t.fillRect(
+        runwayX / -2,
+        runwayY / -2,
+        runwayX,
+        runwayY
       );
 
       [0, 1].forEach((i) => {
         t.textStyle(4);
         const multiplier = (i === 0) ? 1 : -1;
-        const posY = runway.length / CanvasApproach.FACTOR / 2;
+        const posY = runwayX / 2;
         const deg = (i === 0) ? runway.heading.degree : runway.heading.oppositeDegree;
         t.rotate(0, 0, multiplier * -90);
 
@@ -141,9 +162,10 @@ export default class CanvasApproach {
         if (runway.approachLights.get(i)) {
           const approachLight = runway.approachLights.get(i);
           this.makeApproach(0, posY, t, approachLight)
-          this.makeLight(0, posY + (approachLight !== Runway.ODALS ? 20 : 10), t, approachLight)
+          this.makeLight(0, posY + (approachLight !== Runway.ODALS ? 2000 : 1000) / CanvasApproach.FACTOR, t, approachLight)
         }
 
+        t.style(this.colors.black);
         t.textStyle(4);
         t.text(0, posY + 6, CanvasTool.numPad(Math.round(deg / 10), 2), CanvasApproach.OUTLINE);
         t.rotate(0, 0, multiplier * 90);
@@ -190,7 +212,12 @@ export default class CanvasApproach {
         t.text(x, y + 1.5, label.slice(0, 1));
         break;
     }
-    t.style(this.colors.black);
+
+    if (label !== Runway.PAPI && label !== Runway.VASI) {
+      t.style(this.colors.black, this.colors.white, 0.2);
+      t.circle(x, y - 2.9, 1).fill();
+      this.ctx.stroke();
+    }
   }
 
   protected makeApproach(x: number, y: number, t: CanvasTool, label: string) {
@@ -219,8 +246,6 @@ export default class CanvasApproach {
         x + 100 / CanvasApproach.FACTOR, y + 1000 / CanvasApproach.FACTOR
       ).stroke();
     }
-
-    t.style(this.colors.black);
   }
 
 
