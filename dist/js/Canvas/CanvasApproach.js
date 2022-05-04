@@ -113,6 +113,13 @@ export default class CanvasApproach {
                 [runwayX / -2.1, runwayY / 2],
             ]).stroke();
             t.fillRect(runwayX / -4, runwayY / 2 + 200 / CanvasApproach.FACTOR, runwayX / 2, 150 / CanvasApproach.FACTOR);
+            const extraExits = Math.floor(runway.length / 1000);
+            if (extraExits > 1) {
+                const exitSpacing = runway.length / extraExits / CanvasApproach.FACTOR;
+                for (let i = 1; i < extraExits; i++) {
+                    t.line(runwayX / 2 - i * exitSpacing, runwayY / 2, runwayX / 2 - i * exitSpacing, runwayY / 2 + 200 / CanvasApproach.FACTOR).stroke();
+                }
+            }
             t.style(this.colors.black);
             t.fillRect(runwayX / -2, runwayY / -2, runwayX, runwayY);
             [0, 1].forEach((i) => {
