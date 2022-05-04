@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Par Avion Petite - Carte</title>
+  <title>Par Avion - Carte</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
     * {
@@ -131,8 +131,9 @@
       }
     }
   </style>
+  <link rel="icon" href="img/favicon-192x192.png" sizes="192x192" type="image/png" />
   <meta name="theme-color" content="#eeeeee" />
-  <link rel="icon" href="https://cdn.3960.org/favicon.svg" sizes="any" type="image/svg+xml" />
+  <link rel="manifest" href="./manifest.json" />
 </head>
 
 <body>
@@ -180,6 +181,11 @@
   </div>
 
   <script type="module" src="./js/index.js"></script>
+  <script>
+    if ('serviceWorker' in navigator && !navigator.serviceWorker.controller) {
+      navigator.serviceWorker.register('./sw.js');
+    }
+  </script>
 </body>
 
 </html>

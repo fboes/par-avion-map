@@ -1,4 +1,4 @@
-"Par Avion" Map
+"Par Avion" Carte
 ===============
 
 A map generator for random VFR / IFR flight maps. In a nutshell it generates:
