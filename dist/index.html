@@ -17,7 +17,7 @@
     }
 
     #container {
-      width: 98vmin;
+      width: 98%;
       text-align: center;
       margin: 0 auto;
     }
@@ -29,7 +29,7 @@
 
     main {
       background: white;
-      padding: 2vmin;
+      padding: 2%;
       position: relative;
     }
 
@@ -94,6 +94,32 @@
 
     footer a {
       color: black;
+    }
+
+    @media (min-aspect-ratio: 1/1) {
+      main {
+        display: flex;
+        gap: 2vmin;
+        justify-content: center;
+        align-items: stretch;
+        flex-wrap: wrap
+      }
+
+      section {
+        flex: 1 1 28.35%;
+      }
+
+      section.approaches div {
+        display: block;
+      }
+
+      section.map {
+        flex: 3 3 69%;
+      }
+
+      section.configuration {
+        flex: 100%;
+      }
     }
 
     @media screen {
