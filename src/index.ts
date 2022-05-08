@@ -10,8 +10,7 @@ const elements = {
   seedInput: <HTMLInputElement>document.getElementById('seed'),
   mapDimensionInput: <HTMLInputElement>document.getElementById('mapdimension'),
   resolutionInput: <HTMLInputElement>document.getElementById('resolution'),
-  clearButton: <HTMLInputElement>document.getElementById('clear'),
-  keepButton: <HTMLInputElement>document.getElementById('keep'),
+  randomizeButton: <HTMLInputElement>document.getElementById('randomize'),
   generateButton: <HTMLInputElement>document.getElementById('generate'),
 };
 const randomizer = new Randomizer(elements.seedInput ? elements.seedInput.value : '');
@@ -22,6 +21,7 @@ function generateMap() {
 
 function generateMapFromSeed(seed: string) {
   randomizer.seed = seed;
+  elements.seedInput.value = seed;
   const map = new LocationsMap(elements.mapDimensionInput ? elements.mapDimensionInput.valueAsNumber : 16, randomizer);
   randomizer.seed = randomizer.seed;
   const terrain = new TerrainMap(map, randomizer, elements.resolutionInput ? elements.resolutionInput.valueAsNumber : 4);
@@ -58,13 +58,10 @@ if (location.hash) {
 
 generateMap();
 
-elements.clearButton.addEventListener('click', () => {
+elements.randomizeButton.addEventListener('click', () => {
   elements.seedInput.value = '';
   elements.mapDimensionInput.valueAsNumber = 28;
   generateMap();
-});
-elements.keepButton.addEventListener('click', () => {
-  elements.seedInput.value = randomizer.seed;
 });
 elements.generateButton.addEventListener('click', generateMap);
 elements.seedInput.addEventListener('change', generateMap);
