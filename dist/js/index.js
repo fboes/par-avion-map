@@ -15,7 +15,10 @@ const elements = {
 };
 const randomizer = new Randomizer(elements.seedInput ? elements.seedInput.value : '');
 function generateMap() {
-    randomizer.seed = elements.seedInput ? elements.seedInput.value : '';
+    generateMapFromSeed(elements.seedInput ? elements.seedInput.value : '');
+}
+function generateMapFromSeed(seed) {
+    randomizer.seed = seed;
     const map = new LocationsMap(elements.mapDimensionInput ? elements.mapDimensionInput.valueAsNumber : 16, randomizer);
     randomizer.seed = randomizer.seed;
     const terrain = new TerrainMap(map, randomizer, elements.resolutionInput ? elements.resolutionInput.valueAsNumber : 4);
@@ -63,4 +66,7 @@ window.addEventListener('popstate', (event) => {
     randomizer.seed = randomizer.seed;
     const terrain = new TerrainMap(map, randomizer, event.state.resolution);
     drawMap(map, terrain);
+});
+window.addEventListener('resize', () => {
+    generateMapFromSeed(randomizer.seed);
 });

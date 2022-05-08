@@ -23,7 +23,11 @@ export default class CanvasApproach {
     if (!ctx) {
       throw new Error("No CanvasRenderingContext2D found");
     }
-    this.multiplier = Math.min(canvas.width / this.maxX, canvas.height / this.maxY);
+
+    this.canvas.width = this.canvas.clientWidth;
+    this.canvas.height = this.canvas.width * this.maxY / this.maxX;
+    this.multiplier = this.canvas.width / this.maxX;
+
     this.ctx = ctx;
     this.ctx.fillStyle = this.colors.white;
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);

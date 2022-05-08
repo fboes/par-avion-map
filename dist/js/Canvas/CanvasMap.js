@@ -33,7 +33,9 @@ export default class CanvasMap {
         if (!ctx) {
             throw new Error("No CanvasRenderingContext2D found");
         }
-        this.multiplier = Math.min(canvas.height, canvas.width) / map.mapDimension;
+        this.canvas.width = this.canvas.clientWidth;
+        this.canvas.height = this.canvas.width;
+        this.multiplier = this.canvas.width / map.mapDimension;
         this.ctx = ctx;
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.lineWidth = 4;
