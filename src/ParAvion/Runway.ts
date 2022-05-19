@@ -21,8 +21,11 @@ export default class Runway {
   // @see https://www.flightlearnings.com/wp-content/uploads/2017/07/8-22a.jpg
   public static ALSF2 = 'ALSF-2'; // A
   public static ALSF1 = 'ALSF-1'; // A1
-  public static MALSR = 'MALSR'; // A5
-  public static ODALS = 'ODALS'; // +⦾
+  public static SALS  = 'SALS';   // A2
+  public static SSALR = 'SSALR';  // A3
+  public static MALS  = 'MALS';   // A4
+  public static MALSR = 'MALSR';  // A5
+  public static ODALS = 'ODALS';  // +⦾
 
   public static TRAFFICPATTERN_WIDTH = 2;
   public static TRAFFICPATTERN_LENGTH = 6;
@@ -73,9 +76,30 @@ export default class Runway {
     // Approach Lights
     if (index === 0 || this.approachLights.first) {
       if (this.ilsFrequencies.get(index)) {
-        this.approachLights.set(index, this.randomizer.isRandTrue() ? Runway.ALSF2 : Runway.ALSF1);
+        this.approachLights.set(index, this.randomizer.fromArray(this.length > 4000
+          ? [
+            Runway.ALSF1,
+            Runway.ALSF2,
+            Runway.MALSR
+          ]
+          : [
+            Runway.MALSR,
+            Runway.MALS
+          ]
+        ));
       } else if (this.randomizer.isRandTrue()) {
-        this.approachLights.set(index, this.randomizer.isRandTrue() ? Runway.MALSR : Runway.ODALS);
+        this.approachLights.set(index, this.randomizer.fromArray(this.length > 4000
+          ? [
+            Runway.ALSF1,
+            Runway.SSALR,
+            Runway.MALSR
+          ]
+          : [
+            Runway.SALS,
+            Runway.MALS,
+            Runway.ODALS
+          ]
+        ));
       }
     }
 

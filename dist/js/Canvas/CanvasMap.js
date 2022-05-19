@@ -33,7 +33,7 @@ export default class CanvasMap {
         if (!ctx) {
             throw new Error("No CanvasRenderingContext2D found");
         }
-        this.canvas.width = this.canvas.clientWidth;
+        this.canvas.width = Math.max(512, this.canvas.clientWidth);
         this.canvas.height = this.canvas.width;
         this.multiplier = this.canvas.width / map.mapDimension;
         this.ctx = ctx;

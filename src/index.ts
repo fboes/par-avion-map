@@ -1,76 +1,37 @@
-import CanvasApproach from './Canvas/CanvasApproach.js';
-import CanvasMap from './Canvas/CanvasMap.js';
-import Randomizer from './Helper/Randomizer.js';
-import LocationsMap from './ParAvion/LocationsMap.js';
-import TerrainMap from './ParAvion/TerrainMap.js';
+import App from './App.js';
+const app =  new App();
 
-const elements = {
-  mapCanvas: <HTMLCanvasElement>document.getElementById('map'),
-  airportsCanvases: <NodeListOf<HTMLCanvasElement>>document.querySelectorAll('.approaches canvas'),
-  seedInput: <HTMLInputElement>document.getElementById('seed'),
-  mapDimensionInput: <HTMLInputElement>document.getElementById('mapdimension'),
-  resolutionInput: <HTMLInputElement>document.getElementById('resolution'),
-  randomizeButton: <HTMLInputElement>document.getElementById('randomize'),
-  generateButton: <HTMLInputElement>document.getElementById('generate'),
-};
-const randomizer = new Randomizer(elements.seedInput ? elements.seedInput.value : '');
-
-function generateMap() {
-  randomizer.seed = elements.seedInput ? elements.seedInput.value : '';
-  elements.seedInput.value = randomizer.seed;
-  const map = new LocationsMap(elements.mapDimensionInput ? elements.mapDimensionInput.valueAsNumber : 16, randomizer);
-  randomizer.seed = randomizer.seed;
-  const terrain = new TerrainMap(map, randomizer, elements.resolutionInput ? elements.resolutionInput.valueAsNumber : 4);
-
-  history.pushState({
-    seed: randomizer.seed,
-    dimension: map.mapDimension,
-    resoultion: terrain.resolution
-  }, '', '#' + randomizer.seed + '-' + map.mapDimension + '-' + terrain.resolution)
-
-  console.log(map);
-  drawMap(map, terrain);
-}
-
-function drawMap(map: LocationsMap, terrain: TerrainMap) {
-  if (elements.mapCanvas) {
-    new CanvasMap(elements.mapCanvas, map, terrain);
-  }
-
-  elements.airportsCanvases.forEach((airportCanvas, id) => {
-    airportCanvas.style.display = map.airports[id] ? 'block' : 'none';
-    if (map.airports[id]) {
-      new CanvasApproach(airportCanvas, map.airports[id]);
-    }
-  });
-}
-
+let resizeTimer: number;
 if (location.hash) {
   const parts = location.hash.slice(1).split('-');
-  elements.seedInput.value = parts[0];
-  elements.mapDimensionInput.value = parts[1];
-  elements.resolutionInput.value = parts[2];
+  app.elements.seedInput.value = parts[0];
+  app.elements.mapDimensionInput.value = parts[1];
+  app.elements.resolutionInput.value = parts[2];
 }
 
 // -----------------------------------------------------------------------------
 
-generateMap();
 
-elements.generateButton.addEventListener('click', generateMap);
-elements.seedInput.addEventListener('change', generateMap);
-elements.mapDimensionInput.addEventListener('change', generateMap);
-elements.resolutionInput.addEventListener('change', generateMap);
-elements.randomizeButton.addEventListener('click', () => {
-  elements.seedInput.value = '';
-  generateMap();
+app.elements.generateButton.addEventListener('click', () => {app.generateMap()});
+app.elements.seedInput.addEventListener('change', () => {app.generateMap()});
+app.elements.mapDimensionInput.addEventListener('change', () => {app.generateMap()});
+app.elements.resolutionInput.addEventListener('change', () => {app.generateMap()});
+app.elements.randomizeButton.addEventListener('click', () => {
+  app.elements.seedInput.value = '';
+  app.generateMap();
 });
-
-window.addEventListener('resize', generateMap);
+app.elements.mapCanvas.addEventListener('click', (event) => {app.pointer(event)})
+app.elements.mapCanvas.addEventListener('mousemove', (event) => {app.pointer(event);});
+app.elements.mapCanvas.addEventListener('wheel', (event) => { event.preventDefault(); app.heading(event) });
+window.addEventListener('resize', () => {
+  // simple debouncer
+  if (resizeTimer !== undefined) {
+    clearTimeout(resizeTimer);
+  }
+  resizeTimer = setTimeout(function() {
+    app.generateMap();
+  }, 250);
+});
 window.addEventListener('popstate', (event) => {
-  randomizer.seed = event.state.seed;
-  const map = new LocationsMap(event.state.dimension, randomizer);
-  randomizer.seed = randomizer.seed;
-  const terrain = new TerrainMap(map, randomizer, event.state.resolution);
-
-  drawMap(map, terrain);
+  app.generateFromSeed(event.state.seed, event.state.dimension, event.state.resolution)
 });

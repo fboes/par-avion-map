@@ -33,6 +33,10 @@
       position: relative;
     }
 
+    section {
+      position: relative;
+    }
+
     section+* {
       margin-top: 0.75em;
     }
@@ -40,6 +44,13 @@
     canvas {
       width: 100%;
       height: auto;
+    }
+
+    canvas#hsi {
+      width: 20%;
+      right: 0.5vmin;
+      bottom: 1vmin;
+      position: absolute;
     }
 
     .approaches div {
@@ -171,6 +182,7 @@
       <section class="map">
         <h2>Map</h2>
         <canvas id="map" height="1280" width="1280"></canvas>
+        <canvas id="hsi" height="256" width="256"></canvas>
       </section>
       <section class="approaches">
         <h2>Approaches</h2>

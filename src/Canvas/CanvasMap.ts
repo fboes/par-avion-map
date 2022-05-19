@@ -31,14 +31,14 @@ export default class CanvasMap {
   };
 
   protected ctx: CanvasRenderingContext2D;
-  protected multiplier: number;
+  public multiplier: number;
 
   constructor(protected canvas: HTMLCanvasElement, protected map: LocationsMap, protected terrain: TerrainMap) {
     const ctx = canvas.getContext("2d");
     if (!ctx) {
       throw new Error("No CanvasRenderingContext2D found");
     }
-    this.canvas.width = this.canvas.clientWidth;
+    this.canvas.width = Math.max(512, this.canvas.clientWidth);
     this.canvas.height = this.canvas.width;
     this.multiplier = this.canvas.width / map.mapDimension;
     this.ctx = ctx;
