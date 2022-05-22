@@ -154,7 +154,7 @@ export default class CanvasHsi {
                         text = 'W';
                         break;
                     default:
-                        text = String(i / 10);
+                        text = (i / 10).toFixed();
                         break;
                 }
                 t.text(0, ring + 15 + length, text);

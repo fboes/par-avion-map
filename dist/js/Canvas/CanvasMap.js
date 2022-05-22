@@ -57,7 +57,7 @@ export default class CanvasMap {
             for (let b = 0; b <= mapDimension; b += 1) {
                 const elevation = this.terrain.getRoundedElevation(a, b);
                 if (elevation !== 5) {
-                    this.ctx.fillStyle = this.elevationColors[String(elevation)];
+                    this.ctx.fillStyle = this.elevationColors[elevation.toFixed()];
                     t.fillRect((a - 0.5) / this.terrain.resolution, (b - 0.5) / this.terrain.resolution, 1 / this.terrain.resolution + 0.01, 1 / this.terrain.resolution + 0.01);
                 }
             }
@@ -118,9 +118,9 @@ export default class CanvasMap {
         }
         t.style("black");
         t.textOutline(this.map.center.x, 1.1, "MAP: " + this.map.randomizer.seed);
-        t.textOutline(this.map.center.x, this.map.mapDimension - 0.7, String(this.map.mapDimension / 2) +
+        t.textOutline(this.map.center.x, this.map.mapDimension - 0.7, (this.map.mapDimension / 2).toFixed() +
             " / " +
-            String(this.map.mapDimension) +
+            this.map.mapDimension.toFixed() +
             " NM");
     }
     makeMaximumElevationFigures() {
@@ -132,9 +132,9 @@ export default class CanvasMap {
             for (let j = start; j <= this.map.mapDimension + offset; j += 10) {
                 const elevation = CanvasTool.terrainElevations(Math.max(this.terrain.getHighestElevationNm(new Coordinates(i - 10, j - 10), 11, 11), this.map.getHighestObstruction(i - 10, j - 10, 10, 10)));
                 t.textStyle(1.5, "right", "bold");
-                t.textOutline(i - 4.9, j - 4.5, String(elevation.thousand));
+                t.textOutline(i - 4.9, j - 4.5, elevation.thousand.toFixed());
                 t.textStyle(1, "left", "bold");
-                t.textOutline(i - 4.9, j - 4.8, String(elevation.hundred));
+                t.textOutline(i - 4.9, j - 4.8, elevation.hundred.toFixed());
             }
         }
     }
@@ -146,7 +146,7 @@ export default class CanvasMap {
                 t.textStyle();
                 t.circle(0, 0, 0.1).fill();
                 t.textMultiline(0, peak.isSwitchLabelPosition ? -1 : 0.7, [
-                    String(Math.ceil(peak.coordinates.elevation)),
+                    Math.ceil(peak.coordinates.elevation).toFixed(),
                     peak.name,
                 ]);
             }
@@ -188,9 +188,9 @@ export default class CanvasMap {
             }
             t.reset();
             t.textMultiline(0, obstruction.isSwitchLabelPosition ? -3 : 0.8, [
-                String((obstruction.coordinates.elevation || 0) +
-                    obstruction.heightAboveGround),
-                "(" + String(obstruction.heightAboveGround) + ")",
+                ((obstruction.coordinates.elevation || 0) +
+                    obstruction.heightAboveGround).toFixed(),
+                "(" + obstruction.heightAboveGround.toFixed() + ")",
             ]);
         });
     }
@@ -413,7 +413,7 @@ export default class CanvasMap {
         t.line(0.5, 1, 0, 0).stroke();
         t.circle(0, 0, 0.25).fill();
         this.ctx.fillStyle = "white";
-        t.text(0.01, 0.14, String(pin));
+        t.text(0.01, 0.14, pin.toFixed());
     }
     makeIls(x, y) {
         const t = this.getNewCanvasTool(x, y);

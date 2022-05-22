@@ -166,7 +166,7 @@ export default class CanvasTool {
         return this.ctx;
     }
     static numPad(text, targetLength) {
-        return String(text).padStart(targetLength, "0");
+        return text.toFixed().padStart(targetLength, "0");
     }
     static frequency(frequency) {
         return frequency.toFixed(2);

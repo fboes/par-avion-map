@@ -203,7 +203,7 @@ export default class CanvasTool {
   }
 
   static numPad(text: number, targetLength: number): string {
-    return String(text).padStart(targetLength, "0");
+    return text.toFixed().padStart(targetLength, "0");
   }
 
   static frequency(frequency: number): string {

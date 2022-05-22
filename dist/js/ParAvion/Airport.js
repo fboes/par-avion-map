@@ -22,8 +22,9 @@ export default class Airport extends Point {
     addRunway(heading) {
         this.runways.push(new Runway(this.coordinates, heading, this.randomizer));
         [heading.degree, heading.oppositeDegree].forEach((h, key) => {
-            let approachPoints = new Waypoint(this.coordinates.getNewCoordinates(new Degree(h), LocationsMap.PADDING / 2), this.randomizer);
-            approachPoints.code = this.code.slice(0, 3) + String(Math.round(h / 10)).padStart(2, '0');
+            const deg = new Degree(h);
+            let approachPoints = new Waypoint(this.coordinates.getNewCoordinates(deg, LocationsMap.PADDING / 2), this.randomizer);
+            approachPoints.code = this.code.slice(0, 3) + Math.round(deg.oppositeDegree / 10).toFixed().padStart(2, '0');
             approachPoints.isSwitchLabelPosition = (key === 0)
                 ? (h > 280 || h < 130)
                 : (heading.oppositeDegree > 320 || heading.oppositeDegree < 40);

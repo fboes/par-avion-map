@@ -185,7 +185,7 @@ export default class CanvasHsi {
           case 90: text = 'E'; break;
           case 180: text = 'S'; break;
           case 270: text = 'W'; break;
-          default: text = String(i / 10); break;
+          default: text = (i / 10).toFixed(); break;
         }
 
         t.text(0, ring + 15 + length, text);

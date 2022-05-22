@@ -43,17 +43,20 @@ export default class CanvasApproach {
     const lineHeight = 7;
     const ilsFrequency = this.airport.runways[0].ilsFrequencies.first;
     const rows = {
-      first: !ilsFrequency ? this.maxX / 2 : this.maxX * 1 / 3,
-      second: !ilsFrequency ? -1 : this.maxX * 2 / 3,
-      firstCenter: !ilsFrequency ? this.maxX * 1 / 4 : this.maxX * 1 / 6,
-      secondCenter: !ilsFrequency ? this.maxX * 3 / 4 : this.maxX * 5 / 6,
-      thirdCenter: !ilsFrequency ? -1 : this.maxX * 3 / 6
+      first: !ilsFrequency ? this.maxX * 1 / 3 : this.maxX * 1 / 4,
+      second: !ilsFrequency ? this.maxX * 2 / 3 : this.maxX * 2 / 4,
+      third: !ilsFrequency ? -1 : this.maxX * 3 / 4,
+      firstCenter: !ilsFrequency ? this.maxX * 1 / 6 : this.maxX * 1 / 8,
+      secondCenter: !ilsFrequency ? this.maxX * 3 / 6 : this.maxX * 5 / 8,
+      thirdCenter: !ilsFrequency ? this.maxX * 5 / 6 : this.maxX * 7 / 8,
+      fourthCenter: !ilsFrequency ? -1 : this.maxX * 3 / 8
     }
 
     t.line(0, 27, this.maxX, 27).stroke();
     t.line(rows.first, 10, rows.first, 27).stroke();
+    t.line(rows.second, 10, rows.second, 27).stroke();
     if (ilsFrequency) {
-      t.line(rows.second, 10, rows.second, 27).stroke();
+      t.line(rows.third, 10, rows.third, 27).stroke();
     }
 
     t.textStyle(6, 'left');
@@ -62,23 +65,27 @@ export default class CanvasApproach {
     t.text(
       this.maxX - 1,
       lineHeight * 1,
-      (ilsFrequency ? 'ILS ' : '') + 'RWY ' + CanvasTool.numPad(Math.round(this.airport.runways[0].heading.degree / 10), 2)
+      (ilsFrequency ? 'ILS ' : '') + 'RWY ' + CanvasTool.numPad(Math.round(this.airport.runways[0].heading.oppositeDegree / 10), 2)
     );
 
 
     t.textStyle(6, 'center');
     t.text(rows.firstCenter, 3 + lineHeight * 2, (this.airport.hasTower ? "CT" : "UNICOM"));
-    t.text(rows.secondCenter, 3 + lineHeight * 2, ('Elevation'));
+    t.text(rows.secondCenter, 3 + lineHeight * 2, ('APR CRS'));
+    t.text(rows.thirdCenter, 3 + lineHeight * 2, ('Elevation'));
     if (ilsFrequency) {
-      t.text(rows.thirdCenter, 3 + lineHeight * 2, "ILS");
+      t.text(rows.fourthCenter, 3 + lineHeight * 2, "ILS");
     }
 
 
     t.textStyle(6, 'center', 'bold');
     t.text(rows.firstCenter, 3 + lineHeight * 3, CanvasTool.frequency(this.airport.frequency));
-    t.text(rows.secondCenter, 3 + lineHeight * 3, String(this.airport.coordinates.elevation));
+    t.text(rows.secondCenter, 3 + lineHeight * 3, this.airport.runways[0].heading.oppositeDegree.toFixed() + '°');
+    if (this.airport.coordinates.elevation) {
+      t.text(rows.thirdCenter, 3 + lineHeight * 3, this.airport.coordinates.elevation.toFixed());
+    }
     if (ilsFrequency) {
-      t.text(rows.thirdCenter, 3 + lineHeight * 3, CanvasTool.frequency(ilsFrequency));
+      t.text(rows.fourthCenter, 3 + lineHeight * 3, CanvasTool.frequency(ilsFrequency));
     }
 
     t.textStyle(4, 'right');
@@ -147,9 +154,9 @@ export default class CanvasApproach {
         [8 - x, + 1.5],
       ]).fill();
       t.line(2 - x, 0, 8 - x, 0).stroke();
-      t.textStyle(4, bearing > 180 ? 'right' :  'left');
+      t.textStyle(4, bearing > 180 ? 'right' : 'left');
       if (bearing > 180) {
-        t.rotate(12 - x, 0 ,180);
+        t.rotate(12 - x, 0, 180);
       }
       t.text(
         12 - x, +1.5,
@@ -203,7 +210,7 @@ export default class CanvasApproach {
         t.textStyle(4);
         const multiplier = (i === 0) ? 1 : -1;
         const posY = runwayX / 2;
-        const deg = (i === 0) ? runway.heading.degree : runway.heading.oppositeDegree;
+        const deg = (i === 0) ? runway.heading.oppositeDegree : runway.heading.degree;
         t.rotate(0, 0, multiplier * -90);
 
         if (runway.slopeIndicators.get(i)) {
@@ -231,7 +238,7 @@ export default class CanvasApproach {
       if (invers) {
         t.rotate(0, 0, 180);
       }
-      t.text(0, invers ? 5.5 : -2.5, String(runway.length) + ' × ' + String(runway.width), CanvasApproach.OUTLINE);
+      t.text(0, invers ? 5.5 : -2.5, runway.length.toFixed() + ' × ' + runway.width.toFixed(), CanvasApproach.OUTLINE);
 
       t.reset();
     });
