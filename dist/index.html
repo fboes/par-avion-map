@@ -47,7 +47,7 @@
     }
 
     canvas#hsi {
-      width: 20%;
+      width: 25%;
       right: 0.5vmin;
       bottom: 1vmin;
       position: absolute;
@@ -81,6 +81,11 @@
       font-size: inherit;
       text-align: center;
     }
+
+    input[type="range"] {
+      padding: 0;
+      vertical-align: bottom;
+   }
 
     button {
       background: #007bff;
@@ -209,6 +214,21 @@
         <span>
           <button id="generate" class="secondary">Generate</button>
           <button id="randomize">Randomize</button>
+        </span>
+      </section>
+      <section class="cockpit">
+        <h2>Cockpit</h2>
+        <span>
+          <label for="heading-select">Heading</label>
+          <input name="heading-select" id="heading-select" type="range" min="-1" max="360" value="45" />
+        </span>
+        <span>
+          <label for="course-1">Course (NAV1)</label>
+          <input name="course-1" id="course-1" type="range" min="-1" max="360" value="45" />
+        </span>
+        <span>
+          <label for="course-2">Course (NAV2)</label>
+          <input name="course-2" id="course-2" type="range" min="-1" max="360" value="135" />
         </span>
       </section>
     </main>

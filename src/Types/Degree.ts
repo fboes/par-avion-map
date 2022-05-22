@@ -27,11 +27,9 @@ export default class Degree {
     min = (min + 360) % 360;
     max = (max + 360) % 360;
 
-    if (min > max) {
-      // searching over end of circle
-      max += 360;
-    }
-
-    return min <= this._degree && this._degree <= max;
+    return (min > max)
+      ? min <= this._degree || this._degree <= max // searching over end of circle
+      : min <= this._degree && this._degree <= max
+      ;
   }
 }

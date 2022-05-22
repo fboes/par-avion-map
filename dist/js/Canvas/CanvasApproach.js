@@ -1,9 +1,10 @@
 import CanvasTool from "./CanvasTool.js";
 import Runway from "../ParAvion/Runway.js";
 export default class CanvasApproach {
-    constructor(canvas, airport) {
+    constructor(canvas, airport, navaids) {
         this.canvas = canvas;
         this.airport = airport;
+        this.navaids = navaids;
         this.colors = {
             white: "#ffffff",
             black: "#000000",
@@ -69,7 +70,7 @@ export default class CanvasApproach {
         const t = this.getNewCanvasTool(xCenter, yCenter);
         t.style(this.colors.white, this.colors.black, 0.5);
         if (this.airport.hasBeacon) {
-            t.polygon([
+            t.polygon(CanvasTool.scale([
                 [0, -0.2],
                 [+0.065, -0.05],
                 [+0.2, -0.05],
@@ -80,7 +81,7 @@ export default class CanvasApproach {
                 [-0.08, 0.06],
                 [-0.2, -0.05],
                 [-0.065, -0.05],
-            ], 0.1).fill();
+            ], 0.1)).fill();
             this.ctx.stroke();
         }
         if (this.airport.hasTower) {
@@ -108,6 +109,21 @@ export default class CanvasApproach {
                 t.line(xOffset + i * mile, -yCenter, xOffset + i * mile, yCenter).stroke();
             }
         }
+        t.textStyle(4, 'left');
+        const x = xCenter + 3;
+        t.style(this.colors.black);
+        this.navaids.forEach((navaid, index) => {
+            const bearing = navaid.coordinates.getBearing(this.airport.coordinates);
+            t.rotate(0, 0, bearing + 90);
+            t.polygon([
+                [11 - x, 0],
+                [8 - x, -1.5],
+                [8 - x, +1.5],
+            ]).fill();
+            t.line(2 - x, 0, 8 - x, 0).stroke();
+            t.text(12 - x, +1.5, navaid.code + ': ' + bearing.toFixed() + '° ' + navaid.coordinates.getDistance(this.airport.coordinates).toFixed(2) + 'NM');
+            t.reset();
+        });
         this.airport.runways.forEach((runway) => {
             t.rotate(0, 0, runway.heading.degree - 90);
             const runwayX = runway.length / CanvasApproach.FACTOR;

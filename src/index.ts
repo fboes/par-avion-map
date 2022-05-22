@@ -1,5 +1,5 @@
 import App from './App.js';
-const app =  new App();
+const app = new App();
 
 let resizeTimer: number;
 if (location.hash) {
@@ -12,23 +12,26 @@ if (location.hash) {
 // -----------------------------------------------------------------------------
 
 
-app.elements.generateButton.addEventListener('click', () => {app.generateMap()});
-app.elements.seedInput.addEventListener('change', () => {app.generateMap()});
-app.elements.mapDimensionInput.addEventListener('change', () => {app.generateMap()});
-app.elements.resolutionInput.addEventListener('change', () => {app.generateMap()});
+app.elements.generateButton.addEventListener('click', () => { app.generateMap() });
+app.elements.seedInput.addEventListener('change', () => { app.generateMap() });
+app.elements.mapDimensionInput.addEventListener('change', () => { app.generateMap() });
+app.elements.resolutionInput.addEventListener('change', () => { app.generateMap() });
 app.elements.randomizeButton.addEventListener('click', () => {
   app.elements.seedInput.value = '';
   app.generateMap();
 });
-app.elements.mapCanvas.addEventListener('click', (event) => {app.pointer(event)})
-app.elements.mapCanvas.addEventListener('mousemove', (event) => {app.pointer(event);});
-app.elements.mapCanvas.addEventListener('wheel', (event) => { event.preventDefault(); app.heading(event) });
+app.elements.mapCanvas.addEventListener('click', (event) => { app.updatePosition(event) })
+app.elements.mapCanvas.addEventListener('mousemove', (event) => { app.updatePosition(event); });
+app.elements.mapCanvas.addEventListener('wheel', (event) => { event.preventDefault(); app.changeHeading(event) });
+app.elements.course1Input.addEventListener('change', (event) => { app.changeCourse(event, 0) });
+app.elements.course2Input.addEventListener('change', (event) => { app.changeCourse(event, 1) });
+app.elements.headingSelectInput.addEventListener('change', (event) => { app.changeHeadingSelect(event) });
 window.addEventListener('resize', () => {
   // simple debouncer
   if (resizeTimer !== undefined) {
     clearTimeout(resizeTimer);
   }
-  resizeTimer = setTimeout(function() {
+  resizeTimer = setTimeout(function () {
     app.generateMap();
   }, 250);
 });

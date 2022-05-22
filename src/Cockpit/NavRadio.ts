@@ -6,7 +6,7 @@ export default class NavRadio {
   bearing: Degree | undefined;
   distance: number | undefined;
 
-  constructor(public label: string) {
+  constructor(public label: string, public type: string) {
   }
 
   setBearing(bearing: number) {
@@ -16,9 +16,7 @@ export default class NavRadio {
       this.bearing.degree = bearing;
     }
 
-    if (this.course) {
-      this.setDeviation(this.course.degree - this.bearing.degree);
-    }
+    this.caluclateDeviation();
   }
 
   setCourse(course: number) {
@@ -27,6 +25,8 @@ export default class NavRadio {
     } else {
       this.course.degree = course;
     }
+
+    this.caluclateDeviation();
   }
 
   setDeviation(deviation: number) {
@@ -34,6 +34,12 @@ export default class NavRadio {
       this.deviation = new Degree(deviation);
     } else {
       this.deviation.degree = deviation;
+    }
+  }
+
+  caluclateDeviation() {
+    if (this.course && this.bearing) {
+      this.setDeviation(this.course.degree - this.bearing.degree);
     }
   }
 };

@@ -7,6 +7,7 @@ import Coordinates from "./Types/Coordinates.js";
 import CanvasHsi from "./Canvas/CanvasHsi.js";
 import Hsi from "./Cockpit/Hsi.js";
 import Navaid from "./ParAvion/Navaid.js";
+import Degree from "./Types/Degree.js";
 
 type Elements = {
   mapCanvas: HTMLCanvasElement,
@@ -16,14 +17,17 @@ type Elements = {
   mapDimensionInput: HTMLInputElement,
   resolutionInput: HTMLInputElement,
   randomizeButton: HTMLInputElement,
-  generateButton: HTMLInputElement
+  generateButton: HTMLInputElement,
+  headingSelectInput: HTMLInputElement,
+  course1Input: HTMLInputElement,
+  course2Input: HTMLInputElement
 };
 
 export default class App {
   protected randomizer!: Randomizer;
   protected map!: LocationsMap;
   protected terrain!: TerrainMap;
-  protected hsi: CanvasHsi;
+  protected hsi!: CanvasHsi;
   protected multiplier = 0;
   public elements: Elements;
 
@@ -37,26 +41,20 @@ export default class App {
       resolutionInput: <HTMLInputElement>document.getElementById('resolution'),
       randomizeButton: <HTMLInputElement>document.getElementById('randomize'),
       generateButton: <HTMLInputElement>document.getElementById('generate'),
+      headingSelectInput: <HTMLInputElement>document.getElementById('heading-select'),
+      course1Input: <HTMLInputElement>document.getElementById('course-1'),
+      course2Input: <HTMLInputElement>document.getElementById('course-2'),
     };
-    this.hsi = new CanvasHsi(this.elements.hsiCanvas, new Hsi(0));
     this.generateMap();
   }
 
-  generateMap () {
+  generateMap() {
     this.randomizer = new Randomizer(this.elements.seedInput ? this.elements.seedInput.value : ''),
-    this.randomizer.seed = this.elements.seedInput ? this.elements.seedInput.value : '';
+      this.randomizer.seed = this.elements.seedInput ? this.elements.seedInput.value : '';
     this.elements.seedInput.value = this.randomizer.seed;
     this.map = new LocationsMap(this.elements.mapDimensionInput ? this.elements.mapDimensionInput.valueAsNumber : 16, this.randomizer);
     this.randomizer.seed = this.randomizer.seed;
     this.terrain = new TerrainMap(this.map, this.randomizer, this.elements.resolutionInput ? this.elements.resolutionInput.valueAsNumber : 4);
-
-    this.map.navAids.forEach((navAid, index) => {
-      let currentRadio = this.hsi.hsi.navRadios[index];
-      currentRadio.label = navAid.code;
-      if (navAid.type === Navaid.VOR) {
-        currentRadio.setCourse(35 * (index +1));
-      }
-    });
 
     this.pushState();
     this.drawMap();
@@ -79,7 +77,26 @@ export default class App {
     this.drawMap();
   }
 
-  drawMap () {
+  drawMap() {
+    this.hsi = new CanvasHsi(this.elements.hsiCanvas, new Hsi(0));
+    this.hsi.hsi.headingSelect = new Degree(this.elements.headingSelectInput.valueAsNumber);
+    this.map.navAids.forEach((navAid, index) => {
+      let currentRadio = this.hsi.hsi.navRadios[index];
+      if (currentRadio !== undefined) {
+        let currentCourseInput = (index === 0)
+          ? this.elements.course1Input
+          : this.elements.course2Input
+          ;
+        currentCourseInput.disabled = (navAid.type !== Navaid.VOR);
+        currentRadio.label = navAid.code;
+        currentRadio.type = navAid.type;
+        if (navAid.type === Navaid.VOR) {
+          currentRadio.setCourse(currentCourseInput.valueAsNumber);
+        }
+      }
+    });
+    this.hsi.draw();
+
     if (this.elements.mapCanvas) {
       const canvasMap = new CanvasMap(this.elements.mapCanvas, this.map, this.terrain);
       this.multiplier = canvasMap.multiplier;
@@ -88,12 +105,12 @@ export default class App {
     this.elements.airportsCanvases.forEach((airportCanvas, id) => {
       airportCanvas.style.display = this.map.airports[id] ? 'block' : 'none';
       if (this.map.airports[id]) {
-        new CanvasApproach(airportCanvas, this.map.airports[id]);
+        new CanvasApproach(airportCanvas, this.map.airports[id], this.map.navAids);
       }
     });
   }
 
-  pointer (event: MouseEvent) {
+  updatePosition(event: MouseEvent) {
     const bound = this.elements.mapCanvas.getBoundingClientRect();
     const yourCoords = new Coordinates(
       (event.clientX - bound.left) / this.multiplier,
@@ -102,16 +119,47 @@ export default class App {
 
     this.map.navAids.forEach((navAid, index) => {
       let currentRadio = this.hsi.hsi.navRadios[index];
-      currentRadio.label = navAid.code;
-      currentRadio.setBearing(yourCoords.getBearing(navAid.coordinates));
-      currentRadio.distance = navAid.hasDme ? yourCoords.getDistance(navAid.coordinates) : undefined;
+      if (currentRadio) {
+        currentRadio.label = navAid.code;
+        currentRadio.type = navAid.type;
+        currentRadio.setBearing(yourCoords.getBearing(navAid.coordinates));
+        currentRadio.distance = navAid.hasDme ? yourCoords.getDistance(navAid.coordinates) : undefined;
+      }
     });
 
     this.hsi.draw();
   }
 
-  heading(event: WheelEvent) {
-    this.hsi.hsi.heading.degree += (event.deltaY / 100);
+  changeHeading(event: WheelEvent) {
+    this.hsi.hsi.heading.degree -= (event.deltaY / 100);
     this.hsi.draw();
+  }
+
+  changeHeadingSelect(event: Event) {
+    if (this.hsi.hsi.headingSelect) {
+      const target = <HTMLInputElement>event.target;
+      if (target.valueAsNumber < 0) {
+        target.valueAsNumber += 360;
+      } else if (target.valueAsNumber > 359) {
+        target.valueAsNumber -= 360;
+      }
+      this.hsi.hsi.headingSelect = new Degree(target.valueAsNumber);
+      this.hsi.draw();
+    }
+  }
+
+  changeCourse(event: Event, index: number) {
+    const radio = this.hsi.hsi.navRadios[index];
+    const target = <HTMLInputElement>event.target;
+    if (radio && radio.course && target) {
+      if (target.valueAsNumber < 0) {
+        target.valueAsNumber += 360;
+      } else if (target.valueAsNumber > 359) {
+        target.valueAsNumber -= 360;
+      }
+      radio.setCourse(target.valueAsNumber);
+      radio.caluclateDeviation();
+      this.hsi.draw();
+    }
   }
 }

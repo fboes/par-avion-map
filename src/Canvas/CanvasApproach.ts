@@ -1,6 +1,7 @@
 import Airport from "../ParAvion/Airport.js";
 import CanvasTool from "./CanvasTool.js";
 import Runway from "../ParAvion/Runway.js";
+import Navaid from "../ParAvion/Navaid.js";
 
 export default class CanvasApproach {
   colors = {
@@ -18,7 +19,7 @@ export default class CanvasApproach {
   static OUTLINE = 1;
   static FACTOR = 75;
 
-  constructor(protected canvas: HTMLCanvasElement, protected airport: Airport) {
+  constructor(protected canvas: HTMLCanvasElement, protected airport: Airport, protected navaids: Navaid[]) {
     const ctx = canvas.getContext("2d");
     if (!ctx) {
       throw new Error("No CanvasRenderingContext2D found");
@@ -93,7 +94,7 @@ export default class CanvasApproach {
     const t = this.getNewCanvasTool(xCenter, yCenter);
     t.style(this.colors.white, this.colors.black, 0.5);
     if (this.airport.hasBeacon) {
-      t.polygon([
+      t.polygon(CanvasTool.scale([
         [0, -0.2],
         [+0.065, -0.05],
         [+0.2, -0.05],
@@ -104,14 +105,14 @@ export default class CanvasApproach {
         [-0.08, 0.06],
         [-0.2, -0.05],
         [-0.065, -0.05],
-      ], 0.1).fill();
+      ], 0.1)).fill();
       this.ctx.stroke();
     }
     if (this.airport.hasTower) {
       const t2 = this.getNewCanvasTool(this.maxX / 2, (this.maxY - 27) / 2 + 27);
-      t2.rotate(0,0,this.airport.runways[0].heading.degree + 90);
+      t2.rotate(0, 0, this.airport.runways[0].heading.degree + 90);
       t2.style(this.colors.black);
-      t2.fillRect(3,-8.5, 2,2);
+      t2.fillRect(3, -8.5, 2, 2);
       t2.reset();
     }
   }
@@ -134,6 +135,26 @@ export default class CanvasApproach {
         t.line(xOffset + i * mile, -yCenter, xOffset + i * mile, yCenter).stroke();
       }
     }
+
+    t.textStyle(4, 'left');
+    const x = xCenter + 3;
+    t.style(this.colors.black);
+    this.navaids.forEach((navaid, index) => {
+      const bearing = navaid.coordinates.getBearing(this.airport.coordinates);
+      t.rotate(0, 0, bearing + 90);
+      t.polygon([
+        [11 - x, 0],
+        [8 - x, - 1.5],
+        [8 - x, + 1.5],
+      ]).fill();
+      t.line(2 - x, 0, 8 - x, 0).stroke();
+      t.text(
+        12 - x, +1.5,
+        navaid.code + ': ' + bearing.toFixed() + '° ' + navaid.coordinates.getDistance(this.airport.coordinates).toFixed(2) + 'NM'
+      );
+      t.reset();
+    });
+
     this.airport.runways.forEach((runway) => {
       t.rotate(0, 0, runway.heading.degree - 90);
 
@@ -214,7 +235,7 @@ export default class CanvasApproach {
   }
 
   protected isShortApproach(approachLight: string) {
-    return  approachLight === Runway.ODALS || approachLight === Runway.SALS || approachLight === Runway.MALS;
+    return approachLight === Runway.ODALS || approachLight === Runway.SALS || approachLight === Runway.MALS;
   }
 
 
@@ -249,9 +270,9 @@ export default class CanvasApproach {
         let text = '1';
         switch (label) {
           case Runway.ALSF1: text = '1'; break;
-          case Runway.SALS:  text = '2'; break;
+          case Runway.SALS: text = '2'; break;
           case Runway.SSALR: text = '3'; break;
-          case Runway.MALS:  text = '4'; break;
+          case Runway.MALS: text = '4'; break;
           case Runway.MALSR: text = '5'; break;
         }
         t.text(x + 0.35, y + 1.4, text);
@@ -282,14 +303,14 @@ export default class CanvasApproach {
           || label === Runway.ODALS
         ) {
           t.line(
-            x, y + i/ CanvasApproach.FACTOR,
-            x, y + (i + width)/ CanvasApproach.FACTOR
+            x, y + i / CanvasApproach.FACTOR,
+            x, y + (i + width) / CanvasApproach.FACTOR
           ).stroke();
 
         } else {
           t.line(
-            x-width / 2/ CanvasApproach.FACTOR, y + i/ CanvasApproach.FACTOR,
-            x+width / 2 / CanvasApproach.FACTOR, y + i/ CanvasApproach.FACTOR
+            x - width / 2 / CanvasApproach.FACTOR, y + i / CanvasApproach.FACTOR,
+            x + width / 2 / CanvasApproach.FACTOR, y + i / CanvasApproach.FACTOR
           ).stroke();
         }
       }
@@ -297,24 +318,24 @@ export default class CanvasApproach {
       if (i > 0 && i < 1000 && label === Runway.ALSF2) {
         let width2 = 50;
         t.line(
-          x-(width + 300) / 2/ CanvasApproach.FACTOR, y + i/ CanvasApproach.FACTOR,
-          x-(width + 300 - width2) / 2 / CanvasApproach.FACTOR, y + i/ CanvasApproach.FACTOR
+          x - (width + 300) / 2 / CanvasApproach.FACTOR, y + i / CanvasApproach.FACTOR,
+          x - (width + 300 - width2) / 2 / CanvasApproach.FACTOR, y + i / CanvasApproach.FACTOR
         ).stroke();
         t.line(
-          x+(width + 300) / 2/ CanvasApproach.FACTOR, y + i/ CanvasApproach.FACTOR,
-          x+(width + 300 - width2) / 2 / CanvasApproach.FACTOR, y + i/ CanvasApproach.FACTOR
+          x + (width + 300) / 2 / CanvasApproach.FACTOR, y + i / CanvasApproach.FACTOR,
+          x + (width + 300 - width2) / 2 / CanvasApproach.FACTOR, y + i / CanvasApproach.FACTOR
         ).stroke();
       }
 
       if (i === 1000 && label !== Runway.ODALS) {
         let width2 = 200;
         t.line(
-          x-(width + 300) / 2/ CanvasApproach.FACTOR, y + i/ CanvasApproach.FACTOR,
-          x-(width + 300 - width2) / 2 / CanvasApproach.FACTOR, y + i/ CanvasApproach.FACTOR
+          x - (width + 300) / 2 / CanvasApproach.FACTOR, y + i / CanvasApproach.FACTOR,
+          x - (width + 300 - width2) / 2 / CanvasApproach.FACTOR, y + i / CanvasApproach.FACTOR
         ).stroke();
         t.line(
-          x+(width + 300) / 2/ CanvasApproach.FACTOR, y + i/ CanvasApproach.FACTOR,
-          x+(width + 300 - width2) / 2 / CanvasApproach.FACTOR, y + i/ CanvasApproach.FACTOR
+          x + (width + 300) / 2 / CanvasApproach.FACTOR, y + i / CanvasApproach.FACTOR,
+          x + (width + 300 - width2) / 2 / CanvasApproach.FACTOR, y + i / CanvasApproach.FACTOR
         ).stroke();
       }
     }

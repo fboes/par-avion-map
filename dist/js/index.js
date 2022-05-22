@@ -16,9 +16,12 @@ app.elements.randomizeButton.addEventListener('click', () => {
     app.elements.seedInput.value = '';
     app.generateMap();
 });
-app.elements.mapCanvas.addEventListener('click', (event) => { app.pointer(event); });
-app.elements.mapCanvas.addEventListener('mousemove', (event) => { app.pointer(event); });
-app.elements.mapCanvas.addEventListener('wheel', (event) => { event.preventDefault(); app.heading(event); });
+app.elements.mapCanvas.addEventListener('click', (event) => { app.updatePosition(event); });
+app.elements.mapCanvas.addEventListener('mousemove', (event) => { app.updatePosition(event); });
+app.elements.mapCanvas.addEventListener('wheel', (event) => { event.preventDefault(); app.changeHeading(event); });
+app.elements.course1Input.addEventListener('change', (event) => { app.changeCourse(event, 0); });
+app.elements.course2Input.addEventListener('change', (event) => { app.changeCourse(event, 1); });
+app.elements.headingSelectInput.addEventListener('change', (event) => { app.changeHeadingSelect(event); });
 window.addEventListener('resize', () => {
     // simple debouncer
     if (resizeTimer !== undefined) {

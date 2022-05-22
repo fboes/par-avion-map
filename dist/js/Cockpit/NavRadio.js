@@ -1,7 +1,8 @@
 import Degree from "../Types/Degree.js";
 export default class NavRadio {
-    constructor(label) {
+    constructor(label, type) {
         this.label = label;
+        this.type = type;
     }
     setBearing(bearing) {
         if (!this.bearing) {
@@ -10,9 +11,7 @@ export default class NavRadio {
         else {
             this.bearing.degree = bearing;
         }
-        if (this.course) {
-            this.setDeviation(this.course.degree - this.bearing.degree);
-        }
+        this.caluclateDeviation();
     }
     setCourse(course) {
         if (!this.course) {
@@ -21,6 +20,7 @@ export default class NavRadio {
         else {
             this.course.degree = course;
         }
+        this.caluclateDeviation();
     }
     setDeviation(deviation) {
         if (!this.deviation) {
@@ -28,6 +28,11 @@ export default class NavRadio {
         }
         else {
             this.deviation.degree = deviation;
+        }
+    }
+    caluclateDeviation() {
+        if (this.course && this.bearing) {
+            this.setDeviation(this.course.degree - this.bearing.degree);
         }
     }
 }

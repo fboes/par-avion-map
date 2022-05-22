@@ -1,6 +1,5 @@
 import Hsi from "../Cockpit/Hsi.js";
 import NavRadio from "../Cockpit/NavRadio.js";
-import Degree from "../Types/Degree.js";
 import CanvasTool from "./CanvasTool.js";
 
 
@@ -13,11 +12,10 @@ export default class CanvasHsi {
     if (!ctx) {
       throw new Error("No CanvasRenderingContext2D found");
     }
-    this.canvas.width = Math.max(512, this.canvas.clientWidth);
+    this.canvas.width = Math.max(128, this.canvas.clientWidth);
     this.canvas.height = this.canvas.width;
     this.multiplier = this.canvas.width / 256;
     this.ctx = ctx;
-
 
     this.draw();
   }
@@ -27,119 +25,152 @@ export default class CanvasHsi {
 
     const t = new CanvasTool(this.ctx, 128, 128, this.multiplier);
     t.style('rgba(0,0,0,0.7');
-    t.fillRect(-128,-128,256,256);
+    t.fillRect(-128, -128, 256, 256);
 
     t.style('white', 'white', 2);
-    t.circle(0,0,70).stroke(); // around plane
-    for (let i = 0; i < 360; i += 45) {
-      if (i === 0) {
-        t.line(0, -128, 0, -120).stroke(); // TODO: Chevron
-      } else {
-        t.line(0, -128, 0, -120).stroke();
-      }
-      t.rotate(0,0,45);
-    }
-
+    t.circle(0, 0, 65).stroke(); // around plane
     this.hsi.navRadios.forEach((navRadio, index) => {
       this.drawNavRadio(navRadio, index);
     })
     this.drawHeading();
+    this.drawHeadingSelect();
     this.drawPlane();
   }
 
   protected drawNavRadio(navRadio: NavRadio, index: number) {
     const t = new CanvasTool(this.ctx, 128, 128, this.multiplier);
-    const color = index === 0 ? 'cyan' : 'magenta';
-    const maxArrow = 110;
-    const circleDeviation = 65;
+    let color = index === 0 ? 'rgba(63,255,72,255)' : 'rgba(50,245,255,255)';
+    //let color = index === 0 ? 'rgba(63,255,72,255)' : 'rgba(50,200,255,255)';
+    const maxArrow = 104;
+    const circleDeviation = 61;
     const deviationSpacer = 25;
-
+    let deviation: number | null = null;
     t.style(color, color, 2);
 
-    if (navRadio.bearing) {
-      t.rotate(0,0,this.hsi.heading.degree + navRadio.bearing.degree);
-      t.polygon([
-        [-5, 7-maxArrow],
-        [0, -maxArrow],
-        [5, 7-maxArrow],
-        [5, maxArrow],
-        [-5, maxArrow]
-      ]).stroke();
-      t.reset();
-    }
-
-
-    t.textStyle(15, index === 0 ? 'left' : 'right');
-    t.text(
-      index === 0 ? -125 : +125,
-      -110,
-      navRadio.label
+    const align = index === 0 ? 'left' : 'right';
+    this.text(
+      t,
+      index === 0 ? -125 : +125, -112,
+      navRadio.label, navRadio.type,
+      align
     );
     if (navRadio.distance) {
-      t.text(
-        index === 0 ? -125 : +125,
-        120,
-        navRadio.distance.toFixed(2)
+      this.text(
+        t,
+        index === 0 ? -125 : +125, 115,
+        navRadio.distance.toFixed(2) + ' NM', 'DME',
+        align
+      );
+    }
+    if (navRadio.course) {
+      this.text(
+        t,
+        index === 0 ? -125 : +125, navRadio.distance ? 83 : 115,
+        navRadio.course.degree.toFixed(0) + '°', 'CRS',
+        align
+      );
+    } else if (navRadio.bearing) {
+      this.text(
+        t,
+        index === 0 ? -125 : +125, navRadio.distance ? 83 : 115,
+        navRadio.bearing.degree.toFixed(0) + '°', 'BRG',
+        align
       );
     }
 
     if (navRadio.course) {
-      t.rotate(0,0,this.hsi.heading.degree + navRadio.course.degree);
+      t.rotate(0, 0, navRadio.course.degree - this.hsi.heading.degree);
 
       if (navRadio.deviation) {
         const isTo = navRadio.deviation.isBetween(270, 90);
-
-        let deviation = navRadio.deviation.degree;
+        deviation = navRadio.deviation.degree;
         if (deviation > 270) { deviation -= 360; }
         else if (deviation > 90) { deviation -= 180; deviation *= -1; }
+        deviation = Math.max(-10, Math.min(10, deviation));
 
-        const currentDeviation = (deviation / 90) * 2 * deviationSpacer;
-        t.polygon(isTo
-          ?[
-          [currentDeviation -3, 7-circleDeviation +5],
-          [currentDeviation, -circleDeviation +5],
-          [currentDeviation + 3, 7-circleDeviation +5],
-          [currentDeviation + 3, circleDeviation -2],
-          [currentDeviation + -3, circleDeviation -2]
-        ] : [
-          [currentDeviation -3, -1 * (7-circleDeviation +5)],
-          [currentDeviation, -1 * (-circleDeviation +5)],
-          [currentDeviation + 3, -1 * (7-circleDeviation +5)],
-          [currentDeviation + 3, -1 * (circleDeviation -2)],
-          [currentDeviation + -3, -1 * (circleDeviation -2)]
-        ]).fill();
+        const currentDeviation = (deviation / 10) * 2 * deviationSpacer;
+
+
+        t.polygon(CanvasTool.mirror([
+          [currentDeviation - 10, 14 - 50],
+          [currentDeviation + 0, - 50],
+          [currentDeviation + 10, 14 - 50],
+          [currentDeviation + 3, 12 - 50],
+          [currentDeviation + 3, 14 - 50],
+          [currentDeviation + 3, circleDeviation - 2],
+          [currentDeviation - 3, circleDeviation - 2],
+          [currentDeviation - 3, 14 - 50],
+          [currentDeviation - 3, 12 - 50],
+        ], 1, isTo ? 1 : -1)).fill();
+
+        t.polygon(CanvasTool.mirror([
+          [currentDeviation - 3, -circleDeviation + 2],
+          [currentDeviation + 3, -circleDeviation + 2],
+          [currentDeviation + 3, 2 - 50],
+          [currentDeviation + 0, - 50 - 3],
+          [currentDeviation - 3, 2 - 50]
+        ], 1, isTo ? 1 : -1)).fill();
       }
 
       t.polygon([
-        [-3, 7-maxArrow +7],
-        [0, -maxArrow +7],
-        [3, 7-maxArrow +7],
+        [-10, 14 - maxArrow],
+        [0, -maxArrow],
+        [10, 14 - maxArrow],
+        [3, 12 - maxArrow],
+        [3, 14 - maxArrow],
         [3, -circleDeviation],
-        [-3, -circleDeviation]
+        [-3, -circleDeviation],
+        [-3, 14 - maxArrow],
+        [-3, 12 - maxArrow],
       ]).fill();
-
       t.polygon([
         [-3, circleDeviation],
         [3, circleDeviation],
-        [3, maxArrow -7],
-        [-3, maxArrow -7]
+        [3, maxArrow - 2],
+        [-3, maxArrow - 2]
       ]).fill();
 
       t.style('white', 'white', 2);
-      t.circle(2 * deviationSpacer,0,5).stroke();
-      t.circle(deviationSpacer,0,5).stroke();
-      t.circle(-deviationSpacer,0,5).stroke();
-      t.circle(-2 * deviationSpacer,0,5).stroke();
+      t.circle(2 * deviationSpacer, 0, 5).stroke();
+      t.circle(deviationSpacer, 0, 5).stroke();
+      t.circle(-deviationSpacer, 0, 5).stroke();
+      t.circle(-2 * deviationSpacer, 0, 5).stroke();
+      t.reset();
+    }
+
+    if (navRadio.bearing) {
+      if (deviation !== null) {
+        color = color.replace(
+          ',255)',
+          ',' + Math.abs(deviation / 10).toFixed(3) + ')'
+        );
+      }
+      t.style(color, color, 2);
+
+      t.rotate(0, 0, navRadio.bearing.degree - this.hsi.heading.degree);
+      t.polygon([
+        [-5, 10 - maxArrow],
+        [0, -maxArrow],
+        [5, 10 - maxArrow],
+        [5, maxArrow],
+        [-5, maxArrow]
+      ]).stroke();
+      t.polygon([
+        [-10, 14 - maxArrow],
+        [0, -maxArrow],
+        [10, 14 - maxArrow],
+        [0, 10 - maxArrow],
+      ]).fill();
       t.reset();
     }
   }
 
   protected drawHeading() {
     const t = new CanvasTool(this.ctx, 128, 128, this.multiplier);
-    const ring = -118;
+    const ring = -104;
     t.style('white', 'white', 2);
     t.textStyle(15);
-    t.rotate(0,0,this.hsi.heading.degree);
+    t.rotate(0, 0, -this.hsi.heading.degree);
 
     for (let i = 0; i < 360; i += 5) {
       let length = 5;
@@ -148,22 +179,87 @@ export default class CanvasHsi {
       }
       if (i % 30 === 0) {
         length += 5;
-        t.text(0, ring + 15 + length, String(i / 10));
+        let text;
+        switch (i) {
+          case 0: text = 'N'; break;
+          case 90: text = 'E'; break;
+          case 180: text = 'S'; break;
+          case 270: text = 'W'; break;
+          default: text = String(i / 10); break;
+        }
+
+        t.text(0, ring + 15 + length, text);
       }
       t.line(0, ring, 0, ring + length).stroke();
-      t.rotate(0,0,5);
+      t.rotate(0, 0, 5);
     }
 
     if (this.hsi.headingSelect) {
-      t.rotate(0,0,this.hsi.headingSelect.degree);
+      t.rotate(0, 0, this.hsi.headingSelect.degree);
       // TODO: paint heading select
     }
 
     t.reset();
   }
 
+  protected drawHeadingSelect() {
+    if (this.hsi.headingSelect) {
+      const t = new CanvasTool(this.ctx, 128, 128, this.multiplier);
+      const y = 15;
+      t.style('rgb(255,0,255)', 'rgb(255,0,255)', 2);
+      t.textStyle(15);
+      t.text(0, 125, this.hsi.headingSelect.degree.toFixed(0) + '°')
+
+      t.rotate(0, 0, this.hsi.headingSelect.degree - this.hsi.heading.degree);
+      t.polygonRaw([
+        [-10, y - 119],
+        [-10, y - 125],
+        [-5, y - 125],
+        [0, y - 118],
+        [5, y - 125],
+        [10, y - 125],
+        [10, y - 119]
+      ]).fill();
+      t.reset();
+    }
+  }
+
   protected drawPlane() {
-    // TODO: orange lubber line
-    // TODO: plane
+    const t = new CanvasTool(this.ctx, 128, 128, this.multiplier);
+    const y = 15;
+
+    // Plane
+    t.style('white', 'white', 2);
+    t.line(0, -12, 0, +10).stroke();
+    t.line(-10, 0, 10, 0).stroke();
+    t.line(-6, +10, 6, +10).stroke();
+
+    for (let i = 0; i < 360; i += 45) {
+      if (i === 0) {
+        this.ctx.beginPath();
+        t.polygonRaw([
+          [-18, y - 125],
+          [-5, y - 125],
+          [0, y - 118],
+          [5, y - 125],
+          [18, y - 125]
+        ]).stroke();
+      } else {
+        t.line(0, y - 128, 0, y - 120).stroke();
+      }
+      t.rotate(0, 0, 45);
+    }
+
+    t.textStyle(15);
+    t.text(0, -112, this.hsi.heading.degree.toFixed(0) + '°')
+  }
+
+  text(t: CanvasTool, x: number, y: number, main: string, label: string, align: CanvasTextAlign = 'left') {
+    if (label) {
+      t.textStyle(8, align);
+      t.text(x, y - 6, label);
+    }
+    t.textStyle(14, align);
+    t.text(x, y + (label ? 9 : 0), main);
   }
 }

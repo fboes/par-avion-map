@@ -135,22 +135,22 @@ export default class CanvasTool {
      *  If there are six coordinates, it will be treaded as bezier curve.
      * @returns the drawing context
      */
-    polygon(points, scale = 1) {
+    polygon(points) {
         this.ctx.beginPath();
-        this.polygonRaw(points, scale);
+        this.polygonRaw(points);
         this.ctx.closePath();
         return this.ctx;
     }
-    polygonRaw(points, scale = 1) {
+    polygonRaw(points) {
         points.forEach((point, index) => {
             if (index === 0) {
-                this.ctx.moveTo(this.dX(point[0] / scale), this.dY(point[1] / scale));
+                this.ctx.moveTo(this.dX(point[0]), this.dY(point[1]));
             }
             else if (point.length === 6) {
-                this.ctx.bezierCurveTo(this.dX(point[0] / scale), this.dY(point[1] / scale), this.dX(point[2] / scale), this.dY(point[3] / scale), this.dX(point[4] / scale), this.dY(point[5] / scale));
+                this.ctx.bezierCurveTo(this.dX(point[0]), this.dY(point[1]), this.dX(point[2]), this.dY(point[3]), this.dX(point[4]), this.dY(point[5]));
             }
             else {
-                this.ctx.lineTo(this.dX(point[0] / scale), this.dY(point[1] / scale));
+                this.ctx.lineTo(this.dX(point[0]), this.dY(point[1]));
             }
         });
         return this.ctx;
@@ -177,5 +177,24 @@ export default class CanvasTool {
             thousand: Math.floor(elevation / 1000),
             hundred: (elevation % 1000) / 100,
         };
+    }
+    static scale(points, scale) {
+        if (scale === 1) {
+            return points;
+        }
+        return points.map((point) => {
+            return point.map((c) => { return c / scale; });
+        });
+    }
+    static mirror(points, x = 1, y = 1) {
+        if (x === 1 && y === 1) {
+            return points;
+        }
+        return points.map((point) => {
+            return [
+                point[0] / x,
+                point[1] / y
+            ];
+        });
     }
 }

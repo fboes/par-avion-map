@@ -67,19 +67,19 @@ export default class CanvasMap {
                 const inclinationColors = this.terrain.getInclinationColors(i, j);
                 if (inclinationColors[0]) {
                     this.ctx.fillStyle = inclinationColors[0];
-                    t.polygon([
+                    t.polygon(CanvasTool.scale([
                         [i, j],
                         [i - 1, j + 1],
                         [i - 1, j],
-                    ], this.terrain.resolution).fill();
+                    ], this.terrain.resolution)).fill();
                 }
                 if (inclinationColors[1]) {
                     this.ctx.fillStyle = inclinationColors[1];
-                    t.polygon([
+                    t.polygon(CanvasTool.scale([
                         [i, j],
                         [i - 1, j + 1],
                         [i, j + 1],
-                    ], this.terrain.resolution).fill();
+                    ], this.terrain.resolution)).fill();
                 }
             }
         }
@@ -383,12 +383,12 @@ export default class CanvasMap {
             [0, -3.5],
         ]).fill();
         t.circle(0, 0, 3).stroke();
-        for (let i = 0; i < 360; i += 15) {
-            t.line(0, 3, 0, i % 45 === 0 ? 2.6 : 2.8).stroke();
+        for (let i = 0; i < 360; i += 10) {
+            t.line(0, 3, 0, i % 30 === 0 ? 2.6 : 2.8).stroke();
             if (i % 90 === 0) {
-                t.text(0, -2.1, CanvasTool.numPad(i / 10, 2));
+                t.text(0, -2.1, (i / 10).toFixed());
             }
-            t.rotate(0, 0, 15);
+            t.rotate(0, 0, 10);
         }
         t.reset();
     }
