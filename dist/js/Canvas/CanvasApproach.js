@@ -109,18 +109,21 @@ export default class CanvasApproach {
                 t.line(xOffset + i * mile, -yCenter, xOffset + i * mile, yCenter).stroke();
             }
         }
-        t.textStyle(4, 'left');
         const x = xCenter + 3;
         t.style(this.colors.black);
-        this.navaids.forEach((navaid, index) => {
+        this.navaids.forEach((navaid) => {
             const bearing = navaid.coordinates.getBearing(this.airport.coordinates);
-            t.rotate(0, 0, bearing + 90);
+            t.rotate(0, 0, bearing + 270);
             t.polygon([
                 [11 - x, 0],
                 [8 - x, -1.5],
                 [8 - x, +1.5],
             ]).fill();
             t.line(2 - x, 0, 8 - x, 0).stroke();
+            t.textStyle(4, bearing > 180 ? 'right' : 'left');
+            if (bearing > 180) {
+                t.rotate(12 - x, 0, 180);
+            }
             t.text(12 - x, +1.5, navaid.code + ': ' + bearing.toFixed() + '° ' + navaid.coordinates.getDistance(this.airport.coordinates).toFixed(2) + 'NM');
             t.reset();
         });
