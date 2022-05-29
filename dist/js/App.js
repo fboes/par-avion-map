@@ -60,6 +60,9 @@ export default class App {
             navRadio.setCurrentNavAid(index, this.map.airports[0].coordinates);
             const courseSelect = index === 0 ? this.elements.course1Input : this.elements.course2Input;
             courseSelect.disabled = navRadio.type !== Navaid.VOR;
+            if (navRadio.bearing) {
+                courseSelect.valueAsNumber = navRadio.navAids[index].coordinates.getBearing(this.map.airports[1].approachPoints[0].coordinates);
+            }
             navRadio.setCourse(courseSelect.valueAsNumber);
         });
         this.hsi = new CanvasHsi(this.elements.hsiCanvas, this.plane.hsi);
