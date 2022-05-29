@@ -1,13 +1,24 @@
+import Navaid from "../World/Navaid.js";
 import CanvasTool from "./CanvasTool.js";
 export default class CanvasHsi {
     constructor(canvas, hsi) {
         this.canvas = canvas;
         this.hsi = hsi;
+        this.colors = {
+            cyan: 'rgb(50,245,255)',
+            magenta: 'rgb(255,0,255)',
+            green: 'rgb(63,255,72)',
+            yellow: 'rgb(255,230,0,1)',
+            orange: 'rgb(63,255,72)',
+            pink: '#ff3385',
+            blue: '#3870ff',
+            turqoise: '#16FFE4',
+        };
         const ctx = canvas.getContext("2d");
         if (!ctx) {
             throw new Error("No CanvasRenderingContext2D found");
         }
-        this.canvas.width = Math.max(128, this.canvas.clientWidth);
+        this.canvas.width = Math.max(128, this.canvas.clientWidth * window.devicePixelRatio);
         this.canvas.height = this.canvas.width;
         this.multiplier = this.canvas.width / 256;
         this.ctx = ctx;
@@ -16,7 +27,7 @@ export default class CanvasHsi {
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         const t = new CanvasTool(this.ctx, 128, 128, this.multiplier);
-        t.style('rgba(0,0,0,0.7');
+        t.style('black').globalAlpha = 0.8;
         t.fillRect(-128, -128, 256, 256);
         t.style('white', 'white', 2);
         t.circle(0, 0, 65).stroke(); // around plane
@@ -29,9 +40,10 @@ export default class CanvasHsi {
     }
     drawNavRadio(navRadio, index) {
         const t = new CanvasTool(this.ctx, 128, 128, this.multiplier);
-        let color = index === 0 ? 'rgba(63,255,72,255)' : 'rgba(50,245,255,255)';
-        //let color = index === 0 ? 'rgba(63,255,72,255)' : 'rgba(50,200,255,255)';
-        const maxArrow = 104;
+        let color = (index === 0)
+            ? this.colors.green
+            : (navRadio.type === Navaid.VOR ? this.colors.blue : this.colors.pink);
+        let maxArrow = 104;
         const circleDeviation = 61;
         const deviationSpacer = 25;
         let deviation = null;
@@ -42,10 +54,10 @@ export default class CanvasHsi {
             this.text(t, index === 0 ? -125 : +125, 115, navRadio.distance.toFixed(2) + ' NM', 'DME', align);
         }
         if (navRadio.course) {
-            this.text(t, index === 0 ? -125 : +125, navRadio.distance ? 83 : 115, navRadio.course.degree.toFixed(0) + '°', 'CRS', align);
+            this.text(t, index === 0 ? -125 : +125, navRadio.distance ? 83 : 115, navRadio.course.degree.toFixed(0).padStart(3, '0') + '°', 'CRS', align);
         }
         else if (navRadio.bearing) {
-            this.text(t, index === 0 ? -125 : +125, navRadio.distance ? 83 : 115, navRadio.bearing.degree.toFixed(0) + '°', 'BRG', align);
+            this.text(t, index === 0 ? -125 : +125, navRadio.distance ? 83 : 115, navRadio.bearing.degree.toFixed(0).padStart(3, '0') + '°', 'BRG', align);
         }
         if (navRadio.course) {
             t.rotate(0, 0, navRadio.course.degree - this.hsi.heading.degree);
@@ -60,7 +72,7 @@ export default class CanvasHsi {
                     deviation *= -1;
                 }
                 deviation = Math.max(-10, Math.min(10, deviation));
-                const currentDeviation = (deviation / 10) * 2 * deviationSpacer;
+                const currentDeviation = (deviation / -10) * 2 * deviationSpacer;
                 t.polygon(CanvasTool.mirror([
                     [currentDeviation - 10, 14 - 50],
                     [currentDeviation + 0, -50],
@@ -105,24 +117,35 @@ export default class CanvasHsi {
             t.reset();
         }
         if (navRadio.bearing) {
-            if (deviation !== null) {
-                color = color.replace(',255)', ',' + Math.abs(deviation / 10).toFixed(3) + ')');
-            }
             t.style(color, color, 2);
+            if (deviation !== null) {
+                this.ctx.globalAlpha = Math.abs(deviation / 10);
+            }
             t.rotate(0, 0, navRadio.bearing.degree - this.hsi.heading.degree);
-            t.polygon([
-                [-5, 10 - maxArrow],
-                [0, -maxArrow],
-                [5, 10 - maxArrow],
-                [5, maxArrow],
-                [-5, maxArrow]
-            ]).stroke();
+            if (deviation === null) {
+                t.polygon([
+                    [-5, 10 - maxArrow],
+                    [0, -maxArrow],
+                    [5, 10 - maxArrow],
+                    [5, maxArrow],
+                    [-5, maxArrow]
+                ]).stroke();
+            }
+            else {
+                maxArrow -= 40;
+            }
             t.polygon([
                 [-10, 14 - maxArrow],
                 [0, -maxArrow],
                 [10, 14 - maxArrow],
                 [0, 10 - maxArrow],
-            ]).fill();
+            ]);
+            if (deviation === null) {
+                this.ctx.fill();
+            }
+            else {
+                this.ctx.stroke();
+            }
             t.reset();
         }
     }
@@ -154,7 +177,7 @@ export default class CanvasHsi {
                         text = 'W';
                         break;
                     default:
-                        text = (i / 10).toFixed();
+                        text = (i / 10).toFixed().padStart(2, '0');
                         break;
                 }
                 t.text(0, ring + 15 + length, text);
@@ -162,19 +185,15 @@ export default class CanvasHsi {
             t.line(0, ring, 0, ring + length).stroke();
             t.rotate(0, 0, 5);
         }
-        if (this.hsi.headingSelect) {
-            t.rotate(0, 0, this.hsi.headingSelect.degree);
-            // TODO: paint heading select
-        }
         t.reset();
     }
     drawHeadingSelect() {
         if (this.hsi.headingSelect) {
             const t = new CanvasTool(this.ctx, 128, 128, this.multiplier);
             const y = 15;
-            t.style('rgb(255,0,255)', 'rgb(255,0,255)', 2);
+            t.style(this.colors.turqoise, this.colors.magenta, 2);
             t.textStyle(15);
-            t.text(0, 125, this.hsi.headingSelect.degree.toFixed(0) + '°');
+            t.text(3, 125, this.hsi.headingSelect.degree.toFixed(0).padStart(3, '0') + '°');
             t.rotate(0, 0, this.hsi.headingSelect.degree - this.hsi.heading.degree);
             t.polygonRaw([
                 [-10, y - 119],
@@ -213,7 +232,7 @@ export default class CanvasHsi {
             t.rotate(0, 0, 45);
         }
         t.textStyle(15);
-        t.text(0, -112, this.hsi.heading.degree.toFixed(0) + '°');
+        t.text(3, -112, this.hsi.heading.degree.toFixed(0).padStart(3, '0') + '°');
     }
     text(t, x, y, main, label, align = 'left') {
         if (label) {

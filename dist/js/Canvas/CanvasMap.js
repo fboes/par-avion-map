@@ -1,10 +1,10 @@
-import LocationsMap from "../ParAvion/LocationsMap.js";
-import Navaid from "../ParAvion/Navaid.js";
-import Airport from "../ParAvion/Airport.js";
+import LocationsMap from "../World/LocationsMap.js";
+import Navaid from "../World/Navaid.js";
+import Airport from "../World/Airport.js";
 import CanvasTool from "./CanvasTool.js";
 import Coordinates from "../Types/Coordinates.js";
-import HoldingPattern from "../ParAvion/HoldingPattern.js";
-import Runway from "../ParAvion/Runway.js";
+import HoldingPattern from "../World/HoldingPattern.js";
+import Runway from "../World/Runway.js";
 export default class CanvasMap {
     constructor(canvas, map, terrain) {
         this.canvas = canvas;
@@ -12,11 +12,8 @@ export default class CanvasMap {
         this.terrain = terrain;
         this.colors = {
             blue: "#002da3",
-            blueTransparent: "rgba(0, 45, 163, 0.5)",
             magenta: "#800033",
-            magentaTransparent: "rgba(128, 0, 51, 0.5)",
-            whiteTransparent: "rgba(255, 255, 255, 0.5)",
-            blackTransparent: "rgba(0, 0, 0, 0.5)",
+            white: "#ffffff",
             river: "#0c2a6c",
         };
         this.elevationColors = {
@@ -33,7 +30,7 @@ export default class CanvasMap {
         if (!ctx) {
             throw new Error("No CanvasRenderingContext2D found");
         }
-        this.canvas.width = Math.max(512, this.canvas.clientWidth);
+        this.canvas.width = Math.max(512, this.canvas.clientWidth * window.devicePixelRatio);
         this.canvas.height = this.canvas.width;
         this.multiplier = this.canvas.width / map.mapDimension;
         this.ctx = ctx;
@@ -86,7 +83,7 @@ export default class CanvasMap {
     }
     makeGrid() {
         const t = this.getNewCanvasTool(0, 0);
-        t.style(this.colors.blackTransparent);
+        this.ctx.globalAlpha = 0.5;
         t.textStyle();
         t.strokeRect(0, 0, this.map.mapDimension, this.map.mapDimension);
         t.lineWidth = 0.01;
@@ -125,7 +122,8 @@ export default class CanvasMap {
     }
     makeMaximumElevationFigures() {
         const t = this.getNewCanvasTool(0, 0);
-        t.style(this.colors.blueTransparent);
+        t.style(this.colors.blue);
+        this.ctx.globalAlpha = 0.5;
         const offset = (this.map.mapDimension % 10) / 2;
         const start = offset >= 5 ? offset : offset + 10;
         for (let i = start; i <= this.map.mapDimension + offset; i += 10) {
@@ -239,7 +237,6 @@ export default class CanvasMap {
         this.map.airports.forEach((airport, id) => {
             const t = this.getNewCanvasTool(airport.coordinates.x, airport.coordinates.y);
             const baseColor = airport.hasTower ? this.colors.blue : this.colors.magenta;
-            const accentColor = airport.hasTower ? this.colors.blueTransparent : this.colors.magentaTransparent;
             t.style(baseColor);
             t.textStyle();
             t.circle(0, 0, 1).fill();
@@ -252,7 +249,7 @@ export default class CanvasMap {
             airport.runways.forEach((runway) => {
                 t.rotate(0, 0, runway.heading.degree);
                 if (runway.trafficPatterns[0]) {
-                    t.style(accentColor);
+                    this.ctx.globalAlpha = 0.5;
                     t.setLineDash([0.2, 0.1]);
                     this.ctx.beginPath();
                     t.roundedRectRaw(runway.trafficPatterns[0].isRight
@@ -283,11 +280,13 @@ export default class CanvasMap {
                 this.ctx.fillStyle = "white";
                 t.fillRect(runway.width / 500 / -2, runway.length / 6076 / -2, runway.width / 500, runway.length / 6076);
                 if (runway.ilsFrequencies.first) {
-                    t.style(accentColor);
+                    t.style(baseColor);
+                    this.ctx.globalAlpha = 0.5;
                     this.makeIls(airport.coordinates.x, airport.coordinates.y);
                 }
                 if (runway.ilsFrequencies.second) {
-                    t.style(accentColor);
+                    t.style(baseColor);
+                    this.ctx.globalAlpha = 0.5;
                     t.rotate(0, 0, 180);
                     this.makeIls(airport.coordinates.x, airport.coordinates.y);
                 }
@@ -350,7 +349,7 @@ export default class CanvasMap {
     makeNavaidNdb(x, y) {
         const t = this.getNewCanvasTool(x, y);
         t.circle(0, 0, 0.7).stroke();
-        t.style(this.colors.magentaTransparent);
+        this.ctx.globalAlpha = 0.5;
         for (let i = 0; i < 360; i += 20) {
             t.circle(0, 1.2, 0.15).fill();
             t.rotate(0, 0, 20);
@@ -375,7 +374,7 @@ export default class CanvasMap {
             [-0.8, 0],
             [-0.5, 0.7],
         ]).stroke();
-        t.style(this.colors.blueTransparent);
+        this.ctx.globalAlpha = 0.5;
         t.textStyle();
         t.polygon([
             [-0.2, -3.2],
@@ -386,7 +385,7 @@ export default class CanvasMap {
         for (let i = 0; i < 360; i += 10) {
             t.line(0, 3, 0, i % 30 === 0 ? 2.6 : 2.8).stroke();
             if (i % 90 === 0) {
-                t.text(0, -2.1, (i / 10).toFixed());
+                t.text(0, -2.1, (i / 10).toFixed().padStart(2, '0'));
             }
             t.rotate(0, 0, 10);
         }
@@ -423,7 +422,7 @@ export default class CanvasMap {
             [0, -Airport.ILS_RANGE / 2],
             [-0.4, -Airport.ILS_RANGE / 2 - 0.3],
         ]).fill();
-        this.ctx.fillStyle = this.colors.whiteTransparent;
+        this.ctx.fillStyle = this.colors.white;
         t.polygon([
             [0, -1.4],
             [0, -Airport.ILS_RANGE / 2 + 0.1],

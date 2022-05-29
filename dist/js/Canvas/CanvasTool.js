@@ -17,6 +17,7 @@ export default class CanvasTool {
     style(fillStyle, strokeStyle = "", lineWidth = 0.1) {
         this.ctx.fillStyle = fillStyle;
         this.ctx.strokeStyle = strokeStyle || fillStyle;
+        this.ctx.globalAlpha = 1;
         this.lineWidth = lineWidth;
         return this.ctx;
     }
@@ -48,7 +49,7 @@ export default class CanvasTool {
         const oldLineJoin = this.ctx.lineJoin;
         const oldLineWidth = this.ctx.lineWidth;
         if (outline) {
-            this.ctx.strokeStyle = "rgba(255,255,255,0.75)";
+            this.ctx.strokeStyle = "rgba(255,255,255,0.66)";
             this.ctx.lineJoin = "round";
             this.lineWidth = outline;
             this.ctx.strokeText(text, this.dX(x), this.dY(y));
@@ -65,7 +66,7 @@ export default class CanvasTool {
         const oldStrokeStyle = this.ctx.strokeStyle;
         const oldLineJoin = this.ctx.lineJoin;
         const oldLineWidth = this.ctx.lineWidth;
-        this.ctx.strokeStyle = "rgba(255,255,255,0.75)";
+        this.ctx.strokeStyle = "rgba(255,255,255,0.66)";
         this.ctx.lineJoin = "round";
         this.lineWidth = 0.1;
         textLines.forEach((text, i) => {

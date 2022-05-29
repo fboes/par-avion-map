@@ -48,17 +48,17 @@ Data model
 
 The map consists of two layers:
 
-1. [`LocationMap`](dist/ParAvion/LocationMap.js) contains points of interest, like airports and navigational beacons
-2. [`TerrainMap`](dist/ParAvion/TerrainMap.js) contains the elevation data
+1. [`LocationMap`](dist/World/LocationMap.js) contains points of interest, like airports and navigational beacons
+2. [`TerrainMap`](dist/World/TerrainMap.js) contains the elevation data
 
-The [`LocationMap`](dist/ParAvion/LocationMap.js) has multiple entities:
+The [`LocationMap`](dist/World/LocationMap.js) has multiple entities:
 
-* [`Airport`](dist/ParAvion/Airport.js) including [`Runway`](dist/ParAvion/Runway.js) and  [`Waypoint`](dist/ParAvion/Waypoint.js)
-* [`Navaid`](dist/ParAvion/Navaid.js) including [`HoldingPattern`](dist/ParAvion/HoldingPattern.js)
-* [`Obstruction`](dist/ParAvion/Obstruction.js)
-* [`Peak`](dist/ParAvion/Peak.js)
+* [`Airport`](dist/World/Airport.js) including [`Runway`](dist/World/Runway.js) and  [`Waypoint`](dist/World/Waypoint.js)
+* [`Navaid`](dist/World/Navaid.js) including [`HoldingPattern`](dist/World/HoldingPattern.js)
+* [`Obstruction`](dist/World/Obstruction.js)
+* [`Peak`](dist/World/Peak.js)
 
-All of these entities use [`Coordinates`](dist/Types/Coordinates.js) calculated in Nautical Miles from the North-West corner of the map. The [`TerrainMap`](dist/ParAvion/TerrainMap.js) uses [`TerrainCoordinates`](dist/Types/TerrainCoordinates.js), which are fractions of Nautical Miles from the North-West corner, having a higher resolution for terrain data.
+All of these entities use [`Coordinates`](dist/Types/Coordinates.js) calculated in Nautical Miles from the North-West corner of the map. The [`TerrainMap`](dist/World/TerrainMap.js) uses [`TerrainCoordinates`](dist/Types/TerrainCoordinates.js), which are fractions of Nautical Miles from the North-West corner, having a higher resolution for terrain data.
 
 Legal stuff
 -----------

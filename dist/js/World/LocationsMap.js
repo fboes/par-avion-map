@@ -35,14 +35,14 @@ export default class LocationsMap {
                 this.obstructions.push(new Obstruction(this.getCoordinates(this.randomizer.getInt(0, allowedRadius + LocationsMap.PADDING / 2), this.randomizer.getDegree(departureDegree.degree + 90, 70)), this.randomizer));
             }
         }
-        if (this.mapDimension >= (18 + 2 * LocationsMap.PADDING)) {
-            this.navAids[2] = new Navaid(this.getCoordinates(this.randomizer.getInt(5, allowedRadius + LocationsMap.PADDING / 2), this.randomizer.getDegree(destinationDegree.degree + 90, 70)), this.randomizer);
-        }
         if (this.mapDimension >= (20 + 2 * LocationsMap.PADDING)) {
             this.navAids[1].randHoldingPattern(this.navAids[1].coordinates.getBearing(this.airports[0].approachPoints[0].coordinates));
             const destinationDegree2 = this.randomizer.getDegreeBetween(departureDegree, destinationDegree);
             this.airports[2] = new Airport(this.getCoordinates(allowedRadius - 5, destinationDegree2), this.randomizer);
             this.airports[2].addRunway(this.randomizer.getDegree(this.windDirection.degree, deviation));
+        }
+        if (this.mapDimension >= (25 + 2 * LocationsMap.PADDING)) {
+            this.navAids[2] = new Navaid(this.getCoordinates(this.randomizer.getInt(5, allowedRadius + LocationsMap.PADDING / 2), this.randomizer.getDegree(destinationDegree.degree + 90, 70)), this.randomizer);
         }
     }
     /**

@@ -1,13 +1,13 @@
 import Randomizer from "./Helper/Randomizer.js";
-import LocationsMap from "./ParAvion/LocationsMap.js";
-import TerrainMap from "./ParAvion/TerrainMap.js";
+import LocationsMap from "./World/LocationsMap.js";
+import TerrainMap from "./World/TerrainMap.js";
 import CanvasApproach from "./Canvas/CanvasApproach.js";
 import CanvasMap from "./Canvas/CanvasMap.js";
 import Coordinates from "./Types/Coordinates.js";
 import CanvasHsi from "./Canvas/CanvasHsi.js";
-import Hsi from "./Cockpit/Hsi.js";
-import Navaid from "./ParAvion/Navaid.js";
 import Degree from "./Types/Degree.js";
+import Plane from "./Plane/Plane.js";
+import Navaid from "./World/Navaid.js";
 export default class App {
     constructor() {
         this.multiplier = 0;
@@ -51,22 +51,18 @@ export default class App {
         this.drawMap();
     }
     drawMap() {
-        this.hsi = new CanvasHsi(this.elements.hsiCanvas, new Hsi(0));
-        this.hsi.hsi.headingSelect = new Degree(this.elements.headingSelectInput.valueAsNumber);
-        this.map.navAids.forEach((navAid, index) => {
-            let currentRadio = this.hsi.hsi.navRadios[index];
-            if (currentRadio !== undefined) {
-                let currentCourseInput = (index === 0)
-                    ? this.elements.course1Input
-                    : this.elements.course2Input;
-                currentCourseInput.disabled = (navAid.type !== Navaid.VOR);
-                currentRadio.label = navAid.code;
-                currentRadio.type = navAid.type;
-                if (navAid.type === Navaid.VOR) {
-                    currentRadio.setCourse(currentCourseInput.valueAsNumber);
-                }
-            }
+        this.plane = new Plane(this.map.airports[0].coordinates);
+        this.elements.headingSelectInput.valueAsNumber = this.map.airports[1].runways[0].heading.oppositeDegree;
+        this.plane.hsi.headingSelect = new Degree(this.elements.headingSelectInput.valueAsNumber);
+        this.plane.heading = new Degree(this.map.airports[0].runways[0].heading.oppositeDegree);
+        this.plane.navRadios.forEach((navRadio, index) => {
+            navRadio.navAids = this.map.navAids;
+            navRadio.setCurrentNavAid(index, this.map.airports[0].coordinates);
+            const courseSelect = index === 0 ? this.elements.course1Input : this.elements.course2Input;
+            courseSelect.disabled = navRadio.type !== Navaid.VOR;
+            navRadio.setCourse(courseSelect.valueAsNumber);
         });
+        this.hsi = new CanvasHsi(this.elements.hsiCanvas, this.plane.hsi);
         this.hsi.draw();
         if (this.elements.mapCanvas) {
             const canvasMap = new CanvasMap(this.elements.mapCanvas, this.map, this.terrain);
@@ -81,24 +77,15 @@ export default class App {
     }
     updatePosition(event) {
         const bound = this.elements.mapCanvas.getBoundingClientRect();
-        const yourCoords = new Coordinates((event.clientX - bound.left) / this.multiplier, (event.clientY - bound.top) / this.multiplier);
-        this.map.navAids.forEach((navAid, index) => {
-            let currentRadio = this.hsi.hsi.navRadios[index];
-            if (currentRadio) {
-                currentRadio.label = navAid.code;
-                currentRadio.type = navAid.type;
-                currentRadio.setBearing(yourCoords.getBearing(navAid.coordinates));
-                currentRadio.distance = navAid.hasDme ? yourCoords.getDistance(navAid.coordinates) : undefined;
-            }
-        });
+        this.plane.coordinates = new Coordinates((event.clientX - bound.left) / this.multiplier * window.devicePixelRatio, (event.clientY - bound.top) / this.multiplier * window.devicePixelRatio);
         this.hsi.draw();
     }
     changeHeading(event) {
-        this.hsi.hsi.heading.degree -= (event.deltaY / 100);
+        this.plane.changeHeading(event.deltaY / 100);
         this.hsi.draw();
     }
     changeHeadingSelect(event) {
-        if (this.hsi.hsi.headingSelect) {
+        if (this.plane.hsi.headingSelect) {
             const target = event.target;
             if (target.valueAsNumber < 0) {
                 target.valueAsNumber += 360;
@@ -106,12 +93,12 @@ export default class App {
             else if (target.valueAsNumber > 359) {
                 target.valueAsNumber -= 360;
             }
-            this.hsi.hsi.headingSelect = new Degree(target.valueAsNumber);
+            this.plane.hsi.headingSelect = new Degree(target.valueAsNumber);
             this.hsi.draw();
         }
     }
     changeCourse(event, index) {
-        const radio = this.hsi.hsi.navRadios[index];
+        const radio = this.plane.navRadios[index];
         const target = event.target;
         if (radio && radio.course && target) {
             if (target.valueAsNumber < 0) {
@@ -121,7 +108,6 @@ export default class App {
                 target.valueAsNumber -= 360;
             }
             radio.setCourse(target.valueAsNumber);
-            radio.caluclateDeviation();
             this.hsi.draw();
         }
     }

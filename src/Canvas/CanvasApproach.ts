@@ -1,13 +1,12 @@
-import Airport from "../ParAvion/Airport.js";
+import Airport from "../World/Airport.js";
 import CanvasTool from "./CanvasTool.js";
-import Runway from "../ParAvion/Runway.js";
-import Navaid from "../ParAvion/Navaid.js";
+import Runway from "../World/Runway.js";
+import Navaid from "../World/Navaid.js";
 
 export default class CanvasApproach {
   colors = {
     white: "#ffffff",
     black: "#000000",
-    blackTransparent: "rgba(0, 0, 0, 0.3)",
     grey: "#bbbbbb",
   };
 
@@ -25,7 +24,7 @@ export default class CanvasApproach {
       throw new Error("No CanvasRenderingContext2D found");
     }
 
-    this.canvas.width = Math.max(256, this.canvas.clientWidth);
+    this.canvas.width = Math.max(256, this.canvas.clientWidth * window.devicePixelRatio);
     this.canvas.height = Math.ceil(this.canvas.width * this.maxY / this.maxX);
     this.multiplier = this.canvas.width / this.maxX;
 
@@ -222,9 +221,9 @@ export default class CanvasApproach {
 
           const lightY = posY + 1000 / CanvasApproach.FACTOR;
           const lightX = approachLight === Runway.ODALS ? 5 : 7.5;
-          t.rotate(lightX, lightY, -deg + 180);
+          t.rotate(lightX, lightY, -deg);
           this.makeLight(lightX, lightY, t, approachLight)
-          t.rotate(lightX, lightY, deg - 180);
+          t.rotate(lightX, lightY, deg);
         }
 
         t.style(this.colors.black);
