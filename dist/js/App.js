@@ -61,7 +61,7 @@ export default class App {
             const courseSelect = index === 0 ? this.elements.course1Input : this.elements.course2Input;
             courseSelect.disabled = navRadio.type !== Navaid.VOR;
             if (navRadio.bearing) {
-                courseSelect.valueAsNumber = navRadio.navAids[index].coordinates.getBearing(this.map.airports[1].approachPoints[0].coordinates);
+                courseSelect.valueAsNumber = this.map.airports[0].coordinates.getBearing(navRadio.navAids[index].coordinates);
             }
             navRadio.setCourse(courseSelect.valueAsNumber);
         });
