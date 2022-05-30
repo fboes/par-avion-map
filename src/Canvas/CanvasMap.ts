@@ -283,26 +283,30 @@ export default class CanvasMap {
           -1
         );
 
-        t.rotate(0, 0, 90);
-        t.textOutline(
-          1.25,
-          0.2,
-          CanvasTool.numPad(
-            Math.round(navaid.holdingPattern.direction.degree),
-            3
-          ) + "°"
-        );
-        t.rotate(0, 0, 180);
-        t.textOutline(
-          1.25 - HoldingPattern.WIDTH,
-          navaid.holdingPattern.isRight
-            ? 0.2 + HoldingPattern.WIDTH
-            : -0.2 - HoldingPattern.WIDTH,
-          CanvasTool.numPad(
-            Math.round(navaid.holdingPattern.direction.oppositeDegree),
-            3
-          ) + "°"
-        );
+        const rot = navaid.holdingPattern.direction.isBetween(0, 180) ? -90 : 90;
+        const y = (HoldingPattern.LENGTH - HoldingPattern.WIDTH) / 2;
+        {
+          const x = 0;
+          t.rotate(x, y, rot);
+          t.textOutline(x, y + 0.2,
+            CanvasTool.numPad(
+              Math.round(navaid.holdingPattern.direction.degree),
+              3
+            ) + "°"
+          );
+          t.rotate(x, y, -rot);
+        }
+        {
+          const x = navaid.holdingPattern.isRight ? HoldingPattern.WIDTH : -HoldingPattern.WIDTH;
+          t.rotate(x, y, rot);
+          t.textOutline(x, y + 0.2,
+            CanvasTool.numPad(
+              Math.round(navaid.holdingPattern.direction.oppositeDegree),
+              3
+            ) + "°"
+          );
+          t.rotate(x, y, -rot);
+        }
 
         t.reset();
       }
