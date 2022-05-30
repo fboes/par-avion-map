@@ -198,6 +198,7 @@ export default class CanvasHsi {
         length += 5;
       }
       if (i % 30 === 0) {
+        const rotText = this.hsi.heading.degree - i;
         length += 5;
         let text;
         switch (i) {
@@ -208,7 +209,9 @@ export default class CanvasHsi {
           default: text = (i / 10).toFixed().padStart(2, '0'); break;
         }
 
+        t.rotate(0, ring + 25, rotText);
         t.text(0, ring + 15 + length, text);
+        t.rotate(0, ring + 25, -rotText);
       }
       t.line(0, ring, 0, ring + length).stroke();
       t.rotate(0, 0, 5);

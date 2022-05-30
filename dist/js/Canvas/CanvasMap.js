@@ -382,10 +382,13 @@ export default class CanvasMap {
             [0, -3.5],
         ]).fill();
         t.circle(0, 0, 3).stroke();
+        const centerDegRot = -2.2;
         for (let i = 0; i < 360; i += 10) {
             t.line(0, 3, 0, i % 30 === 0 ? 2.6 : 2.8).stroke();
             if (i % 90 === 0) {
-                t.text(0, -2.1, (i / 10).toFixed().padStart(2, '0'));
+                t.rotate(0, centerDegRot, -i);
+                t.text(0, centerDegRot + 0.2, (i / 10).toFixed().padStart(2, '0'));
+                t.rotate(0, centerDegRot, i);
             }
             t.rotate(0, 0, 10);
         }
