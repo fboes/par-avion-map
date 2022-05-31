@@ -29,6 +29,7 @@ export default class App {
   protected terrain!: TerrainMap;
   protected hsi!: CanvasHsi;
   protected plane!: Plane;
+  protected planeCoordinatesOld!: Coordinates;
   protected multiplier = 0;
   public elements: Elements;
 
@@ -80,7 +81,7 @@ export default class App {
 
   drawMap() {
     this.plane = new Plane(this.map.airports[0].coordinates);
-    this.elements.headingSelectInput.valueAsNumber = this.map.airports[1].runways[0].heading.oppositeDegree;
+    this.elements.headingSelectInput.valueAsNumber = this.map.airports[0].approachPoints[1].coordinates.getBearing(this.map.airports[1].approachPoints[0].coordinates);
     this.plane.hsi.headingSelect = new Degree(this.elements.headingSelectInput.valueAsNumber);
     this.plane.heading = new Degree(this.map.airports[0].runways[0].heading.oppositeDegree);
     this.plane.navRadios.forEach((navRadio, index) => {
@@ -121,8 +122,11 @@ export default class App {
     this.hsi.draw();
   }
 
-  changeHeading(event: WheelEvent) {
-    this.plane.changeHeading(event.deltaY / 100);
+  changeHeading() {
+    if (this.planeCoordinatesOld) {
+      this.plane.heading = new Degree(this.planeCoordinatesOld.getBearing(this.plane.coordinates));
+    }
+    this.planeCoordinatesOld = new Coordinates(this.plane.coordinates.x, this.plane.coordinates.y);
     this.hsi.draw();
   }
 

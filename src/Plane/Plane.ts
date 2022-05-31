@@ -34,4 +34,8 @@ export default class Plane {
       navRadio.coordinates = coordinates;
     });
   }
+
+  get coordinates() {
+    return this._coordinates;
+  }
 }
