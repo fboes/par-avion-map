@@ -29,6 +29,7 @@ export default class CanvasApproach {
     this.multiplier = this.canvas.width / this.maxX;
 
     this.ctx = ctx;
+    this.ctx.scale(this.multiplier, this.multiplier);
     this.ctx.fillStyle = this.colors.white;
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -90,7 +91,7 @@ export default class CanvasApproach {
     t.textStyle(4, 'right');
     t.text(this.maxX - 3, this.maxY - 3, CanvasTool.frequency(this.airport.coordinates.x) + 'X | ' + CanvasTool.frequency(this.airport.coordinates.y) + 'Y')
 
-    t.strokeRect(0, 10, this.maxX, this.maxY - 10);
+    this.ctx.strokeRect(0, 10, this.maxX, this.maxY - 10);
   }
 
   makeAirport() {
@@ -118,7 +119,7 @@ export default class CanvasApproach {
       const t2 = this.getNewCanvasTool(this.maxX / 2, (this.maxY - 27) / 2 + 27);
       t2.rotate(0, 0, this.airport.runways[0].heading.degree + 90);
       t2.style(this.colors.black);
-      t2.fillRect(3, -8.5, 2, 2);
+      this.ctx.fillRect(3, -8.5, 2, 2);
       t2.reset();
     }
   }
@@ -179,7 +180,7 @@ export default class CanvasApproach {
         [runwayX / -2.1, runwayY / 2 + 100 / CanvasApproach.FACTOR],
         [runwayX / -2.1, runwayY / 2],
       ]).stroke();
-      t.fillRect(
+      this.ctx.fillRect(
         runwayX / -4,
         runwayY / 2 + 200 / CanvasApproach.FACTOR,
         runwayX / 2,
@@ -198,7 +199,7 @@ export default class CanvasApproach {
       }
 
       t.style(this.colors.black);
-      t.fillRect(
+      this.ctx.fillRect(
         runwayX / -2,
         runwayY / -2,
         runwayX,
@@ -299,7 +300,7 @@ export default class CanvasApproach {
   // @see https://www.flightlearnings.com/wp-content/uploads/2017/07/8-22a.jpg
   protected makeApproach(x: number, y: number, t: CanvasTool, label: string) {
     t.style(this.colors.black);
-    t.lineWidth = 0.5;
+    this.ctx.lineWidth = 0.5;
 
     for (let i = 0; i <= (this.isShortApproach(label) ? 1500 : 2500); i += 250) {
       let width = 100;

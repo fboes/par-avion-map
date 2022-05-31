@@ -1,40 +1,23 @@
 export default class CanvasTool {
+
   constructor(protected ctx: CanvasRenderingContext2D, public x: number, public y: number, protected multiplier: number
-  ) { }
-
-  dX(x = 0) {
-    return this.dD(this.x + x);
-  }
-
-  dY(y = 0) {
-    return this.dD(this.y + y);
-  }
-
-  dD(d: number) {
-    return d * this.multiplier;
+  ) {
+    this.reset();
   }
 
   style(fillStyle: string, strokeStyle: string = "", lineWidth: number = 0.1) {
     this.ctx.fillStyle = fillStyle;
     this.ctx.strokeStyle = strokeStyle || fillStyle;
     this.ctx.globalAlpha = 1;
-    this.lineWidth = lineWidth;
+    this.ctx.lineWidth = lineWidth;
     return this.ctx;
-  }
-
-  set lineWidth(lineWidth: number) {
-    this.ctx.lineWidth = lineWidth * this.multiplier;
-  }
-
-  get lineWidth() {
-    return this.ctx.lineWidth / this.multiplier;
   }
 
   textStyle(fontSize: number = 0.5, textAlign: CanvasTextAlign = "center", fontStyle: string = "") {
     if (fontStyle) {
       fontStyle += " ";
     }
-    this.ctx.font = fontStyle + this.dD(fontSize) + "px sans-serif";
+    this.ctx.font = fontStyle + fontSize + "px sans-serif";
     this.ctx.textAlign = textAlign;
     return this.ctx;
   }
@@ -42,7 +25,7 @@ export default class CanvasTool {
   setLineDash(dashes: number[]) {
     this.ctx.setLineDash(
       dashes.map((v) => {
-        return this.dD(v);
+        return v;
       })
     );
     return this.ctx;
@@ -59,10 +42,10 @@ export default class CanvasTool {
     if (outline) {
       this.ctx.strokeStyle = "rgba(255,255,255,0.66)";
       this.ctx.lineJoin = "round";
-      this.lineWidth = outline;
-      this.ctx.strokeText(text, this.dX(x), this.dY(y));
+      this.ctx.lineWidth = outline;
+      this.ctx.strokeText(text, x, y);
     }
-    this.ctx.fillText(text, this.dX(x), this.dY(y));
+    this.ctx.fillText(text, x, y);
 
     if (outline) {
       this.ctx.strokeStyle = oldStrokeStyle;
@@ -78,13 +61,13 @@ export default class CanvasTool {
     const oldLineWidth = this.ctx.lineWidth;
     this.ctx.strokeStyle = "rgba(255,255,255,0.66)";
     this.ctx.lineJoin = "round";
-    this.lineWidth = 0.1;
+    this.ctx.lineWidth = 0.1;
 
     textLines.forEach((text, i) => {
       if (outline) {
-        this.ctx.strokeText(text, this.dX(x), this.dY(y + i * lineSpacing));
+        this.ctx.strokeText(text, x, y + i * lineSpacing);
       }
-      this.ctx.fillText(text, this.dX(x), this.dY(y + i * lineSpacing));
+      this.ctx.fillText(text, x, y + i * lineSpacing);
     });
     this.ctx.strokeStyle = oldStrokeStyle;
     this.ctx.lineJoin = oldLineJoin;
@@ -96,7 +79,14 @@ export default class CanvasTool {
 
   circle(x: number, y: number, radius: number) {
     this.ctx.beginPath();
-    this.ctx.arc(this.dX(x), this.dY(y), this.dD(radius), 0, Math.PI * 2, true);
+    this.ctx.arc(x, y, radius, 0, Math.PI * 2, true);
+    this.ctx.closePath();
+    return this.ctx;
+  }
+
+  ellipse(x: number, y: number, radiusX: number, radiusY: number, rotation: number = 0) {
+    this.ctx.beginPath();
+    this.ctx.ellipse(x, y, radiusX, radiusY, (rotation * Math.PI) / 180, 0, Math.PI * 2, true);
     this.ctx.closePath();
     return this.ctx;
   }
@@ -122,26 +112,6 @@ export default class CanvasTool {
     ]);
   }
 
-  rect(x: number, y: number, width: number, height: number) {
-    this.ctx.rect(this.dX(x), this.dY(y), this.dD(width), this.dD(height));
-    return this.ctx;
-  }
-
-  fillRect(x: number, y: number, width: number, height: number) {
-    this.ctx.fillRect(this.dX(x), this.dY(y), this.dD(width), this.dD(height));
-    return this.ctx;
-  }
-
-  strokeRect(x: number, y: number, width: number, height: number) {
-    this.ctx.strokeRect(
-      this.dX(x),
-      this.dY(y),
-      this.dD(width),
-      this.dD(height)
-    );
-    return this.ctx;
-  }
-
   line(x1: number, y1: number, x2: number, y2: number) {
     this.ctx.beginPath();
     this.lineRaw(x1, y1, x2, y2);
@@ -151,8 +121,8 @@ export default class CanvasTool {
   }
 
   lineRaw(x1: number, y1: number, x2: number, y2: number) {
-    this.ctx.moveTo(this.dX(x1), this.dY(y1));
-    this.ctx.lineTo(this.dX(x2), this.dY(y2));
+    this.ctx.moveTo(x1, y1);
+    this.ctx.lineTo(x2, y2);
     return this.ctx;
   }
 
@@ -173,18 +143,18 @@ export default class CanvasTool {
   polygonRaw(points: number[][]) {
     points.forEach((point, index) => {
       if (index === 0) {
-        this.ctx.moveTo(this.dX(point[0]), this.dY(point[1]));
+        this.ctx.moveTo(point[0], point[1]);
       } else if (point.length === 6) {
         this.ctx.bezierCurveTo(
-          this.dX(point[0]),
-          this.dY(point[1]),
-          this.dX(point[2]),
-          this.dY(point[3]),
-          this.dX(point[4]),
-          this.dY(point[5])
+          point[0],
+          point[1],
+          point[2],
+          point[3],
+          point[4],
+          point[5]
         );
       } else {
-        this.ctx.lineTo(this.dX(point[0]), this.dY(point[1]));
+        this.ctx.lineTo(point[0], point[1]);
       }
     });
 
@@ -192,14 +162,14 @@ export default class CanvasTool {
   }
 
   rotate(x: number, y: number, angle: number) {
-    this.ctx.translate(this.dX(x), this.dY(y));
+    this.ctx.translate(x, y);
     this.ctx.rotate((angle * Math.PI) / 180);
-    this.ctx.translate(-this.dX(x), -this.dY(y));
+    this.ctx.translate(-x, -y);
     return this.ctx;
   }
 
   reset() {
-    this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+    this.ctx.setTransform(this.multiplier, 0, 0, this.multiplier, this.x * this.multiplier, this.y * this.multiplier);
     return this.ctx;
   }
 

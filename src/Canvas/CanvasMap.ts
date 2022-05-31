@@ -39,8 +39,8 @@ export default class CanvasMap {
     this.canvas.height = this.canvas.width;
     this.multiplier = this.canvas.width / map.mapDimension;
     this.ctx = ctx;
+    this.ctx.scale(this.multiplier, this.multiplier);
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.ctx.lineWidth = 4;
 
     this.makeTopography();
     this.makeGrid();
@@ -54,6 +54,7 @@ export default class CanvasMap {
 
   makeTopography() {
     const t = this.getNewCanvasTool(0, 0);
+    this.ctx.lineWidth = 0.1;
     this.ctx.fillStyle = this.elevationColors["5"];
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -63,7 +64,7 @@ export default class CanvasMap {
         const elevation = this.terrain.getRoundedElevation(a, b);
         if (elevation !== 5) {
           this.ctx.fillStyle = this.elevationColors[elevation.toFixed()];
-          t.fillRect(
+          this.ctx.fillRect(
             (a - 0.5) / this.terrain.resolution,
             (b - 0.5) / this.terrain.resolution,
             1 / this.terrain.resolution + 0.01,
@@ -104,19 +105,19 @@ export default class CanvasMap {
     const t = this.getNewCanvasTool(0, 0);
     this.ctx.globalAlpha = 0.5;
     t.textStyle();
-    t.strokeRect(0, 0, this.map.mapDimension, this.map.mapDimension);
+    this.ctx.strokeRect(0, 0, this.map.mapDimension, this.map.mapDimension);
 
-    t.lineWidth = 0.01;
+    this.ctx.lineWidth = 0.01;
     t.setLineDash([0.2, 0.1]);
     t.circle(this.map.center.x, this.map.center.y, this.map.center.x - LocationsMap.PADDING).stroke();
     t.setLineDash([]);
 
     const offset = (this.map.mapDimension % 10) / 2;
 
-    const oldlineWidth = t.lineWidth;
+    const oldlineWidth = this.ctx.lineWidth;
     for (let i = 1; i < this.map.mapDimension; i += 1) {
       if ((i - offset) % 10 === 0) {
-        t.lineWidth = oldlineWidth * 5;
+        this.ctx.lineWidth = oldlineWidth * 5;
       }
       this.ctx.beginPath();
       if ((i - offset) % 5 === 0) {
@@ -131,7 +132,7 @@ export default class CanvasMap {
       this.ctx.stroke();
       this.ctx.closePath();
       if ((i - offset) % 10 === 0) {
-        t.lineWidth = oldlineWidth;
+        this.ctx.lineWidth = oldlineWidth;
       }
     }
 
@@ -261,7 +262,7 @@ export default class CanvasMap {
 
       t.style(navaid.type === Navaid.VOR ? this.colors.blue : this.colors.magenta);
       if (navaid.hasDme) {
-        t.strokeRect(-0.8, -0.7, 1.6, 1.4);
+        this.ctx.strokeRect(-0.8, -0.7, 1.6, 1.4);
       }
 
       if (navaid.holdingPattern) {
@@ -273,15 +274,16 @@ export default class CanvasMap {
           HoldingPattern.LENGTH,
           HoldingPattern.WIDTH / 2
         ).stroke();
-        this.makePointerArrow(navaid.coordinates.x, navaid.coordinates.y);
+        this.makePointerArrow(t, 0, 0);
         this.makePointerArrow(
-          navaid.coordinates.x +
+          t,
           (navaid.holdingPattern.isRight
             ? HoldingPattern.WIDTH
             : -HoldingPattern.WIDTH),
-          navaid.coordinates.y + HoldingPattern.LENGTH - HoldingPattern.WIDTH,
+          - HoldingPattern.LENGTH + HoldingPattern.WIDTH,
           -1
         );
+        t.reset();
 
         const rot = navaid.holdingPattern.direction.isBetween(0, 180) ? -90 : 90;
         const y = (HoldingPattern.LENGTH - HoldingPattern.WIDTH) / 2;
@@ -336,10 +338,10 @@ export default class CanvasMap {
       t.circle(0, 0, 1).fill();
 
       if (airport.hasFuelService) {
-        t.fillRect(-1.15, -0.15, 0.3, 0.3);
-        t.fillRect(0.85, -0.15, 0.3, 0.3);
-        t.fillRect(-0.15, -1.15, 0.3, 0.3);
-        t.fillRect(-0.15, 0.85, 0.3, 0.3);
+        this.ctx.fillRect(-1.15, -0.15, 0.3, 0.3);
+        this.ctx.fillRect(0.85, -0.15, 0.3, 0.3);
+        this.ctx.fillRect(-0.15, -1.15, 0.3, 0.3);
+        this.ctx.fillRect(-0.15, 0.85, 0.3, 0.3);
       }
 
       airport.runways.forEach((runway) => {
@@ -381,22 +383,14 @@ export default class CanvasMap {
 
           t.setLineDash([]);
           this.makePointerArrow(
-            airport.coordinates.x +
+            t,
             (runway.trafficPatterns[0].isRight
               ? -Runway.TRAFFICPATTERN_WIDTH
               : Runway.TRAFFICPATTERN_WIDTH),
-            airport.coordinates.y + 0.33 * Runway.TRAFFICPATTERN_LENGTH
+            0.33 * Runway.TRAFFICPATTERN_LENGTH
           );
-          this.makePointerArrow(
-            airport.coordinates.x,
-            airport.coordinates.y - 0.33 * Runway.TRAFFICPATTERN_LENGTH,
-            -1
-          );
-          this.makePointerArrow(
-            airport.coordinates.x,
-            airport.coordinates.y + 0.75 * Runway.TRAFFICPATTERN_LENGTH,
-            -1
-          );
+          this.makePointerArrow(t, 0, 0.33 * Runway.TRAFFICPATTERN_LENGTH, -1);
+          this.makePointerArrow(t, 0, - 0.75 * Runway.TRAFFICPATTERN_LENGTH, -1);
 
           t.polygon([
             [runway.trafficPatterns[0].isRight ? -Runway.TRAFFICPATTERN_WIDTH - 1 : Runway.TRAFFICPATTERN_WIDTH + 1, 1,],
@@ -408,18 +402,18 @@ export default class CanvasMap {
         }
 
         this.ctx.fillStyle = "white";
-        t.fillRect(runway.width / 500 / -2, runway.length / 6076 / -2, runway.width / 500, runway.length / 6076);
+        this.ctx.fillRect(runway.width / 500 / -2, runway.length / 6076 / -2, runway.width / 500, runway.length / 6076);
 
         if (runway.ilsFrequencies.first) {
           t.style(baseColor);
           this.ctx.globalAlpha = 0.5;
-          this.makeIls(airport.coordinates.x, airport.coordinates.y);
+          this.makeIls(t);
         }
         if (runway.ilsFrequencies.second) {
           t.style(baseColor);
           this.ctx.globalAlpha = 0.5;
           t.rotate(0, 0, 180);
-          this.makeIls(airport.coordinates.x, airport.coordinates.y);
+          this.makeIls(t);
         }
 
         t.reset();
@@ -581,8 +575,7 @@ export default class CanvasMap {
     t.text(0.01, 0.14, pin.toFixed());
   }
 
-  protected makeIls(x: number, y: number) {
-    const t = this.getNewCanvasTool(x, y);
+  protected makeIls(t: CanvasTool) {
     t.polygon([
       [0.0, -1.2],
       [0.4, -Airport.ILS_RANGE / 2 - 0.3],
@@ -597,12 +590,11 @@ export default class CanvasMap {
     ]).fill();
   }
 
-  protected makePointerArrow(x: number, y: number, scale = 1) {
-    const t = this.getNewCanvasTool(x, y);
+  protected makePointerArrow(t: CanvasTool, x: number, y: number, scale = 1) {
     t.polygon([
-      [-0.25, scale * 0.4],
-      [0.25, scale * 0.4],
-      [0, scale * 0.1],
+      [x - 0.25, scale * (0.4 + y)],
+      [x + 0.25, scale * (0.4 + y)],
+      [x + 0, scale * (0.1 + y)],
     ]).fill();
   }
 

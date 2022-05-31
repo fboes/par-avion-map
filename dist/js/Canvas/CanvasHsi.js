@@ -22,13 +22,14 @@ export default class CanvasHsi {
         this.canvas.height = this.canvas.width;
         this.multiplier = this.canvas.width / 256;
         this.ctx = ctx;
+        this.ctx.scale(this.multiplier, this.multiplier);
         this.draw();
     }
     draw() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         const t = new CanvasTool(this.ctx, 128, 128, this.multiplier);
+        this.ctx.clearRect(-128, -128, 256, 256);
         t.style('black').globalAlpha = 0.8;
-        t.fillRect(-128, -128, 256, 256);
+        this.ctx.fillRect(-128, -128, 256, 256);
         t.style('white', 'white', 2);
         t.circle(0, 0, 65).stroke(); // around plane
         this.hsi.navRadios.forEach((navRadio, index) => {
