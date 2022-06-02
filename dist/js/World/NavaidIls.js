@@ -1,4 +1,4 @@
-import Navaid from "Navaid.js";
+import Navaid from "./Navaid.js";
 import Degree from "../Types/Degree.js";
 export default class NavaidIls extends Navaid {
     constructor(coordinates, randomizer, type = '') {

@@ -1,4 +1,4 @@
-import Navaid from "Navaid.js";
+import Navaid from "./Navaid.js";
 import Randomizer from "../Helper/Randomizer.js";
 import Coordinates from "../Types/Coordinates.js";
 import Degree from "../Types/Degree.js";
