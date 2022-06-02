@@ -195,6 +195,9 @@ export default class CanvasMap {
     }
     makeNavaids() {
         this.map.navAids.forEach((navaid, id) => {
+            if (navaid.type !== Navaid.VOR && navaid.type === Navaid.NDB) {
+                return;
+            }
             const t = this.getNewCanvasTool(navaid.coordinates.x, navaid.coordinates.y);
             t.style(navaid.type === Navaid.VOR ? this.colors.blue : this.colors.magenta);
             t.textStyle();
@@ -287,12 +290,12 @@ export default class CanvasMap {
                 }
                 this.ctx.fillStyle = "white";
                 this.ctx.fillRect(runway.width / 500 / -2, runway.length / 6076 / -2, runway.width / 500, runway.length / 6076);
-                if (runway.ilsFrequencies.first) {
+                if (runway.ils.first) {
                     t.style(baseColor);
                     this.ctx.globalAlpha = 0.5;
                     this.makeIls(t);
                 }
-                if (runway.ilsFrequencies.second) {
+                if (runway.ils.second) {
                     t.style(baseColor);
                     this.ctx.globalAlpha = 0.5;
                     t.rotate(0, 0, 180);
@@ -322,9 +325,9 @@ export default class CanvasMap {
                 airport.name + " (" + airport.code + ")",
                 (airport.hasTower ? "CT " : "UNICOM ") +
                     CanvasTool.frequency(airport.frequency) +
-                    (airport.runways[0].ilsFrequencies.first
+                    (airport.runways[0].ils.first
                         ? " ILS " +
-                            CanvasTool.frequency(airport.runways[0].ilsFrequencies.first)
+                            CanvasTool.frequency(airport.runways[0].ils.first.frequency)
                         : ""),
             ]);
             airport.approachPoints.forEach((approachPoint) => {
@@ -374,6 +377,7 @@ export default class CanvasMap {
     }
     makeNavaidVor(x, y) {
         const t = this.getNewCanvasTool(x, y);
+        const radius = 3.5;
         t.polygon([
             [0.5, 0.7],
             [0.8, 0],
@@ -385,14 +389,14 @@ export default class CanvasMap {
         this.ctx.globalAlpha = 0.5;
         t.textStyle();
         t.polygon([
-            [-0.2, -3.2],
-            [0.2, -3.2],
-            [0, -3.5],
+            [-0.2, -0.2 - radius],
+            [0.2, -0.2 - radius],
+            [0, -0.5 - radius],
         ]).fill();
-        t.circle(0, 0, 3).stroke();
-        const centerDegRot = -2.2;
+        t.circle(0, 0, radius).stroke();
+        const centerDegRot = 0.8 - radius;
         for (let i = 0; i < 360; i += 10) {
-            t.line(0, 3, 0, i % 30 === 0 ? 2.6 : 2.8).stroke();
+            t.line(0, radius, 0, radius - (i % 30 === 0 ? 0.4 : 0.2)).stroke();
             if (i % 90 === 0) {
                 t.rotate(0, centerDegRot, -i);
                 t.text(0, centerDegRot + 0.2, (i / 10).toFixed().padStart(2, '0'));

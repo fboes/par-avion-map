@@ -41,7 +41,7 @@ export default class CanvasApproach {
   makeInfoBox() {
     const t = this.getNewCanvasTool(0, 0);
     const lineHeight = 7;
-    const ilsFrequency = this.airport.runways[0].ilsFrequencies.first;
+    const ilsFrequency = this.airport.runways[0].ils.first ? this.airport.runways[0].ils.first.frequency : null;
     const rows = {
       first: !ilsFrequency ? this.maxX * 1 / 3 : this.maxX * 1 / 4,
       second: !ilsFrequency ? this.maxX * 2 / 3 : this.maxX * 2 / 4,

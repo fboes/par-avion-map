@@ -95,7 +95,6 @@ export default class App {
       navRadio.setCourse(courseSelect.valueAsNumber);
     });
 
-
     this.hsi = new CanvasHsi(this.elements.hsiCanvas, this.plane.hsi);
     this.hsi.draw();
 

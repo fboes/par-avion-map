@@ -1,9 +1,13 @@
 export default class CanvasTool {
-    constructor(ctx, x, y, multiplier) {
+    constructor(ctx, x, y, multiplierX, multiplierY = 0) {
         this.ctx = ctx;
         this.x = x;
         this.y = y;
-        this.multiplier = multiplier;
+        this.multiplierX = multiplierX;
+        this.multiplierY = multiplierY;
+        if (!this.multiplierY) {
+            this.multiplierY = this.multiplierX;
+        }
         this.reset();
     }
     style(fillStyle, strokeStyle = "", lineWidth = 0.1) {
@@ -143,7 +147,7 @@ export default class CanvasTool {
         return this.ctx;
     }
     reset() {
-        this.ctx.setTransform(this.multiplier, 0, 0, this.multiplier, this.x * this.multiplier, this.y * this.multiplier);
+        this.ctx.setTransform(this.multiplierX, 0, 0, this.multiplierY, this.x * this.multiplierX, this.y * this.multiplierY);
         return this.ctx;
     }
     static numPad(text, targetLength) {

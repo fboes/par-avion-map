@@ -3,13 +3,14 @@ import Coordinates from "../Types/Coordinates.js";
 import Randomizer from "../Helper/Randomizer.js";
 import Degree from "../Types/Degree.js";
 import TwoWay from "../Types/TwoWay.js";
+import NavaidIls from "./NavaidIls.js";
 
 export default class Runway {
   public length: number;
   public width: number;
   public slopeIndicators: TwoWay;
   public approachLights: TwoWay;
-  public ilsFrequencies: TwoWay;
+  public ils: TwoWay;
   public trafficPatterns: HoldingPattern[] = [];
 
   public static ILS = 'ILS';
@@ -21,9 +22,9 @@ export default class Runway {
   // @see https://www.flightlearnings.com/wp-content/uploads/2017/07/8-22a.jpg
   public static ALSF2 = 'ALSF-2'; // A
   public static ALSF1 = 'ALSF-1'; // A1
-  public static SALS  = 'SALS';   // A2
+  public static SALS = 'SALS';   // A2
   public static SSALR = 'SSALR';  // A3
-  public static MALS  = 'MALS';   // A4
+  public static MALS = 'MALS';   // A4
   public static MALSR = 'MALSR';  // A5
   public static ODALS = 'ODALS';  // +⦾
 
@@ -34,7 +35,7 @@ export default class Runway {
     this.length = this.randomizer.getInt(20, 60) * 100; // 4000 - 8000ft
     this.slopeIndicators = new TwoWay();
     this.approachLights = new TwoWay();
-    this.ilsFrequencies = new TwoWay();
+    this.ils = new TwoWay();
 
     //#widths = [60, 75, 100, 150, 200];
     if (this.length >= 6000) {
@@ -64,18 +65,24 @@ export default class Runway {
     }
 
     // ILS
-    if (index === 0 || this.ilsFrequencies.first) {
-      this.ilsFrequencies.set(
-        index,
-        this.randomizer.isRandTrue(index === 0 ? 33 : 20)
-          ? this.randomizer.getInt(108, 111) + (this.randomizer.getInt(0, 4) * 0.2) + 0.1
-          : null
-      )
+    if (index === 0 || this.ils.first) {
+      if (this.randomizer.isRandTrue(index === 0 ? 33 : 20)) {
+        const ils = new NavaidIls(
+          this.coordinates.getNewCoordinates(this.trafficPatterns[index].direction, (this.length / 2) / 6076),
+          this.randomizer,
+          NavaidIls.ILS
+        );
+        ils.code += this.trafficPatterns[index].direction.degree.toFixed();
+        ils.direction = this.trafficPatterns[index].direction;
+        this.ils.set(index, ils);
+      } else {
+        this.ils.set(index, null);
+      }
     }
 
     // Approach Lights
     if (index === 0 || this.approachLights.first) {
-      if (this.ilsFrequencies.get(index)) {
+      if (this.ils.get(index)) {
         this.approachLights.set(index, this.randomizer.fromArray(this.length > 4000
           ? [
             Runway.ALSF1,
@@ -104,7 +111,7 @@ export default class Runway {
     }
 
     // Slope Indicators
-    if (index === 0 || this.slopeIndicators.first && (this.ilsFrequencies.get(index) || this.randomizer.isRandTrue())) {
+    if (index === 0 || this.slopeIndicators.first && (this.ils.get(index) || this.randomizer.isRandTrue())) {
       let slope = this.randomizer.isRandTrue() ? Runway.PAPI : Runway.VASI;
       if (index === 1) {
         slope = this.slopeIndicators.first

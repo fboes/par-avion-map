@@ -41,13 +41,25 @@ export default class CanvasHsi {
     }
     drawNavRadio(navRadio, index) {
         const t = new CanvasTool(this.ctx, 128, 128, this.multiplier);
-        let color = (index === 0)
-            ? this.colors.green
-            : (navRadio.type === Navaid.VOR ? this.colors.blue : this.colors.pink);
+        let color = this.colors.green;
+        if (index !== 0) {
+            switch (navRadio.type) {
+                case Navaid.VOR:
+                    color = this.colors.blue;
+                    break;
+                case Navaid.ILS:
+                    color = this.colors.yellow;
+                    break;
+                default:
+                    color = this.colors.pink;
+                    break;
+            }
+        }
         let maxArrow = 104;
-        const circleDeviation = 61;
-        const deviationSpacer = 25;
+        const circleDeviationPx = 61;
+        const deviationMaxRangePx = 50;
         let deviation = null;
+        const maxDeviationDegrees = (navRadio.type === Navaid.ILS ? 2.5 : 10);
         t.style(color, color, 2);
         const align = index === 0 ? 'left' : 'right';
         this.text(t, index === 0 ? -125 : +125, -112, navRadio.label, navRadio.type, align);
@@ -72,22 +84,22 @@ export default class CanvasHsi {
                     deviation -= 180;
                     deviation *= -1;
                 }
-                deviation = Math.max(-10, Math.min(10, deviation));
-                const currentDeviation = (deviation / -10) * 2 * deviationSpacer;
+                deviation = Math.max(-maxDeviationDegrees, Math.min(maxDeviationDegrees, deviation));
+                const currentDeviation = (deviation / -maxDeviationDegrees) * deviationMaxRangePx;
                 t.polygon(CanvasTool.mirror([
                     [currentDeviation - 10, 14 - 50],
                     [currentDeviation + 0, -50],
                     [currentDeviation + 10, 14 - 50],
                     [currentDeviation + 3, 12 - 50],
                     [currentDeviation + 3, 14 - 50],
-                    [currentDeviation + 3, circleDeviation - 2],
-                    [currentDeviation - 3, circleDeviation - 2],
+                    [currentDeviation + 3, circleDeviationPx - 2],
+                    [currentDeviation - 3, circleDeviationPx - 2],
                     [currentDeviation - 3, 14 - 50],
                     [currentDeviation - 3, 12 - 50],
                 ], 1, isTo ? 1 : -1)).fill();
                 t.polygon(CanvasTool.mirror([
-                    [currentDeviation - 3, -circleDeviation + 2],
-                    [currentDeviation + 3, -circleDeviation + 2],
+                    [currentDeviation - 3, -circleDeviationPx + 2],
+                    [currentDeviation + 3, -circleDeviationPx + 2],
                     [currentDeviation + 3, 2 - 50],
                     [currentDeviation + 0, -50 - 3],
                     [currentDeviation - 3, 2 - 50]
@@ -99,22 +111,32 @@ export default class CanvasHsi {
                 [10, 14 - maxArrow],
                 [3, 12 - maxArrow],
                 [3, 14 - maxArrow],
-                [3, -circleDeviation],
-                [-3, -circleDeviation],
+                [3, -circleDeviationPx],
+                [-3, -circleDeviationPx],
                 [-3, 14 - maxArrow],
                 [-3, 12 - maxArrow],
             ]).fill();
             t.polygon([
-                [-3, circleDeviation],
-                [3, circleDeviation],
+                [-3, circleDeviationPx],
+                [3, circleDeviationPx],
                 [3, maxArrow - 2],
                 [-3, maxArrow - 2]
             ]).fill();
             t.style('white', 'white', 2);
-            t.circle(2 * deviationSpacer, 0, 5).stroke();
-            t.circle(deviationSpacer, 0, 5).stroke();
-            t.circle(-deviationSpacer, 0, 5).stroke();
-            t.circle(-2 * deviationSpacer, 0, 5).stroke();
+            //t.textStyle(10);
+            //t.text(deviationMaxRangePx, 18, String(maxDeviationDegrees) + '°');
+            if (maxDeviationDegrees === 2.5) {
+                t.circle(1 / 2.5 * deviationMaxRangePx, 0, 5).stroke();
+                t.circle(2 / 2.5 * deviationMaxRangePx, 0, 5).stroke();
+                t.circle(-2 / 2.5 * deviationMaxRangePx, 0, 5).stroke();
+                t.circle(-1 / 2.5 * deviationMaxRangePx, 0, 5).stroke();
+            }
+            else {
+                t.circle(0.5 * deviationMaxRangePx, 0, 5).stroke();
+                t.circle(deviationMaxRangePx, 0, 5).stroke();
+                t.circle(-deviationMaxRangePx, 0, 5).stroke();
+                t.circle(-0.5 * deviationMaxRangePx, 0, 5).stroke();
+            }
             t.reset();
         }
         if (navRadio.bearing) {

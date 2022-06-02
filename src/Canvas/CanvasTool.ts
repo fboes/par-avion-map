@@ -1,7 +1,10 @@
 export default class CanvasTool {
 
-  constructor(protected ctx: CanvasRenderingContext2D, public x: number, public y: number, protected multiplier: number
+  constructor(protected ctx: CanvasRenderingContext2D, public x: number, public y: number, protected multiplierX: number, protected multiplierY: number = 0
   ) {
+    if (!this.multiplierY) {
+      this.multiplierY = this.multiplierX;
+    }
     this.reset();
   }
 
@@ -169,7 +172,7 @@ export default class CanvasTool {
   }
 
   reset() {
-    this.ctx.setTransform(this.multiplier, 0, 0, this.multiplier, this.x * this.multiplier, this.y * this.multiplier);
+    this.ctx.setTransform(this.multiplierX, 0, 0, this.multiplierY, this.x * this.multiplierX, this.y * this.multiplierY);
     return this.ctx;
   }
 
