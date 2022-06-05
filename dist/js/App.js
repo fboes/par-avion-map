@@ -8,12 +8,14 @@ import CanvasHsi from "./Canvas/CanvasHsi.js";
 import Degree from "./Types/Degree.js";
 import Plane from "./Plane/Plane.js";
 import Navaid from "./World/Navaid.js";
+import Weather from "./World/Weather.js";
 export default class App {
     constructor() {
         this.multiplier = 0;
         this.elements = {
             mapCanvas: document.getElementById('map'),
             hsiCanvas: document.getElementById('hsi'),
+            sixPackCanvas: document.getElementById('six-pack'),
             airportsCanvases: document.querySelectorAll('.approaches canvas'),
             seedInput: document.getElementById('seed'),
             mapDimensionInput: document.getElementById('mapdimension'),
@@ -33,6 +35,8 @@ export default class App {
         this.map = new LocationsMap(this.elements.mapDimensionInput ? this.elements.mapDimensionInput.valueAsNumber : 16, this.randomizer);
         this.randomizer.seed = this.randomizer.seed;
         this.terrain = new TerrainMap(this.map, this.randomizer, this.elements.resolutionInput ? this.elements.resolutionInput.valueAsNumber : 4);
+        this.randomizer.seed = this.randomizer.seed;
+        this.weather = new Weather(this.map, this.randomizer);
         this.pushState();
         this.drawMap();
     }
@@ -48,6 +52,8 @@ export default class App {
         this.map = new LocationsMap(dimension, this.randomizer);
         this.randomizer.seed = this.randomizer.seed;
         this.terrain = new TerrainMap(this.map, this.randomizer, resolution);
+        this.randomizer.seed = this.randomizer.seed;
+        this.weather = new Weather(this.map, this.randomizer);
         this.drawMap();
     }
     drawMap() {
@@ -66,7 +72,7 @@ export default class App {
             navRadio.setCourse(courseSelect.valueAsNumber);
         });
         this.hsi = new CanvasHsi(this.elements.hsiCanvas, this.plane.hsi);
-        this.hsi.draw();
+        //this.sixPack = new CanvasSixPack(this.elements.sixPackCanvas, this.plane);
         if (this.elements.mapCanvas) {
             const canvasMap = new CanvasMap(this.elements.mapCanvas, this.map, this.terrain);
             this.multiplier = canvasMap.multiplier;
@@ -81,6 +87,7 @@ export default class App {
     updatePosition(event) {
         const bound = this.elements.mapCanvas.getBoundingClientRect();
         this.plane.coordinates = new Coordinates((event.clientX - bound.left) / this.multiplier * window.devicePixelRatio, (event.clientY - bound.top) / this.multiplier * window.devicePixelRatio);
+        this.plane.coordinates.elevation = this.terrain.getElevationNm(this.plane.coordinates);
         this.hsi.draw();
     }
     changeHeading() {
@@ -88,6 +95,7 @@ export default class App {
             this.plane.heading = new Degree(this.planeCoordinatesOld.getBearing(this.plane.coordinates));
         }
         this.planeCoordinatesOld = new Coordinates(this.plane.coordinates.x, this.plane.coordinates.y);
+        console.log(this.weather.at(this.plane.coordinates));
         this.hsi.draw();
     }
     changeHeadingSelect(event) {

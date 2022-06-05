@@ -201,6 +201,9 @@ export default class TerrainMap {
         });
         return max;
     }
+    getElevationNm(coordinates) {
+        return this.getElevation(coordinates.getTerrainCoordinates(this.resolution));
+    }
     getElevation(coordinates) {
         const a = this.clamp(coordinates.a);
         const b = this.clamp(coordinates.b);

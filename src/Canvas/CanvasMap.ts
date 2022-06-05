@@ -248,10 +248,6 @@ export default class CanvasMap {
 
   makeNavaids() {
     this.map.navAids.forEach((navaid, id) => {
-      if (navaid.type !== Navaid.VOR && navaid.type === Navaid.NDB) {
-        return;
-      }
-
       const t = this.getNewCanvasTool(navaid.coordinates.x, navaid.coordinates.y);
 
       t.style(navaid.type === Navaid.VOR ? this.colors.blue : this.colors.magenta);

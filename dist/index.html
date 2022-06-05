@@ -46,11 +46,19 @@
       height: auto;
     }
 
-    canvas#hsi {
+    canvas#hsi,
+    canvas#six-pack {
       width: 25%;
-      right: 0.5vmin;
       bottom: 1vmin;
       position: absolute;
+    }
+
+    canvas#six-pack {
+      left: 0.5vmin;
+    }
+
+    canvas#hsi {
+      right: 0.5vmin;
     }
 
     .approaches div {
@@ -85,7 +93,7 @@
     input[type="range"] {
       padding: 0;
       vertical-align: bottom;
-   }
+    }
 
     button {
       background: #007bff;
@@ -188,6 +196,7 @@
         <h2>Map</h2>
         <canvas id="map" height="1280" width="1280"></canvas>
         <canvas id="hsi" height="256" width="256"></canvas>
+        <canvas id="six-pack" height="256" width="256"></canvas>
       </section>
       <section class="approaches">
         <h2>Approaches</h2>

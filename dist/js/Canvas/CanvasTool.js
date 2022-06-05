@@ -10,6 +10,16 @@ export default class CanvasTool {
         }
         this.reset();
     }
+    rescaleCanvas(multiplierX = 1, multiplierY = 1) {
+        if (multiplierX === 1 && multiplierY === 1) {
+            return;
+        }
+        this.multiplierX *= multiplierX;
+        this.multiplierY *= multiplierY;
+        this.x /= multiplierX;
+        this.y /= multiplierY;
+        this.reset();
+    }
     style(fillStyle, strokeStyle = "", lineWidth = 0.1) {
         this.ctx.fillStyle = fillStyle;
         this.ctx.strokeStyle = strokeStyle || fillStyle;

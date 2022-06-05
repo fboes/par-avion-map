@@ -274,6 +274,12 @@ export default class TerrainMap {
     return max;
   }
 
+  public getElevationNm(coordinates: Coordinates) {
+    return this.getElevation(
+      coordinates.getTerrainCoordinates(this.resolution)
+    );
+  }
+
   public getElevation(coordinates: TerrainCoordinates) {
     const a = this.clamp(coordinates.a);
     const b = this.clamp(coordinates.b);
