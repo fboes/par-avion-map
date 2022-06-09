@@ -4,13 +4,14 @@ export default class Coordinates {
         this.x = x;
         this.y = y;
         this.elevation = elevation;
+        this.timestamp = 0;
     }
     getTerrainCoordinates(resolution) {
         return new TerrainCoordinates(this.x * resolution, this.y * resolution);
     }
-    getNewCoordinates(degree, distance) {
+    getNewCoordinates(degree, distance, elevation = null) {
         let rad = degree.rad;
-        return new Coordinates((Math.sin(rad) * distance) + this.x, (-Math.cos(rad) * distance) + this.y);
+        return new Coordinates((Math.sin(rad) * distance) + this.x, (-Math.cos(rad) * distance) + this.y, elevation);
     }
     getBearing(coord2) {
         let degree = Coordinates.rad2deg(Math.atan2((coord2.y - this.y), (coord2.x - this.x)));

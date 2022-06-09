@@ -13,7 +13,6 @@ export default class CanvasDisplay {
     this.canvas.height = this.canvas.width;
     this.multiplier = this.canvas.width / 256;
     this.ctx = ctx;
-    this.ctx.scale(this.multiplier, this.multiplier);
   }
 
   draw() {

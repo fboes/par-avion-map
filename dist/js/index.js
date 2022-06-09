@@ -1,3 +1,4 @@
+var _a;
 import App from './App.js';
 const app = new App();
 let resizeTimer;
@@ -16,19 +17,9 @@ app.elements.randomizeButton.addEventListener('click', () => {
     app.elements.seedInput.value = '';
     app.generateMap();
 });
-app.elements.mapCanvas.addEventListener('click', (event) => {
+app.elements.mapHsiCanvas.addEventListener('click', (event) => {
     app.updatePosition(event);
     app.changeHeading();
-});
-app.elements.mapCanvas.addEventListener('mousemove', (event) => {
-    app.updatePosition(event);
-    // simple debouncer
-    if (resizeTimer !== undefined) {
-        clearTimeout(resizeTimer);
-    }
-    resizeTimer = setTimeout(function () {
-        app.changeHeading();
-    }, 250);
 });
 app.elements.course1Input.addEventListener('change', (event) => { app.changeCourse(event, 0); });
 app.elements.course2Input.addEventListener('change', (event) => { app.changeCourse(event, 1); });
@@ -44,4 +35,12 @@ window.addEventListener('resize', () => {
 });
 window.addEventListener('popstate', (event) => {
     app.generateFromSeed(event.state.seed, event.state.dimension, event.state.resolution);
+});
+window.requestAnimationFrame(app.loop.bind(app));
+document.addEventListener('keydown', (event) => { app.handleKeyDown(event); });
+(_a = document.getElementById('show-log')) === null || _a === void 0 ? void 0 : _a.addEventListener('change', (event) => {
+    const tgt = event.target;
+    if (tgt) {
+        app.elements.mapHsiCanvas.style.visibility = tgt.checked ? 'visible' : 'hidden';
+    }
 });

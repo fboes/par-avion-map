@@ -34,7 +34,6 @@ export default class CanvasMap {
         this.canvas.height = this.canvas.width;
         this.multiplier = this.canvas.width / map.mapDimension;
         this.ctx = ctx;
-        this.ctx.scale(this.multiplier, this.multiplier);
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.makeTopography();
         this.makeGrid();
@@ -216,7 +215,6 @@ export default class CanvasMap {
                 this.makePointerArrow(t, (navaid.holdingPattern.isRight
                     ? HoldingPattern.WIDTH
                     : -HoldingPattern.WIDTH), -HoldingPattern.LENGTH + HoldingPattern.WIDTH, -1);
-                t.reset();
                 const rot = navaid.holdingPattern.direction.isBetween(0, 180) ? -90 : 90;
                 const y = (HoldingPattern.LENGTH - HoldingPattern.WIDTH) / 2;
                 {

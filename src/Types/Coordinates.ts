@@ -2,6 +2,8 @@ import TerrainCoordinates from "./TerrainCoordinates.js";
 import Degree from "./Degree.js";
 
 export default class Coordinates {
+  public timestamp = 0;
+
   public constructor(public x: number, public y: number, public elevation: number | null = null) {
   }
 
@@ -10,12 +12,13 @@ export default class Coordinates {
   }
 
 
-  public getNewCoordinates(degree: Degree, distance: number): Coordinates {
+  public getNewCoordinates(degree: Degree, distance: number, elevation: number | null = null): Coordinates {
     let rad = degree.rad;
 
     return new Coordinates(
       (Math.sin(rad) * distance) + this.x,
-      (-Math.cos(rad) * distance) + this.y
+      (-Math.cos(rad) * distance) + this.y,
+      elevation
     );
   }
 

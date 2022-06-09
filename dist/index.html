@@ -61,6 +61,12 @@
       right: 0.5vmin;
     }
 
+    canvas#map-hsi {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
     .approaches div {
       display: flex;
       gap: 2vmin;
@@ -195,8 +201,8 @@
       <section class="map">
         <h2>Map</h2>
         <canvas id="map" height="1280" width="1280"></canvas>
+        <canvas id="map-hsi" height="1280" width="1280"></canvas>
         <canvas id="hsi" height="256" width="256"></canvas>
-        <canvas id="six-pack" height="256" width="256"></canvas>
       </section>
       <section class="approaches">
         <h2>Approaches</h2>
@@ -229,15 +235,19 @@
         <h2>Plane</h2>
         <span>
           <label for="heading-select">Heading Select</label>
-          <input name="heading-select" id="heading-select" type="range" min="-1" max="360" value="45" />
+          <input name="heading-select" id="heading-select" type="number" min="-1" max="360" value="45" />
         </span>
         <span>
           <label for="course-1">Course (NAV1)</label>
-          <input name="course-1" id="course-1" type="range" min="-1" max="360" value="45" />
+          <input name="course-1" id="course-1" type="number" min="-1" max="360" value="45" />
         </span>
         <span>
           <label for="course-2">Course (NAV2)</label>
-          <input name="course-2" id="course-2" type="range" min="-1" max="360" value="135" />
+          <input name="course-2" id="course-2" type="number" min="-1" max="360" value="135" />
+        </span>
+        <span>
+          <label for="show-log">Show plane</label>
+          <input name="show-log" id="show-log" type="checkbox" value="show" checked="checked">
         </span>
       </section>
     </main>
