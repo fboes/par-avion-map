@@ -140,7 +140,7 @@ export default class App {
     }
     loop(timestamp) {
         if (this.lastTimestamp && this.lastTimestamp !== timestamp) {
-            this.plane.move(timestamp - this.lastTimestamp);
+            this.plane.move(timestamp - this.lastTimestamp, this.weather.at(this.plane.coordinates));
             this.mapHsi.draw();
             this.hsi.draw();
             this.lastLogTimestamp += timestamp - this.lastTimestamp;
@@ -158,7 +158,6 @@ export default class App {
             this.plane.heading = new Degree(this.planeCoordinatesOld.getBearing(this.plane.coordinates));
         }
         this.planeCoordinatesOld = new Coordinates(this.plane.coordinates.x, this.plane.coordinates.y);
-        //console.log(this.weather.at(this.plane.coordinates));
         this.mapHsi.draw();
         this.hsi.draw();
     }
@@ -191,4 +190,11 @@ export default class App {
             this.hsi.draw();
         }
     }
+    changeLogging(event) {
+        const tgt = event.target;
+        if (tgt && this.mapHsi) {
+            this.mapHsi.showLog = tgt.checked;
+        }
+    }
 }
+App.TIME_COMPRESSION = 10;

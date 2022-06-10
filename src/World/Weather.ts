@@ -10,6 +10,13 @@ type FourCorners = {
   bottomRight: number
 }
 
+export type CurrentWeather = {
+  pressureHpa: number,
+  pressureHpaAtAltitudeFt: number,
+  windDirection: Degree
+  windSpeedKts: number
+}
+
 export default class Weather {
   public windDirection: Degree;
   public windSpeedKts: number;
@@ -41,7 +48,7 @@ export default class Weather {
     // clouds
   }
 
-  at(coordinates: Coordinates) {
+  at(coordinates: Coordinates): CurrentWeather {
     const distFromMin = this.minPressureCenter.getDistance(coordinates);
     const distFromMax = this.maxPressureCenter.getDistance(coordinates);
     const pressureHpa = (this.maxPressureHpa * distFromMin + this.minPressureHpa * distFromMax) / (distFromMin + distFromMax);

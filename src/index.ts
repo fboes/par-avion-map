@@ -27,24 +27,10 @@ app.elements.mapHsiCanvas.addEventListener('click', (event) => {
 app.elements.course1Input.addEventListener('change', (event) => { app.changeCourse(event, 0) });
 app.elements.course2Input.addEventListener('change', (event) => { app.changeCourse(event, 1) });
 app.elements.headingSelectInput.addEventListener('change', (event) => { app.changeHeadingSelect(event) });
-window.addEventListener('resize', () => {
-  // simple debouncer
-  if (resizeTimer !== undefined) {
-    clearTimeout(resizeTimer);
-  }
-  resizeTimer = setTimeout(function () {
-    app.generateMap();
-  }, 250);
-});
+document.addEventListener('keydown', (event) => { app.handleKeyDown(event); });
+document.getElementById('show-log')?.addEventListener('change', (event) => { app.changeLogging(event) });
 window.addEventListener('popstate', (event) => {
   app.generateFromSeed(event.state.seed, event.state.dimension, event.state.resolution)
 });
 window.requestAnimationFrame(app.loop.bind(app));
 
-document.addEventListener('keydown', (event) => { app.handleKeyDown(event); });
-document.getElementById('show-log')?.addEventListener('change', (event) => {
-  const tgt = <HTMLInputElement>event.target;
-  if (tgt) {
-    app.elements.mapHsiCanvas.style.visibility = tgt.checked ? 'visible' : 'hidden';
-  }
-});

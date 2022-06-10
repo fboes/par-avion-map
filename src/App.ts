@@ -40,6 +40,8 @@ export default class App {
   protected lastTimestamp!: number;
   protected lastLogTimestamp: number = 0;
 
+  static TIME_COMPRESSION = 10;
+
   constructor() {
     this.elements = {
       mapCanvas: <HTMLCanvasElement>document.getElementById('map'),
@@ -175,7 +177,7 @@ export default class App {
 
   loop(timestamp: number) {
     if (this.lastTimestamp && this.lastTimestamp !== timestamp) {
-      this.plane.move(timestamp - this.lastTimestamp)
+      this.plane.move(timestamp - this.lastTimestamp, this.weather.at(this.plane.coordinates))
       this.mapHsi.draw();
       this.hsi.draw();
 
@@ -196,7 +198,6 @@ export default class App {
       this.plane.heading = new Degree(this.planeCoordinatesOld.getBearing(this.plane.coordinates));
     }
     this.planeCoordinatesOld = new Coordinates(this.plane.coordinates.x, this.plane.coordinates.y);
-    //console.log(this.weather.at(this.plane.coordinates));
 
     this.mapHsi.draw();
     this.hsi.draw();
@@ -228,6 +229,13 @@ export default class App {
       radio.setCourse(target.valueAsNumber);
       this.mapHsi.draw();
       this.hsi.draw();
+    }
+  }
+
+  changeLogging(event: Event) {
+    const tgt = <HTMLInputElement>event.target;
+    if (tgt && this.mapHsi) {
+      this.mapHsi.showLog = tgt.checked;
     }
   }
 }
