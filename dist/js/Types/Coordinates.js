@@ -4,7 +4,6 @@ export default class Coordinates {
         this.x = x;
         this.y = y;
         this.elevation = elevation;
-        this.timestamp = 0;
     }
     getTerrainCoordinates(resolution) {
         return new TerrainCoordinates(this.x * resolution, this.y * resolution);

@@ -3,18 +3,20 @@ import NavRadio from "./NavRadio.js";
 import Hsi from "./Hsi.js";
 import FlightLog from "./FlightLog.js";
 import App from "../App.js";
+import LogCoordinates from "../Types/LogCoordinates.js";
 export default class Plane {
     constructor(coordinates) {
         this._heading = new Degree(0);
         this._throttle = 0;
         this._speedKts = 0;
+        this._altAglFt = 0;
         this._coordinates = coordinates;
         this.navRadios = [
             new NavRadio([]),
             new NavRadio([]),
         ];
         this.hsi = new Hsi(0, this.navRadios);
-        this.flightLog = new FlightLog(coordinates);
+        this.flightLog = new FlightLog(this.getLogCoordinates(0));
     }
     set heading(heading) {
         this._heading = heading;
@@ -27,8 +29,13 @@ export default class Plane {
         this._heading.degree += changeDegree;
         this.hsi.heading.degree += changeDegree;
     }
-    move(delta, currentWeather) {
+    move(delta, currentWeather, elevationHeight) {
         this._speedKts = this._throttle * 2;
+        if (!this.coordinates.elevation || elevationHeight > this.coordinates.elevation) {
+            // Hack
+            this.coordinates.elevation = elevationHeight;
+        }
+        this._altAglFt = this.coordinates.elevation - elevationHeight;
         let speedVector = this._speedKts;
         let headingVector = this.heading;
         if (currentWeather.windSpeedKts > 0) {
@@ -60,10 +67,19 @@ export default class Plane {
     get coordinates() {
         return this._coordinates;
     }
+    getLogCoordinates(timestamp) {
+        return new LogCoordinates(this, timestamp);
+    }
     set throttle(throttle) {
         this._throttle = Math.max(0, Math.min(100, throttle));
     }
     get throttle() {
         return this._throttle;
+    }
+    get speedKts() {
+        return this._speedKts;
+    }
+    get altAglFt() {
+        return this._altAglFt;
     }
 }

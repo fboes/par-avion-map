@@ -10,11 +10,13 @@ import Plane from "./Plane/Plane.js";
 import Navaid from "./World/Navaid.js";
 import Weather from "./World/Weather.js";
 import CanvasHsi from "./Canvas/CanvasHsi.js";
+import CanvasSixPack from "./Canvas/CanvasSixPack.js";
 
 type Elements = {
   mapCanvas: HTMLCanvasElement,
   mapHsiCanvas: HTMLCanvasElement,
   hsiCanvas: HTMLCanvasElement,
+  sixPackCanvas: HTMLCanvasElement,
   airportsCanvases: NodeListOf<HTMLCanvasElement>,
   seedInput: HTMLInputElement,
   mapDimensionInput: HTMLInputElement,
@@ -23,7 +25,8 @@ type Elements = {
   generateButton: HTMLInputElement,
   headingSelectInput: HTMLInputElement,
   course1Input: HTMLInputElement,
-  course2Input: HTMLInputElement
+  course2Input: HTMLInputElement,
+  changeLogCheckbox: HTMLInputElement
 };
 
 export default class App {
@@ -33,6 +36,7 @@ export default class App {
   protected weather!: Weather;
   protected mapHsi!: CanvasMapLog;
   protected hsi!: CanvasHsi;
+  protected sixPack!: CanvasSixPack;
   protected plane!: Plane;
   protected planeCoordinatesOld!: Coordinates;
   protected multiplier = 0;
@@ -47,6 +51,7 @@ export default class App {
       mapCanvas: <HTMLCanvasElement>document.getElementById('map'),
       mapHsiCanvas: <HTMLCanvasElement>document.getElementById('map-hsi'),
       hsiCanvas: <HTMLCanvasElement>document.getElementById('hsi'),
+      sixPackCanvas: <HTMLCanvasElement>document.getElementById('six-pack'),
       airportsCanvases: <NodeListOf<HTMLCanvasElement>>document.querySelectorAll('.approaches canvas'),
       seedInput: <HTMLInputElement>document.getElementById('seed'),
       mapDimensionInput: <HTMLInputElement>document.getElementById('mapdimension'),
@@ -56,6 +61,7 @@ export default class App {
       headingSelectInput: <HTMLInputElement>document.getElementById('heading-select'),
       course1Input: <HTMLInputElement>document.getElementById('course-1'),
       course2Input: <HTMLInputElement>document.getElementById('course-2'),
+      changeLogCheckbox: <HTMLInputElement>document.getElementById('show-log')
     };
     this.generateMap();
   }
@@ -110,6 +116,7 @@ export default class App {
     });
 
     this.hsi = new CanvasHsi(this.elements.hsiCanvas, this.plane.hsi);
+    this.sixPack = new CanvasSixPack(this.elements.sixPackCanvas, this.plane);
     this.mapHsi = new CanvasMapLog(this.elements.mapHsiCanvas, this.plane, this.map);
 
     if (this.elements.mapCanvas) {
@@ -125,18 +132,19 @@ export default class App {
     });
   }
 
-  updatePosition(event: MouseEvent) {
+  onClickPosition(event: MouseEvent) {
     const bound = this.elements.mapCanvas.getBoundingClientRect();
-    this.plane.coordinates = new Coordinates(
+    const clickCoordinates = new Coordinates(
       (event.clientX - bound.left) / this.multiplier * window.devicePixelRatio,
       (event.clientY - bound.top) / this.multiplier * window.devicePixelRatio,
     );
-    this.plane.coordinates.elevation = this.terrain.getElevationNm(this.plane.coordinates);
-    this.mapHsi.draw();
-    this.hsi.draw();
+    this.plane.hsi.headingSelect = new Degree(this.plane.coordinates.getBearing(clickCoordinates));
+    this.plane.navRadios.forEach((navRadio => {
+      navRadio.setCourseByCoordinates(clickCoordinates);
+    }));
   }
 
-  handleKeyDown(event: KeyboardEvent) {
+  onKeydownGlobal(event: KeyboardEvent) {
     const increment = event.shiftKey ? 10 : 1;
     switch (event.key) {
       case 'Insert':
@@ -171,20 +179,19 @@ export default class App {
     }
 
     event.preventDefault();
-    this.mapHsi.draw();
-    this.hsi.draw();
   }
 
   loop(timestamp: number) {
     if (this.lastTimestamp && this.lastTimestamp !== timestamp) {
-      this.plane.move(timestamp - this.lastTimestamp, this.weather.at(this.plane.coordinates))
+      this.plane.move(timestamp - this.lastTimestamp, this.weather.at(this.plane.coordinates), this.terrain.getElevationNm(this.plane.coordinates))
       this.mapHsi.draw();
       this.hsi.draw();
+      this.sixPack.draw();
 
       this.lastLogTimestamp += timestamp - this.lastTimestamp;
       // Snapshot log every 1000ms
       if (this.lastLogTimestamp > 1000) {
-        this.plane.flightLog.push(this.plane.coordinates, timestamp);
+        this.plane.flightLog.push(this.plane.getLogCoordinates(timestamp));
         this.lastLogTimestamp -= 1000;
       }
     }
@@ -193,17 +200,8 @@ export default class App {
     window.requestAnimationFrame(this.loop.bind(this));
   }
 
-  changeHeading() {
-    if (this.planeCoordinatesOld) {
-      this.plane.heading = new Degree(this.planeCoordinatesOld.getBearing(this.plane.coordinates));
-    }
-    this.planeCoordinatesOld = new Coordinates(this.plane.coordinates.x, this.plane.coordinates.y);
 
-    this.mapHsi.draw();
-    this.hsi.draw();
-  }
-
-  changeHeadingSelect(event: Event) {
+  onChangeHeadingSelect(event: Event) {
     if (this.plane.hsi.headingSelect) {
       const target = <HTMLInputElement>event.target;
       if (target.valueAsNumber < 0) {
@@ -212,12 +210,10 @@ export default class App {
         target.valueAsNumber -= 360;
       }
       this.plane.hsi.headingSelect = new Degree(target.valueAsNumber);
-      this.mapHsi.draw();
-      this.hsi.draw();
     }
   }
 
-  changeCourse(event: Event, index: number) {
+  onChangeCourse(event: Event, index: number) {
     const radio = this.plane.navRadios[index];
     const target = <HTMLInputElement>event.target;
     if (radio && radio.course && target) {
@@ -227,12 +223,10 @@ export default class App {
         target.valueAsNumber -= 360;
       }
       radio.setCourse(target.valueAsNumber);
-      this.mapHsi.draw();
-      this.hsi.draw();
     }
   }
 
-  changeLogging(event: Event) {
+  onChangeLogging(event: Event) {
     const tgt = <HTMLInputElement>event.target;
     if (tgt && this.mapHsi) {
       this.mapHsi.showLog = tgt.checked;

@@ -71,6 +71,11 @@ export default class NavRadio {
     }
   }
 
+  setCourseByCoordinates(coordinates: Coordinates) {
+    if (this.currentNavAid) {
+      this.setCourse(coordinates.getBearing(this.currentNavAid.coordinates))
+    }
+  }
 
   setDeviation(deviation: number) {
     if (!this.deviation) {

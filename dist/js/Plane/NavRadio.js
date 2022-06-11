@@ -59,6 +59,11 @@ export default class NavRadio {
             this.course = undefined;
         }
     }
+    setCourseByCoordinates(coordinates) {
+        if (this.currentNavAid) {
+            this.setCourse(coordinates.getBearing(this.currentNavAid.coordinates));
+        }
+    }
     setDeviation(deviation) {
         if (!this.deviation) {
             this.deviation = new Degree(deviation);

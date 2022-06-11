@@ -2,8 +2,6 @@ import TerrainCoordinates from "./TerrainCoordinates.js";
 import Degree from "./Degree.js";
 
 export default class Coordinates {
-  public timestamp = 0;
-
   public constructor(public x: number, public y: number, public elevation: number | null = null) {
   }
 

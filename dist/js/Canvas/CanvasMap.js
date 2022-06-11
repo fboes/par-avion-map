@@ -332,7 +332,7 @@ export default class CanvasMap {
         });
     }
     makeWind() {
-        const t = this.getNewCanvasTool(1.2, this.map.mapDimension - 1.2);
+        const t = this.getNewCanvasTool(1.2, 2.4);
         this.ctx.fillStyle = "black";
         t.textStyle();
         t.circle(0, 0, 0.9).fill();

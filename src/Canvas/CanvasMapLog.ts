@@ -28,12 +28,12 @@ export default class CanvasMapLog {
     this.ctx.globalAlpha = 1;
     if (this.showLog) {
       this.plane.flightLog.coordinates.forEach((c) => {
-        let t = new CanvasTool(this.ctx, c.x * this.multiplier, c.y * this.multiplier, 1);
+        let t = new CanvasTool(this.ctx, c.coordinates.x * this.multiplier, c.coordinates.y * this.multiplier, 1);
         this.ctx.lineWidth = 4;
         this.ctx.beginPath();
-        t.lineRaw(0, 3, 0, c.elevation ? -c.elevation / 500 : 0).stroke();
+        t.lineRaw(0, 3, 0, c.altAglFt ? -c.altAglFt / 500 : 0).stroke();
         this.ctx.lineWidth = 0.25;
-        t.circle(0, c.elevation ? -c.elevation / 500 : 0, 2).fill();
+        t.circle(0, c.altAglFt ? -c.altAglFt / 500 : 0, 2).fill();
         this.ctx.stroke;
       });
     }
@@ -64,7 +64,7 @@ export default class CanvasMapLog {
       [2.1, -3],
     ];
 
-    const alpha = this.getAlpha();
+    const alpha = this.showLog ? 1 : this.getAlpha();
 
     let t = this.getCanvasTool();
     t.rotate(0, 0, this.plane.hsi.heading.degree);

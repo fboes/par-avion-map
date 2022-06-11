@@ -37,8 +37,15 @@ export default class CanvasSixPack extends CanvasDisplay {
     t.polygon([[-60, 0], [-50, 10], [0, 10], [0, -10], [-50, -10]]).stroke();
   }
   drawAsi() {
+    if (this.plane.speedKts === null) {
+      return;
+    }
+
     const t = new CanvasTool(this.ctx, 0, 128, this.multiplier);
     t.style('white', 'white', 2);
+    t.textStyle(15);
+    t.text(40, 5, (this.plane.speedKts).toFixed());
+    t.polygon([[60, 0], [50, 10], [0, 10], [0, -10], [50, -10]]).stroke();
   }
 
   drawHorizon() {

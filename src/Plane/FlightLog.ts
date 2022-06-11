@@ -1,17 +1,16 @@
-import Coordinates from "../Types/Coordinates";
+import LogCoordinates from "../Types/LogCoordinates.js";
 
 export default class FlightLog {
-  protected _coordinates: Coordinates[] = [];
+  protected _coordinates: LogCoordinates[] = [];
 
-  constructor(coordinates: Coordinates, protected maxEntries = 3600) {
-    this.push(coordinates, 0);
+  constructor(coordinates: LogCoordinates, protected maxEntries = 3600) {
+    this.push(coordinates);
   }
 
-  push(coordinates: Coordinates, timestamp: number) {
+  push(coordinates: LogCoordinates) {
     if (this.maxEntries && this._coordinates.length > this.maxEntries) {
       this._coordinates.shift();
     }
-    coordinates.timestamp = timestamp;
     this._coordinates.push(coordinates);
   }
 
