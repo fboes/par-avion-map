@@ -275,9 +275,19 @@ export default class TerrainMap {
   }
 
   public getElevationNm(coordinates: Coordinates) {
-    return this.getElevation(
-      coordinates.getTerrainCoordinates(this.resolution)
-    );
+    // get four surrounding coordinates
+    const co = coordinates.getTerrainCoordinates(this.resolution);
+    const multiA = co.a % 1;
+    const multiB = co.b % 1;
+
+    const leftElevation =
+      this.getElevation(new TerrainCoordinates(Math.floor(co.a), Math.floor(co.b))) * (1 - multiB)
+      + this.getElevation(new TerrainCoordinates(Math.floor(co.a), Math.ceil(co.b))) * (multiB);
+    const rightElevation =
+      this.getElevation(new TerrainCoordinates(Math.ceil(co.a), Math.floor(co.b))) * (1 - multiB)
+      + this.getElevation(new TerrainCoordinates(Math.ceil(co.a), Math.ceil(co.b))) * (multiB);
+
+    return leftElevation * (1 - multiA) + rightElevation * multiA;
   }
 
   public getElevation(coordinates: TerrainCoordinates) {

@@ -30,7 +30,7 @@ export default class Plane {
         this.hsi.heading.degree += changeDegree;
     }
     move(delta, currentWeather, elevationHeight) {
-        this._speedKts = this._throttle * 2;
+        this._speedKts = this._throttle / 100 * this.specifications.v.normalOperation;
         if (!this.coordinates.elevation || elevationHeight > this.coordinates.elevation) {
             // Hack
             this.coordinates.elevation = elevationHeight;
@@ -81,5 +81,24 @@ export default class Plane {
     }
     get altAglFt() {
         return this._altAglFt;
+    }
+    get specifications() {
+        return {
+            v: {
+                stallSpeedFlaps: 50,
+                stallSpeed: 80,
+                maxFlapsExtended: 120,
+                maxLandingGearExtended: 120,
+                normalOperation: 180,
+                neverExceed: 220 // vne, red starts here
+            },
+            rate: {
+                roll: 1,
+                pitch: 1,
+                yaw: 1,
+                acceleration: 1,
+                deceleration: 1,
+            }
+        };
     }
 }

@@ -183,7 +183,7 @@ export default class App {
 
   loop(timestamp: number) {
     if (this.lastTimestamp && this.lastTimestamp !== timestamp) {
-      this.plane.move(timestamp - this.lastTimestamp, this.weather.at(this.plane.coordinates), this.terrain.getElevationNm(this.plane.coordinates))
+      this.plane.move(timestamp - this.lastTimestamp, this.weather.at(this.plane.coordinates), this.terrain.getElevationNm(this.plane.coordinates));
       this.mapHsi.draw();
       this.hsi.draw();
       this.sixPack.draw();

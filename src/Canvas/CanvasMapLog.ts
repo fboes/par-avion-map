@@ -20,6 +20,7 @@ export default class CanvasMapLog {
   }
 
   draw() {
+    const altitudeMulti = 0.005;
     this.ctx.setTransform(1, 0, 0, 1, 0, 0);
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.ctx.strokeStyle = 'black';
@@ -31,9 +32,9 @@ export default class CanvasMapLog {
         let t = new CanvasTool(this.ctx, c.coordinates.x * this.multiplier, c.coordinates.y * this.multiplier, 1);
         this.ctx.lineWidth = 4;
         this.ctx.beginPath();
-        t.lineRaw(0, 3, 0, c.altAglFt ? -c.altAglFt / 500 : 0).stroke();
+        t.lineRaw(0, 3, 0, c.altAglFt ? -c.altAglFt * altitudeMulti : 0).stroke();
         this.ctx.lineWidth = 0.25;
-        t.circle(0, c.altAglFt ? -c.altAglFt / 500 : 0, 2).fill();
+        t.circle(0, c.altAglFt ? -c.altAglFt * altitudeMulti : 0, 2).fill();
         this.ctx.stroke;
       });
     }
@@ -72,7 +73,7 @@ export default class CanvasMapLog {
     this.ctx.globalAlpha = alpha;
     t.polygon(PlaneCoords).fill();
 
-    t = this.getCanvasTool(this.plane.coordinates.elevation ? -this.plane.coordinates.elevation / 500 : -2);
+    t = this.getCanvasTool(this.plane.altAglFt ? -this.plane.altAglFt * altitudeMulti : -2);
     t.rotate(0, 0, this.plane.hsi.heading.degree);
     t.style('white', 'black', 0.25);
     this.ctx.globalAlpha = alpha;
