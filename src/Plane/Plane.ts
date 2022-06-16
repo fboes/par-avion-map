@@ -13,9 +13,12 @@ export default class Plane {
   protected _throttle: number = 0;
   protected _speedKts: number = 0;
   protected _altAglFt: number = 0;
+  protected _fuel: number = 100
   hsi: Hsi;
   navRadios: NavRadio[];
   flightLog: FlightLog;
+
+  static GRAVITY_MS = 9.81;
 
   constructor(coordinates: Coordinates) {
     this._coordinates = coordinates;
@@ -27,27 +30,19 @@ export default class Plane {
     this.flightLog = new FlightLog(this.getLogCoordinates(0));
   }
 
-  set heading(heading: Degree) {
-    this._heading = heading;
-    this.hsi.heading = heading;
-  }
-
-  get heading() {
-    return this._heading;
-  }
-
-  changeHeading(changeDegree: number) {
-    this._heading.degree += changeDegree;
-    this.hsi.heading.degree += changeDegree;
-  }
-
   move(delta: number, currentWeather: CurrentWeather, elevationHeight: number) {
-    this._speedKts = this._throttle / 100 * this.specifications.v.normalOperation;
+    this._speedKts = (this.fuel <= 0)
+      ? 0
+      : this._throttle / 100 * this.specifications.v.normalOperation;
+
     if (!this.coordinates.elevation || elevationHeight > this.coordinates.elevation) {
       // Hack
       this.coordinates.elevation = elevationHeight;
     }
-    this._altAglFt = this.coordinates.elevation - elevationHeight;
+
+    this._altAglFt = this.coordinates.elevation
+      ? this.coordinates.elevation - elevationHeight
+      : elevationHeight;
     let speedVector = this._speedKts;
     let headingVector = this.heading;
 
@@ -70,6 +65,7 @@ export default class Plane {
       headingVector = new Degree(this.heading.degree + correctionDeg);
     }
 
+    this._fuel -= this._throttle * delta / 3600000 * App.TIME_COMPRESSION;
     this.coordinates = this._coordinates.getNewCoordinates(headingVector, speedVector * delta / 3600000 * App.TIME_COMPRESSION, this.coordinates.elevation);
   }
 
@@ -78,6 +74,27 @@ export default class Plane {
     this.navRadios.forEach((navRadio) => {
       navRadio.coordinates = coordinates;
     });
+  }
+
+  set heading(heading: Degree) {
+    this._heading = heading;
+    this.hsi.heading = heading;
+  }
+
+  get heading() {
+    return this._heading;
+  }
+
+  changeHeading(changeDegree: number) {
+    this._heading.degree += changeDegree;
+    this.hsi.heading.degree += changeDegree;
+  }
+
+  changeAltitude(changeAltitude: number) {
+    if (this.coordinates.elevation === null) {
+      this.coordinates.elevation = 0;
+    }
+    this.coordinates.elevation += changeAltitude;
   }
 
   get coordinates() {
@@ -104,6 +121,10 @@ export default class Plane {
     return this._altAglFt;
   }
 
+  get fuel() {
+    return this._fuel;
+  }
+
   get specifications() {
     return {
       v: {
@@ -120,6 +141,13 @@ export default class Plane {
         yaw: 1, // rudder,
         acceleration: 1,
         deceleration: 1,
+      },
+      physics: {
+        drag: 0,
+        dragGear: 0,
+        dragMaxFlaps: 0,
+        lift: 0,
+        liftFlaps: 0
       }
     }
   }

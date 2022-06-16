@@ -24,4 +24,7 @@ export default class Degree {
             ? min <= this._degree || this._degree <= max // searching over end of circle
             : min <= this._degree && this._degree <= max;
     }
+    add(degree) {
+        this.degree = this._degree + degree;
+    }
 }

@@ -1,3 +1,4 @@
+import Hsi from "../Plane/Hsi.js";
 import Navaid from "../World/Navaid.js";
 import CanvasDisplay from "./CanvasDisplay.js";
 import CanvasTool from "./CanvasTool.js";
@@ -54,12 +55,12 @@ export default class CanvasHsi extends CanvasDisplay {
         const maxDeviationDegrees = (navRadio.type === Navaid.ILS ? 2.5 : 10);
         t.style(color, color, 2);
         const align = index === 0 ? 'left' : 'right';
-        this.text(t, index === 0 ? -125 : +125, -112, navRadio.label, navRadio.type, align);
+        this.text(t, index === 0 ? -125 : +125, -112, navRadio.label, navRadio.type, align, this.hsi.activeElement === (index === 0 ? Hsi.INTERACTIVE_NAV1_SOURCE : Hsi.INTERACTIVE_NAV2_SOURCE));
         if (navRadio.distance) {
             this.text(t, index === 0 ? -125 : +125, 115, navRadio.distance.toFixed(2) + ' NM', 'DME', align);
         }
         if (navRadio.course) {
-            this.text(t, index === 0 ? -125 : +125, navRadio.distance ? 83 : 115, navRadio.course.degree.toFixed(0).padStart(3, '0') + '°', 'CRS', align);
+            this.text(t, index === 0 ? -125 : +125, navRadio.distance ? 83 : 115, navRadio.course.degree.toFixed(0).padStart(3, '0') + '°', 'CRS', align, this.hsi.activeElement === (index === 0 ? Hsi.INTERACTIVE_NAV1_COURSE : Hsi.INTERACTIVE_NAV2_COURSE));
         }
         else if (navRadio.bearing) {
             this.text(t, index === 0 ? -125 : +125, navRadio.distance ? 83 : 115, navRadio.bearing.degree.toFixed(0).padStart(3, '0') + '°', 'BRG', align);
@@ -225,7 +226,7 @@ export default class CanvasHsi extends CanvasDisplay {
             const y = 15;
             t.style(this.colors.turqoise, this.colors.magenta, 2);
             t.textStyle(15);
-            t.text(3, 125, this.hsi.headingSelect.degree.toFixed(0).padStart(3, '0') + '°');
+            this.text(t, 3, 125, this.hsi.headingSelect.degree.toFixed(0).padStart(3, '0') + '°', '', 'center', this.hsi.activeElement === Hsi.INTERACTIVE_HEADING);
             t.rescaleCanvas(CanvasHsi.COMPASS_SCALE_X, CanvasHsi.COMPASS_SCALE_Y);
             t.rotate(0, 0, this.hsi.headingSelect.degree - this.hsi.heading.degree);
             t.polygonRaw([
@@ -268,10 +269,16 @@ export default class CanvasHsi extends CanvasDisplay {
             t.rotate(0, 0, 45);
         }
     }
-    text(t, x, y, main, label, align = 'left') {
+    text(t, x, y, main, label, align = 'left', isInteractive = false) {
         if (label) {
             t.textStyle(8, align);
             t.text(x, y - 6, label);
+        }
+        if (isInteractive) {
+            main = '▸ ' + main;
+            if (align === 'center') {
+                x -= 6;
+            }
         }
         t.textStyle(14, align);
         t.text(x, y + (label ? 9 : 0), main);

@@ -22,11 +22,12 @@ export default class CanvasSixPack extends CanvasDisplay {
             return;
         }
         const t = new CanvasTool(this.ctx, 256, 128, this.multiplier);
+        const elevation = Math.ceil(this.plane.coordinates.elevation);
         t.style('white', 'white', 2);
         t.textStyle(15);
-        t.text(-40, 5, (this.plane.coordinates.elevation / 100).toFixed());
+        t.text(-40, 5, Math.floor(elevation / 100).toFixed());
         t.textStyle(10);
-        t.text(-20, 5, (this.plane.coordinates.elevation % 100).toFixed());
+        t.text(-20, 5, (elevation % 100).toFixed());
         t.polygon([[-60, 0], [-50, 10], [0, 10], [0, -10], [-50, -10]]).stroke();
     }
     drawAsi() {

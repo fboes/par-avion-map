@@ -32,4 +32,8 @@ export default class Degree {
       : min <= this._degree && this._degree <= max
       ;
   }
+
+  add(degree: number) {
+    this.degree = this._degree + degree;
+  }
 }

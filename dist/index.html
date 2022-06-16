@@ -96,11 +96,6 @@
       text-align: center;
     }
 
-    input[type="range"] {
-      padding: 0;
-      vertical-align: bottom;
-    }
-
     button {
       background: #007bff;
       border: 1px outset #007bff;
@@ -112,6 +107,29 @@
       background: #5a6268;
       border-color: #5a6268;
     }
+
+    dt,
+    dd {
+      display: inline-block;
+      margin-left: 0.5em;
+    }
+
+    dt {
+      margin-left: 1em;
+    }
+
+    dt:after {
+      content: ":"
+    }
+
+    kbd {
+      display: inline-block;
+      border: 1px solid #ddd;
+      background: #eee;
+      padding: 0.1em 0.25em;
+      border-radius: 0.2em;
+    }
+
 
     span {
       display: inline-block;
@@ -231,25 +249,25 @@
           <button id="generate" class="secondary">Generate</button>
           <button id="randomize">Randomize</button>
         </span>
-      </section>
-      <section class="cockpit">
-        <h2>Plane</h2>
-        <span>
-          <label for="heading-select">Heading Select</label>
-          <input name="heading-select" id="heading-select" type="number" min="-1" max="360" value="45" />
-        </span>
-        <span>
-          <label for="course-1">Course (NAV1)</label>
-          <input name="course-1" id="course-1" type="number" min="-1" max="360" value="45" />
-        </span>
-        <span>
-          <label for="course-2">Course (NAV2)</label>
-          <input name="course-2" id="course-2" type="number" min="-1" max="360" value="135" />
-        </span>
         <span>
           <label for="show-log">Show log</label>
           <input name="show-log" id="show-log" type="checkbox" value="show" />
         </span>
+      </section>
+      <section class="help">
+        <h2>Help</h2>
+        <dl>
+          <dt><kbd>w</kbd> / <kbd>s</kbd></dt>
+          <dd>Change height</dd>
+          <dt><kbd>Arrow left</kbd> / <kbd>Arrow right</kbd></dt>
+          <dd>Turn</dd>
+          <dt><kbd>Arrow up</kbd> / <kbd>Arrow down</kbd></dt>
+          <dd>Throttle</dd>
+          <dt><kbd>Home</kbd> / <kbd>End</kbd></dt>
+          <dd>Switch HSI element</dd>
+          <dt><kbd>Del</kbd> / <kbd>Page down</kbd></dt>
+          <dd>Alter HSI element</dd>
+        </dl>
       </section>
     </main>
     <footer>

@@ -5,6 +5,7 @@ export default class NavRadio {
     constructor(navAids) {
         this.navAids = navAids;
         this.inRange = false;
+        this._currentNavaidIndex = 0;
     }
     get label() {
         return this.currentNavAid ? this.currentNavAid.code : '';
@@ -33,7 +34,8 @@ export default class NavRadio {
         }
     }
     setCurrentNavAid(index, coordinates) {
-        this.currentNavAid = this.navAids[index];
+        this._currentNavaidIndex = index % this.navAids.length;
+        this.currentNavAid = this.navAids[this._currentNavaidIndex];
         this.course = undefined;
         switch (this.currentNavAid.type) {
             case Navaid.VOR:
@@ -44,6 +46,9 @@ export default class NavRadio {
                 break;
         }
         this.coordinates = coordinates;
+    }
+    changeCurrentNavaid(increment, coordinates) {
+        this.setCurrentNavAid((this._currentNavaidIndex + increment + this.navAids.length) % this.navAids.length, coordinates);
     }
     setCourse(course) {
         if (this.currentNavAid && this.currentNavAid.type === Navaid.VOR) {

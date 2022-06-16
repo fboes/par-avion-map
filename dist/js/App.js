@@ -7,10 +7,11 @@ import Coordinates from "./Types/Coordinates.js";
 import CanvasMapLog from "./Canvas/CanvasMapLog.js";
 import Degree from "./Types/Degree.js";
 import Plane from "./Plane/Plane.js";
-import Navaid from "./World/Navaid.js";
 import Weather from "./World/Weather.js";
 import CanvasHsi from "./Canvas/CanvasHsi.js";
 import CanvasSixPack from "./Canvas/CanvasSixPack.js";
+import Hsi from "./Plane/Hsi.js";
+import XboxGamepad from "./Helper/Gamepad.js";
 export default class App {
     constructor() {
         this.multiplier = 0;
@@ -26,11 +27,9 @@ export default class App {
             resolutionInput: document.getElementById('resolution'),
             randomizeButton: document.getElementById('randomize'),
             generateButton: document.getElementById('generate'),
-            headingSelectInput: document.getElementById('heading-select'),
-            course1Input: document.getElementById('course-1'),
-            course2Input: document.getElementById('course-2'),
             changeLogCheckbox: document.getElementById('show-log')
         };
+        this.gamepad = new XboxGamepad();
         this.generateMap();
     }
     generateMap() {
@@ -63,18 +62,14 @@ export default class App {
     }
     drawMap() {
         this.plane = new Plane(this.map.airports[0].coordinates);
-        this.elements.headingSelectInput.valueAsNumber = Math.round(this.map.airports[0].approachPoints[1].coordinates.getBearing(this.map.airports[1].approachPoints[0].coordinates));
-        this.plane.hsi.headingSelect = new Degree(this.elements.headingSelectInput.valueAsNumber);
+        this.plane.hsi.headingSelect = new Degree(this.map.airports[0].approachPoints[1].coordinates.getBearing(this.map.airports[1].approachPoints[0].coordinates));
         this.plane.heading = new Degree(this.map.airports[0].runways[0].heading.oppositeDegree);
         this.plane.navRadios.forEach((navRadio, index) => {
             navRadio.navAids = this.map.navAids;
             navRadio.setCurrentNavAid(index, this.map.airports[0].coordinates);
-            const courseSelect = index === 0 ? this.elements.course1Input : this.elements.course2Input;
-            courseSelect.disabled = navRadio.type !== Navaid.VOR;
-            if (navRadio.bearing) {
-                courseSelect.valueAsNumber = Math.round(this.map.airports[0].coordinates.getBearing(navRadio.navAids[index].coordinates));
+            if (navRadio.bearing && navRadio.navAids[index]) {
+                navRadio.setCourse(this.map.airports[0].coordinates.getBearing(navRadio.navAids[index].coordinates));
             }
-            navRadio.setCourse(courseSelect.valueAsNumber);
         });
         this.hsi = new CanvasHsi(this.elements.hsiCanvas, this.plane.hsi);
         this.sixPack = new CanvasSixPack(this.elements.sixPackCanvas, this.plane);
@@ -98,55 +93,43 @@ export default class App {
             navRadio.setCourseByCoordinates(clickCoordinates);
         }));
     }
-    onKeydownGlobal(event) {
-        const increment = event.shiftKey ? 10 : 1;
-        switch (event.key) {
-            case 'Insert':
-                this.elements.headingSelectInput.valueAsNumber += increment;
-                this.plane.hsi.headingSelect = new Degree(this.elements.headingSelectInput.valueAsNumber);
-                break;
-            case 'Delete':
-                this.elements.headingSelectInput.valueAsNumber -= increment;
-                this.plane.hsi.headingSelect = new Degree(this.elements.headingSelectInput.valueAsNumber);
-                break;
-            case 'Home':
-                this.elements.course1Input.valueAsNumber += increment;
-                this.plane.navRadios[0].setCourse(this.elements.course1Input.valueAsNumber);
-                break;
-            case 'End':
-                this.elements.course1Input.valueAsNumber -= increment;
-                this.plane.navRadios[0].setCourse(this.elements.course1Input.valueAsNumber);
-                break;
-            case 'PageUp':
-                this.elements.course2Input.valueAsNumber += increment;
-                this.plane.navRadios[1].setCourse(this.elements.course2Input.valueAsNumber);
-                break;
-            case 'PageDown':
-                this.elements.course2Input.valueAsNumber -= increment;
-                this.plane.navRadios[1].setCourse(this.elements.course2Input.valueAsNumber);
-                break;
-            case 'ArrowLeft':
-                this.plane.changeHeading(-increment);
-                break;
-            case 'ArrowRight':
-                this.plane.changeHeading(increment);
-                break;
-            case 'ArrowUp':
-                this.plane.throttle += increment;
-                break;
-            case 'ArrowDown':
-                this.plane.throttle -= increment;
-                break;
-            default: return;
-        }
-        event.preventDefault();
-    }
     loop(timestamp) {
         if (this.lastTimestamp && this.lastTimestamp !== timestamp) {
-            this.plane.move(timestamp - this.lastTimestamp, this.weather.at(this.plane.coordinates), this.terrain.getElevationNm(this.plane.coordinates));
-            this.mapHsi.draw();
-            this.hsi.draw();
-            this.sixPack.draw();
+            const delta = timestamp - this.lastTimestamp;
+            if (this.gamepad) {
+                const gamepad = this.gamepad.getGamepadState();
+                if (gamepad !== null) {
+                    gamepad.buttons[XboxGamepad.BUTTON_INDEX.lBumper].triggered && this.plane.hsi.activateNextElement(-1);
+                    gamepad.buttons[XboxGamepad.BUTTON_INDEX.rBumper].triggered && this.plane.hsi.activateNextElement(+1);
+                    gamepad.buttons[XboxGamepad.BUTTON_INDEX.lTrigger].triggered
+                        && (this.plane.hsi.activeElement === Hsi.INTERACTIVE_NAV1_SOURCE || this.plane.hsi.activeElement === Hsi.INTERACTIVE_NAV2_SOURCE)
+                        && this.plane.hsi.navRadios[this.plane.hsi.activeElement === Hsi.INTERACTIVE_NAV1_SOURCE ? 0 : 1].changeCurrentNavaid(-1, this.plane.coordinates);
+                    gamepad.buttons[XboxGamepad.BUTTON_INDEX.rTrigger].triggered
+                        && (this.plane.hsi.activeElement === Hsi.INTERACTIVE_NAV1_SOURCE || this.plane.hsi.activeElement === Hsi.INTERACTIVE_NAV2_SOURCE)
+                        && this.plane.hsi.navRadios[this.plane.hsi.activeElement === Hsi.INTERACTIVE_NAV1_SOURCE ? 0 : 1].changeCurrentNavaid(1, this.plane.coordinates);
+                    if (gamepad.axisButtons.lTrigger + gamepad.axisButtons.rTrigger > 0) {
+                        const axis = (-gamepad.axisButtons.lTrigger + gamepad.axisButtons.rTrigger) * delta / 12;
+                        switch (this.plane.hsi.activeElement) {
+                            case Hsi.INTERACTIVE_NAV1_COURSE:
+                                this.plane.hsi.navRadios[0].course && this.plane.hsi.navRadios[0].course.add(axis);
+                                break;
+                            case Hsi.INTERACTIVE_NAV2_COURSE:
+                                this.plane.hsi.navRadios[1].course && this.plane.hsi.navRadios[1].course.add(axis);
+                                break;
+                            case Hsi.INTERACTIVE_HEADING:
+                                this.plane.hsi.headingSelect && this.plane.hsi.headingSelect.add(axis);
+                                break;
+                        }
+                    }
+                    this.plane.changeHeading(gamepad.axes.rThumbX * delta / 50);
+                    this.plane.throttle -= (gamepad.axes.rThumbY * delta / 15);
+                    this.plane.changeAltitude(gamepad.axes.lThumbY * delta / 10);
+                }
+                this.plane.move(delta, this.weather.at(this.plane.coordinates), this.terrain.getElevationNm(this.plane.coordinates));
+                this.mapHsi.draw();
+                this.hsi.draw();
+                this.sixPack.draw();
+            }
             this.lastLogTimestamp += timestamp - this.lastTimestamp;
             // Snapshot log every 1000ms
             if (this.lastLogTimestamp > 1000) {

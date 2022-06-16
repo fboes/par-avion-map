@@ -11,6 +11,7 @@ export default class NavRadio {
   distance: number | undefined;
   inRange = false;
 
+  protected _currentNavaidIndex: number = 0;
   protected currentNavAid: Navaid | NavaidIls | undefined;
 
   constructor(public navAids: Array<Navaid | NavaidIls>) {
@@ -47,13 +48,21 @@ export default class NavRadio {
   }
 
   setCurrentNavAid(index: number, coordinates: Coordinates) {
-    this.currentNavAid = this.navAids[index];
+    this._currentNavaidIndex = index % this.navAids.length;
+    this.currentNavAid = this.navAids[this._currentNavaidIndex];
     this.course = undefined;
     switch (this.currentNavAid.type) {
       case Navaid.VOR: this.course = new Degree(0); break;
       case Navaid.ILS: this.course = new Degree(this.currentNavAid instanceof NavaidIls ? this.currentNavAid.direction.oppositeDegree : 0); break;
     }
     this.coordinates = coordinates;
+  }
+
+  changeCurrentNavaid(increment: number, coordinates: Coordinates) {
+    this.setCurrentNavAid(
+      (this._currentNavaidIndex + increment + this.navAids.length) % this.navAids.length,
+      coordinates
+    );
   }
 
   setCourse(course: number) {
