@@ -60,6 +60,11 @@ The [`LocationMap`](dist/World/LocationMap.js) has multiple entities:
 
 All of these entities use [`Coordinates`](dist/Types/Coordinates.js) calculated in Nautical Miles from the North-West corner of the map. The [`TerrainMap`](dist/World/TerrainMap.js) uses [`TerrainCoordinates`](dist/Types/TerrainCoordinates.js), which are fractions of Nautical Miles from the North-West corner, having a higher resolution for terrain data.
 
+Code style
+----------
+
+This project ist done in [Kalashnikov programming style](https://journal.3960.org/posts/2019-10-14-kalaschnikow-programmierung/). The whole project having no set goal and consisting of lots of experiments has a rather ugly code base, hacked together whenever a new idea crosses my mind.
+
 Legal stuff
 -----------
 
