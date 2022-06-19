@@ -16,4 +16,4 @@ app.elements.randomizeButton.addEventListener('click', () => { app.elements.seed
 app.elements.mapHsiCanvas.addEventListener('click', (event) => { app.onClickPosition(event); });
 app.elements.changeLogCheckbox.addEventListener('change', (event) => { app.onChangeLogging(event); });
 window.addEventListener('popstate', (event) => { app.generateFromSeed(event.state.seed, event.state.dimension, event.state.resolution); });
-window.requestAnimationFrame(app.loop.bind(app));
+window.requestAnimationFrame(app.onRequestAnimationFrame.bind(app));

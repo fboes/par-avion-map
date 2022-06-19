@@ -75,7 +75,7 @@ export default class CanvasMapLog {
 
     t = this.getCanvasTool(this.plane.altAglFt ? -this.plane.altAglFt * altitudeMulti : -2);
     t.rotate(0, 0, this.plane.hsi.heading.degree);
-    t.style('white', 'black', 0.25);
+    t.style(this.plane.isBroken ? 'red' : 'white', 'black', 0.25);
     this.ctx.globalAlpha = alpha;
     t.polygon(PlaneCoords).fill();
     this.ctx.stroke();
