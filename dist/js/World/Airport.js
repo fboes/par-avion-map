@@ -1,7 +1,6 @@
 import Point from "./Point.js";
 import Runway from "./Runway.js";
 import Degree from "../Types/Degree.js";
-import LocationsMap from "./LocationsMap.js";
 import Waypoint from "./Waypoint.js";
 export default class Airport extends Point {
     constructor(coordinates, randomizer) {
@@ -23,7 +22,7 @@ export default class Airport extends Point {
         this.runways.push(new Runway(this.coordinates, heading, this.randomizer));
         [heading.degree, heading.oppositeDegree].forEach((h, key) => {
             const deg = new Degree(h);
-            let approachPoints = new Waypoint(this.coordinates.getNewCoordinates(deg, LocationsMap.PADDING / 2), this.randomizer);
+            let approachPoints = new Waypoint(this.coordinates.getNewCoordinates(deg, 4), this.randomizer);
             approachPoints.code = this.code.slice(0, 3) + Math.round(deg.oppositeDegree / 10).toFixed().padStart(2, '0');
             approachPoints.isSwitchLabelPosition = (key === 0)
                 ? (h > 280 || h < 130)
