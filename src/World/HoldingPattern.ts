@@ -7,8 +7,8 @@ export default class HoldingPattern extends Point {
   public isRight: boolean;
   public direction: Degree;
 
-  public static LENGTH = 6;
-  public static WIDTH = 3;
+  public static LENGTH = 4.9; // @180 kts & 1min / leg
+  public static WIDTH = 1.9; // @180kts & 1min / leg
 
   public constructor(public coordinates: Coordinates, protected randomizer: Randomizer) {
     super(coordinates, randomizer);

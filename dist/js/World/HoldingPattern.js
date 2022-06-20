@@ -8,5 +8,5 @@ export default class HoldingPattern extends Point {
         this.direction = this.randomizer.getDegree();
     }
 }
-HoldingPattern.LENGTH = 6;
-HoldingPattern.WIDTH = 3;
+HoldingPattern.LENGTH = 4.9; // @180 kts & 1min / leg
+HoldingPattern.WIDTH = 1.9; // @180kts & 1min / leg

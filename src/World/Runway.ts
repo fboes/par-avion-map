@@ -28,8 +28,8 @@ export default class Runway {
   public static MALSR = 'MALSR';  // A5
   public static ODALS = 'ODALS';  // +⦾
 
-  public static TRAFFICPATTERN_WIDTH = 2;
-  public static TRAFFICPATTERN_LENGTH = 6;
+  public static TRAFFICPATTERN_WIDTH = 1;
+  public static TRAFFICPATTERN_LENGTH = 3;
 
   public constructor(public coordinates: Coordinates, public heading: Degree, public randomizer: Randomizer) {
     this.length = this.randomizer.getInt(20, 60) * 100; // 4000 - 8000ft
