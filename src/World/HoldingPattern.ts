@@ -16,4 +16,8 @@ export default class HoldingPattern extends Point {
     this.isRight = !this.randomizer.isRandTrue(20);
     this.direction = this.randomizer.getDegree();
   }
+
+  getCenterCoordinates(): Coordinates {
+    return this.coordinates.getNewCoordinates(new Degree(this.direction.oppositeDegree + (this.isRight ? -32 : 32)), 3.55 / 2);
+  }
 }

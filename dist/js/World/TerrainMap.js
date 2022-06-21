@@ -1,6 +1,7 @@
 import TerrainCoordinates from "../Types/TerrainCoordinates.js";
 import Peak from "./Peak.js";
 import HslColor from "../Types/HslColor.js";
+import HoldingPattern from "./HoldingPattern.js";
 export default class TerrainMap {
     // @see https://en.wikipedia.org/wiki/Diamond-square_algorithm
     // @see https://github.com/A1essandro/Diamond-And-Square/blob/master/src/DiamondAndSquare.php
@@ -27,6 +28,11 @@ export default class TerrainMap {
         this.map.navAids.forEach((navAid) => {
             const elevation = this.flattenTerrain(navAid.coordinates);
             navAid.coordinates.elevation = elevation;
+            if (navAid.holdingPattern) {
+                const middleCoords = navAid.holdingPattern.getCenterCoordinates();
+                const maxHeight = Math.ceil(this.getHighestElevationNm(middleCoords, HoldingPattern.LENGTH / 2, HoldingPattern.LENGTH / 2) / 100) * 100;
+                navAid.holdingPattern.coordinates.elevation = maxHeight + 1000;
+            }
         });
         this.map.obstructions.forEach((obstruction) => {
             const elevation = this.flattenTerrain(obstruction.coordinates);

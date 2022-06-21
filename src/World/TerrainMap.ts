@@ -4,6 +4,7 @@ import Coordinates from "../Types/Coordinates.js";
 import LocationsMap from "./LocationsMap.js";
 import Peak from "./Peak.js";
 import HslColor from "../Types/HslColor.js";
+import HoldingPattern from "./HoldingPattern.js";
 
 export default class TerrainMap {
   public static JAGGEDNESS = 2; // Multiplier for elevation randomizer
@@ -44,6 +45,11 @@ export default class TerrainMap {
     this.map.navAids.forEach((navAid) => {
       const elevation = this.flattenTerrain(navAid.coordinates);
       navAid.coordinates.elevation = elevation;
+      if (navAid.holdingPattern) {
+        const middleCoords = navAid.holdingPattern.getCenterCoordinates();
+        const maxHeight = Math.ceil(this.getHighestElevationNm(middleCoords, HoldingPattern.LENGTH / 2, HoldingPattern.LENGTH / 2) / 100) * 100;
+        navAid.holdingPattern.coordinates.elevation = maxHeight + 1000;
+      }
     });
 
     this.map.obstructions.forEach((obstruction) => {

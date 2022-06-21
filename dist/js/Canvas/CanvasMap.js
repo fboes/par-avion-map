@@ -217,6 +217,12 @@ export default class CanvasMap {
                     : -HoldingPattern.WIDTH), -HoldingPattern.LENGTH + HoldingPattern.WIDTH, -1);
                 const rot = navaid.holdingPattern.direction.isBetween(0, 180) ? -90 : 90;
                 const y = (HoldingPattern.LENGTH - HoldingPattern.WIDTH) / 2;
+                if (navaid.coordinates.elevation) {
+                    const x = navaid.holdingPattern.isRight ? HoldingPattern.WIDTH / 2 : -HoldingPattern.WIDTH / 2;
+                    t.rotate(x, y, rot);
+                    t.textOutline(x, y + 0.2, navaid.coordinates.elevation.toFixed() + "ft");
+                    t.rotate(x, y, -rot);
+                }
                 {
                     const x = 0;
                     t.rotate(x, y, rot);
@@ -261,26 +267,25 @@ export default class CanvasMap {
                     this.ctx.beginPath();
                     t.roundedRectRaw(runway.trafficPatterns[0].isRight
                         ? -Runway.TRAFFICPATTERN_WIDTH
-                        : 0, -Runway.TRAFFICPATTERN_LENGTH / 2, Runway.TRAFFICPATTERN_WIDTH, Runway.TRAFFICPATTERN_LENGTH, 0.5);
+                        : 0, -Runway.TRAFFICPATTERN_LENGTH / 2, Runway.TRAFFICPATTERN_WIDTH, Runway.TRAFFICPATTERN_LENGTH, Runway.TRAFFICPATTERN_WIDTH / 3);
                     t.lineRaw(runway.trafficPatterns[0].isRight
-                        ? -Runway.TRAFFICPATTERN_WIDTH - 1
-                        : Runway.TRAFFICPATTERN_WIDTH + 1, 1, runway.trafficPatterns[0].isRight
+                        ? -Runway.TRAFFICPATTERN_WIDTH - 0.75
+                        : Runway.TRAFFICPATTERN_WIDTH + 0.75, Runway.TRAFFICPATTERN_WIDTH * 1.75, runway.trafficPatterns[0].isRight
                         ? -Runway.TRAFFICPATTERN_WIDTH
-                        : Runway.TRAFFICPATTERN_WIDTH, 0);
-                    t.lineRaw(0, 0.5 * Runway.TRAFFICPATTERN_LENGTH, 0, 0.7 * Runway.TRAFFICPATTERN_LENGTH);
+                        : Runway.TRAFFICPATTERN_WIDTH, Runway.TRAFFICPATTERN_WIDTH); // entry
+                    t.lineRaw(0, 0.5 * Runway.TRAFFICPATTERN_LENGTH, 0, 0.7 * Runway.TRAFFICPATTERN_LENGTH); // outbound
                     this.ctx.stroke();
                     this.ctx.closePath();
                     t.setLineDash([]);
                     this.makePointerArrow(t, (runway.trafficPatterns[0].isRight
                         ? -Runway.TRAFFICPATTERN_WIDTH
-                        : Runway.TRAFFICPATTERN_WIDTH), 0.33 * Runway.TRAFFICPATTERN_LENGTH);
-                    this.makePointerArrow(t, 0, 0.33 * Runway.TRAFFICPATTERN_LENGTH, -1);
-                    this.makePointerArrow(t, 0, -0.75 * Runway.TRAFFICPATTERN_LENGTH, -1);
+                        : Runway.TRAFFICPATTERN_WIDTH), Runway.TRAFFICPATTERN_WIDTH - 0.4); // downwind leg
+                    this.makePointerArrow(t, 0, -0.75 * Runway.TRAFFICPATTERN_LENGTH, -1); // outbound
                     t.polygon([
-                        [runway.trafficPatterns[0].isRight ? -Runway.TRAFFICPATTERN_WIDTH - 1 : Runway.TRAFFICPATTERN_WIDTH + 1, 1,],
-                        [runway.trafficPatterns[0].isRight ? -Runway.TRAFFICPATTERN_WIDTH - 1 : Runway.TRAFFICPATTERN_WIDTH + 1, 1.35,],
-                        [runway.trafficPatterns[0].isRight ? -Runway.TRAFFICPATTERN_WIDTH - 1.35 : Runway.TRAFFICPATTERN_WIDTH + 1.35, 1,],
-                    ]).fill();
+                        [runway.trafficPatterns[0].isRight ? -Runway.TRAFFICPATTERN_WIDTH - 0.75 : Runway.TRAFFICPATTERN_WIDTH + 0.75, Runway.TRAFFICPATTERN_WIDTH * 2 - 0.25],
+                        [runway.trafficPatterns[0].isRight ? -Runway.TRAFFICPATTERN_WIDTH - 0.75 : Runway.TRAFFICPATTERN_WIDTH + 0.75, Runway.TRAFFICPATTERN_WIDTH * 2 + 0.1],
+                        [runway.trafficPatterns[0].isRight ? -Runway.TRAFFICPATTERN_WIDTH - 1.1 : Runway.TRAFFICPATTERN_WIDTH + 1.1, Runway.TRAFFICPATTERN_WIDTH * 2 - 0.25],
+                    ]).fill(); // entry
                     t.style(baseColor);
                 }
                 this.ctx.fillStyle = "white";
