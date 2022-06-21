@@ -191,12 +191,15 @@ export default class App {
         this.sixPack.draw();
       }
 
-      this.lastLogTimestamp += timestamp - this.lastTimestamp;
-      // Snapshot log every 1000ms
-      if (!this.plane.isBroken && this.lastLogTimestamp > 1000) {
-        this.plane.flightLog.push(this.plane.getLogCoordinates(timestamp));
-        this.lastLogTimestamp -= 1000;
+      if (this.plane.isActive) {
+        this.lastLogTimestamp += timestamp - this.lastTimestamp;
+        // Snapshot log every 1000ms
+        if (!this.plane.isBroken && this.lastLogTimestamp > 1000) {
+          this.plane.flightLog.push(this.plane.getLogCoordinates(timestamp));
+          this.lastLogTimestamp -= 1000;
+        }
       }
+
     }
     this.lastTimestamp = timestamp;
 

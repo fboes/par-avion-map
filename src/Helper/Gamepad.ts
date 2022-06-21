@@ -68,9 +68,9 @@ export default class GamePad {
     'End',
     'Escape',
     'Space',
-    /*'ShiftLeft',
+    'ShiftLeft',
     'ControlLeft',
-    'AltLeft',
+    /*'AltLeft',
     'Slash',
     'Minus',
     'Equal',*/
@@ -123,7 +123,9 @@ export default class GamePad {
       return;
     }
 
-    event.preventDefault();
+    if (event.code !== 'ShiftLeft' && event.code !== 'ControlLeft') {
+      event.preventDefault();
+    }
     this.triggeredKeys.set(event.code, isDown);
   }
 
@@ -276,8 +278,10 @@ export default class GamePad {
   }
 
   protected keysToAxis(keyCodeMinus: string, keyCodePlus: string) {
-    let result = this.triggeredKeys.get(keyCodePlus) ? 1 : 0;
-    result -= this.triggeredKeys.get(keyCodeMinus) ? 1 : 0;
+    let maxAxis = this.triggeredKeys.get('ShiftLeft') ? 1 : 0.5;
+    maxAxis = this.triggeredKeys.get('ControlLeft') ? 0.25 : maxAxis;
+    let result = this.triggeredKeys.get(keyCodePlus) ? maxAxis : 0;
+    result -= this.triggeredKeys.get(keyCodeMinus) ? maxAxis : 0;
     return result;
   }
 
@@ -295,35 +299,19 @@ export default class GamePad {
         return;
       }
       this.isStandardMapping = (gamepad.mapping === 'standard');
-      const joystick = !this.isStandardMapping && gamepad.id.match(/(combat)?stick/i);
 
-      if (joystick) {
+      if (!this.isStandardMapping && gamepad.id.match(/((combat)?stick|T\.1600)/i)) {
         console.warn('Joystick with throttle detected', gamepad.id);
         if (bestQuality < 2) {
+          const thrustmaster = gamepad.id.match(/T\.1600/i);
           bestQuality = 2;
           bestGamepadIndex = gamepad.index;
-          GamePad.BUTTON_INDEX.window = 6;
-          GamePad.BUTTON_INDEX.menu = 7;
-          GamePad.BUTTON_INDEX.thumbL = 8;
-          GamePad.BUTTON_INDEX.thumbR = 9;
-          GamePad.BUTTON_INDEX.dpadUp = 10;
-          GamePad.BUTTON_INDEX.dpadRight = 11;
-          GamePad.BUTTON_INDEX.dpadLeft = 12;
-          GamePad.BUTTON_INDEX.dpadDown = 13;
-
-          GamePad.BUTTON_INDEX.lTrigger = 14;
-          GamePad.BUTTON_INDEX.rTrigger = 15;
-
-          GamePad.AXIS_INDEX.rThumbX = 3;
-          GamePad.AXIS_INDEX.rThumbY = 4;
-          GamePad.AXIS_INDEX.lTrigger = 2;
-          GamePad.AXIS_INDEX.rTrigger = 5;
+          GamePad.AXIS_INDEX.throttle = thrustmaster ? 6 : 2;
+          GamePad.AXIS_INDEX.rThumbX = 99;
+          GamePad.AXIS_INDEX.rThumbY = thrustmaster ? 5 : 3;
+          GamePad.AXIS_INDEX.lTrigger = 99;
+          GamePad.AXIS_INDEX.rTrigger = 99;
         }
-        GamePad.AXIS_INDEX.throttle = 2;
-        GamePad.AXIS_INDEX.rThumbX = 99;
-        GamePad.AXIS_INDEX.rThumbY = 3;
-        GamePad.AXIS_INDEX.lTrigger = 99;
-        GamePad.AXIS_INDEX.rTrigger = 99;
       }
       else if (!this.isStandardMapping) {
         console.warn('Input device with non-standard mapping detected', gamepad.id);

@@ -7,24 +7,48 @@ import LogCoordinates from "../Types/LogCoordinates.js";
 export default class Plane {
     constructor(coordinates) {
         this._heading = new Degree(0);
+        /**
+         * In percent, 0..100
+         */
         this._throttle = 0;
         this._speedKts = 0;
         this._altAglFt = 0;
         this._fuel = 100;
+        /**
+         * Some major part of the plane is broken, so the plane is not able to fly anymore
+         */
         this.isBroken = false;
-        // in Degrees
+        /**
+         * Motor has been started and plane has not yet landed and stopped again
+         */
+        this.isActive = false;
+        /**
+         * Elevator positon in Degrees
+         */
         this.elevator = 0;
-        // in Degrees
+        /**
+         * Ailerons positon in Degrees
+         */
         this.ailerons = 0;
-        // in Degrees
+        /**
+         * Rudder positon in Degrees. Negative values will yaw to the left.
+         */
         this.rudder = 0;
-        // in Degrees
-        this.flaps = 0;
-        // in Degrees/s
+        /**
+         * Flaps positon in Degrees.
+         */
+        this._flaps = 0;
+        /**
+         * in Degrees / Second
+         */
         this._roll = 0;
-        // in Degrees/s
+        /**
+         * in Degrees / Second
+         */
         this._yaw = 0;
-        // in Degrees/s
+        /**
+         * in Degrees / Second
+         */
         this._pitch = 0;
         this._coordinates = coordinates;
         this.navRadios = [
@@ -41,6 +65,7 @@ export default class Plane {
         this._speedKts = (this.fuel <= 0)
             ? 0
             : this._throttle / 100 * this.specifications.v.normalOperation;
+        this.isActive = this.isActive || (this._throttle > 0);
         if (!this.coordinates.elevation || elevationHeight > this.coordinates.elevation) {
             if (this._speedKts < 50) {
                 this.coordinates.elevation = elevationHeight;
@@ -127,6 +152,12 @@ export default class Plane {
     }
     get fuel() {
         return this._fuel;
+    }
+    set flaps(angle) {
+        this._flaps = Math.max(0, Math.min(45, angle));
+    }
+    get flaps() {
+        return this._flaps;
     }
     get specifications() {
         return {
