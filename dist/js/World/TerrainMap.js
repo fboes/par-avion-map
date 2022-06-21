@@ -2,6 +2,7 @@ import TerrainCoordinates from "../Types/TerrainCoordinates.js";
 import Peak from "./Peak.js";
 import HslColor from "../Types/HslColor.js";
 import HoldingPattern from "./HoldingPattern.js";
+import Degree from "../Types/Degree.js";
 export default class TerrainMap {
     // @see https://en.wikipedia.org/wiki/Diamond-square_algorithm
     // @see https://github.com/A1essandro/Diamond-And-Square/blob/master/src/DiamondAndSquare.php
@@ -35,11 +36,11 @@ export default class TerrainMap {
             }
         });
         this.map.obstructions.forEach((obstruction) => {
-            const elevation = this.flattenTerrain(obstruction.coordinates);
+            const elevation = this.flattenTerrain(obstruction.coordinates, 2);
             obstruction.coordinates.elevation = elevation;
         });
         this.map.airports.forEach((airport) => {
-            const elevation = this.flattenTerrain(airport.coordinates, 2, airport.runways[0].heading.degree);
+            const elevation = this.flattenTerrain(airport.coordinates, 10, airport.runways[0].heading.degree);
             airport.coordinates.elevation = elevation;
         });
         this.makePeaks();
@@ -133,62 +134,30 @@ export default class TerrainMap {
         });
         return count ? sum / count : 0;
     }
-    flattenTerrain(coordinates, extraRadius = 1, direction = 0) {
-        if (extraRadius > 1) {
-            extraRadius *= this.resolution;
-        }
-        const innerCoords = coordinates.getTerrainCoordinates(this.resolution);
-        const clearing = 1;
-        const clearingDegree = 20;
-        const x = this.clamp(innerCoords.a);
-        const y = this.clamp(innerCoords.b);
-        const minX = this.clamp(x - extraRadius);
-        const minY = this.clamp(y - extraRadius);
-        const maxX = this.clamp(x + extraRadius);
-        const maxY = this.clamp(y + extraRadius);
-        let elevation = this.elevations[x][y];
-        if (elevation < 1) {
-            elevation = TerrainMap.MINIMUM_LAND;
-        }
-        for (let i = minX; i <= maxX; i++) {
-            for (let j = minY; j <= maxY; j++) {
-                const refCoords = new TerrainCoordinates(i, j);
-                const distance = innerCoords.getDistance(refCoords);
-                if (Math.round(distance) > extraRadius) {
-                    continue;
+    flattenTerrain(coordinates, extraRadius = 1, direction = null) {
+        const elevation = Math.max(TerrainMap.MINIMUM_LAND, this.getElevationNm(coordinates));
+        const flattenRadius = extraRadius > 5 ? 1 : 0.5;
+        this.elevations.forEach((line, a) => {
+            line.forEach((value, b) => {
+                const distance = Math.sqrt((a / this.resolution - coordinates.x) ** 2
+                    + (b / this.resolution - coordinates.y) ** 2);
+                let delta = this.randomizer.getInt(280, 310) * distance;
+                if (distance > extraRadius) {
+                    delta *= 2;
                 }
-                const maxElevation = elevation + (300 / distance * this.resolution); // 300ft = 3° / 1 NM
-                const angle = innerCoords.getBearing(refCoords);
-                if (x - clearing <= i &&
-                    i <= x + clearing &&
-                    y - clearing <= j &&
-                    j <= y + clearing) {
-                    this.elevations[i][j] = elevation;
+                if (direction !== null) {
+                    const deltaRad = new Degree(new TerrainCoordinates(a, b).getCoordinates(this.resolution, null).getBearing(coordinates)).add(-direction).rad;
+                    delta *= (1 + Math.abs(Math.sin(deltaRad)));
                 }
-                else if ((angle.isBetween(direction - clearingDegree, direction + clearingDegree)
-                    || angle.isBetween(direction - clearingDegree + 180, direction + clearingDegree + 180))
-                    && this.getElevation(refCoords) > maxElevation) {
-                    this.elevations[i][j] = maxElevation;
+                if (distance < flattenRadius) {
+                    this.elevations[a][b] = elevation;
                 }
-            }
-        }
+                else if (delta > 0 && delta < 10000 && distance < extraRadius && value > elevation + delta) {
+                    this.elevations[a][b] = elevation + delta;
+                }
+            });
+        });
         return elevation;
-    }
-    getCircle(circleIndex) {
-        let circle = [];
-        for (let i = -circleIndex - 1; i <= circleIndex + 2; i++) {
-            circle.push([i, -circleIndex - 1]);
-        }
-        for (let i = -circleIndex; i <= circleIndex + 1; i++) {
-            circle.push([circleIndex + 2, i]);
-        }
-        for (let i = circleIndex + 2; i >= -circleIndex - 1; i--) {
-            circle.push([i, circleIndex + 2]);
-        }
-        for (let i = circleIndex + 1; i >= -circleIndex; i--) {
-            circle.push([-circleIndex - 1, i]);
-        }
-        return circle;
     }
     getHighestElevationNm(coordinates, sliceX, sliceY) {
         return this.getHighestElevation(coordinates.getTerrainCoordinates(this.resolution), sliceX * this.resolution, sliceY * this.resolution);

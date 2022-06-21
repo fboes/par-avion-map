@@ -35,5 +35,6 @@ export default class Degree {
 
   add(degree: number) {
     this.degree = this._degree + degree;
+    return this;
   }
 }

@@ -80,7 +80,7 @@ export default class Plane {
             : elevationHeight;
         let radElevator = this.elevator * (Math.PI / 180);
         // TODO: This is oversimplified
-        this.changeHeading(this.ailerons * delta / 5000 * App.TIME_COMPRESSION);
+        this.changeHeading(this.ailerons * delta / 3000 * App.TIME_COMPRESSION);
         let vector = {
             groundSpeed: Math.cos(radElevator) * this._speedKts,
             altitudeChange: Math.sin(radElevator) * this._speedKts * 1.68781 / 1000,
