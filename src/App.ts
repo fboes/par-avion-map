@@ -172,6 +172,7 @@ export default class App {
             }
           }
 
+
           if (gamepad.axes.throttle) {
             this.plane.throttle = gamepad.axes.throttle * 100; // -1..+1 -> 0..100
           } else {

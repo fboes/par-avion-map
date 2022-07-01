@@ -54,6 +54,10 @@ export default class GamePad {
                 lThumbY: this.axisDeadzone(gamepad.axes[GamePad.AXIS_INDEX.lThumbY]) || keyboardState.axes.lThumbY,
                 rThumbX: this.axisDeadzone(gamepad.axes[GamePad.AXIS_INDEX.rThumbX]) || keyboardState.axes.rThumbX,
                 rThumbY: this.axisDeadzone(gamepad.axes[GamePad.AXIS_INDEX.rThumbY]) || keyboardState.axes.rThumbY,
+                lTrigger: this.axisDeadzone(gamepad.axes[GamePad.AXIS_INDEX.lTrigger]) || keyboardState.axes.lTrigger,
+                rTrigger: this.axisDeadzone(gamepad.axes[GamePad.AXIS_INDEX.rTrigger]) || keyboardState.axes.rTrigger,
+                // dPadX: this.axisDeadzone(gamepad.axes[GamePad.AXIS_INDEX.dPadX]) || keyboardState.axes.dPadX,
+                // dPadY: this.axisDeadzone(gamepad.axes[GamePad.AXIS_INDEX.dPadY]) || keyboardState.axes.dPadY,
                 throttle: this.throttleDeadzone(gamepad.axes[GamePad.AXIS_INDEX.throttle])
             }
         };
@@ -97,14 +101,14 @@ export default class GamePad {
                 case GamePad.BUTTON_INDEX.dpadUp:
                     currentKeyCode = 'Home';
                     break;
-                case GamePad.BUTTON_INDEX.dpadRight:
-                    currentKeyCode = 'PageDown';
+                case GamePad.BUTTON_INDEX.dpadDown:
+                    currentKeyCode = 'End';
                     break;
                 case GamePad.BUTTON_INDEX.dpadLeft:
                     currentKeyCode = 'Delete';
                     break;
-                case GamePad.BUTTON_INDEX.dpadDown:
-                    currentKeyCode = 'End';
+                case GamePad.BUTTON_INDEX.dpadRight:
+                    currentKeyCode = 'PageDown';
                     break;
             }
             buttons.push(this.getXboxGamepadButton(currentKeyCode !== '' && this.triggeredKeys.get(currentKeyCode) === true, i));
@@ -116,6 +120,10 @@ export default class GamePad {
                 lThumbY: this.keysToAxis('KeyW', 'KeyS'),
                 rThumbX: this.keysToAxis('ArrowLeft', 'ArrowRight'),
                 rThumbY: this.keysToAxis('ArrowUp', 'ArrowDown'),
+                lTrigger: 0,
+                rTrigger: 0,
+                // dPadX: 0,
+                // dPadY: 0,
                 throttle: 0
             }
         };
@@ -186,11 +194,35 @@ export default class GamePad {
                     const thrustmaster = gamepad.id.match(/T\.1600/i);
                     bestQuality = 2;
                     bestGamepadIndex = gamepad.index;
-                    GamePad.AXIS_INDEX.throttle = thrustmaster ? 6 : 2;
-                    GamePad.AXIS_INDEX.rThumbX = 99;
-                    GamePad.AXIS_INDEX.rThumbY = thrustmaster ? 5 : 3;
-                    GamePad.AXIS_INDEX.lTrigger = 99;
-                    GamePad.AXIS_INDEX.rTrigger = 99;
+                    GamePad.BUTTON_INDEX = {
+                        a: 0,
+                        b: 1,
+                        x: 2,
+                        y: 3,
+                        lBumper: 7,
+                        rBumper: 5,
+                        lTrigger: 4,
+                        rTrigger: 6,
+                        window: 99,
+                        menu: 99,
+                        thumbL: 8,
+                        thumbR: 9,
+                        dpadUp: 99,
+                        dpadDown: 99,
+                        dpadLeft: 99,
+                        dpadRight: 99,
+                    };
+                    GamePad.AXIS_INDEX = {
+                        lThumbX: 0,
+                        lThumbY: 1,
+                        rThumbX: 99,
+                        rThumbY: thrustmaster ? 5 : 3,
+                        lTrigger: 99,
+                        rTrigger: 99,
+                        // dPadX: 99,
+                        // dPadY: 99,
+                        throttle: thrustmaster ? 6 : 2,
+                    };
                 }
             }
             else if (!this.isStandardMapping) {
@@ -198,20 +230,38 @@ export default class GamePad {
                 if (bestQuality < 1) {
                     bestQuality = 1;
                     bestGamepadIndex = gamepad.index;
-                    GamePad.BUTTON_INDEX.window = 6;
-                    GamePad.BUTTON_INDEX.menu = 7;
-                    GamePad.BUTTON_INDEX.thumbL = 8;
-                    GamePad.BUTTON_INDEX.thumbR = 9;
-                    GamePad.BUTTON_INDEX.dpadUp = 10;
-                    GamePad.BUTTON_INDEX.dpadRight = 11;
-                    GamePad.BUTTON_INDEX.dpadLeft = 12;
-                    GamePad.BUTTON_INDEX.dpadDown = 13;
-                    GamePad.BUTTON_INDEX.lTrigger = 14;
-                    GamePad.BUTTON_INDEX.rTrigger = 15;
-                    GamePad.AXIS_INDEX.rThumbX = 3;
-                    GamePad.AXIS_INDEX.rThumbY = 4;
-                    GamePad.AXIS_INDEX.lTrigger = 2;
-                    GamePad.AXIS_INDEX.rTrigger = 5;
+                    GamePad.BUTTON_INDEX = {
+                        a: 0,
+                        b: 1,
+                        x: 2,
+                        y: 3,
+                        lBumper: 4,
+                        rBumper: 5,
+                        lTrigger: 99,
+                        rTrigger: 99,
+                        window: 6,
+                        menu: 7,
+                        //logo: 8
+                        thumbL: 9,
+                        thumbR: 10,
+                        dpadUp: 99,
+                        dpadDown: 99,
+                        dpadLeft: 99,
+                        dpadRight: 99,
+                    };
+                    GamePad.AXIS_INDEX = {
+                        lThumbX: 0,
+                        lThumbY: 1,
+                        rThumbX: 3,
+                        rThumbY: 4,
+                        lTrigger: 2,
+                        rTrigger: 5,
+                        // dPadX: 6,
+                        // dPadY: 7,
+                        throttle: 99
+                    };
+                    //GamePad.BUTTON_INDEX.lTrigger = 14;
+                    //GamePad.BUTTON_INDEX.rTrigger = 15;
                 }
             }
             else {
@@ -219,23 +269,35 @@ export default class GamePad {
                 if (bestQuality < 3) {
                     bestQuality = 3;
                     bestGamepadIndex = gamepad.index;
-                    GamePad.BUTTON_INDEX.lBumper = 4;
-                    GamePad.BUTTON_INDEX.rBumper = 5;
-                    GamePad.BUTTON_INDEX.lTrigger = 6;
-                    GamePad.BUTTON_INDEX.rTrigger = 7;
-                    GamePad.BUTTON_INDEX.window = 8;
-                    GamePad.BUTTON_INDEX.menu = 9;
-                    GamePad.BUTTON_INDEX.thumbL = 10;
-                    GamePad.BUTTON_INDEX.thumbR = 11;
-                    GamePad.BUTTON_INDEX.dpadUp = 12;
-                    GamePad.BUTTON_INDEX.dpadRight = 13;
-                    GamePad.BUTTON_INDEX.dpadLeft = 14;
-                    GamePad.BUTTON_INDEX.dpadDown = 15;
-                    GamePad.AXIS_INDEX.rThumbX = 2;
-                    GamePad.AXIS_INDEX.rThumbY = 3;
-                    GamePad.AXIS_INDEX.lTrigger = 99;
-                    GamePad.AXIS_INDEX.rTrigger = 99;
-                    GamePad.AXIS_INDEX.throttle = 99;
+                    GamePad.BUTTON_INDEX = {
+                        a: 0,
+                        b: 1,
+                        x: 2,
+                        y: 3,
+                        lBumper: 4,
+                        rBumper: 5,
+                        lTrigger: 6,
+                        rTrigger: 7,
+                        window: 8,
+                        menu: 9,
+                        thumbL: 10,
+                        thumbR: 11,
+                        dpadUp: 12,
+                        dpadDown: 12,
+                        dpadLeft: 13,
+                        dpadRight: 14,
+                    };
+                    GamePad.AXIS_INDEX = {
+                        lThumbX: 0,
+                        lThumbY: 1,
+                        rThumbX: 2,
+                        rThumbY: 3,
+                        lTrigger: 99,
+                        rTrigger: 99,
+                        // dPadX: 99,
+                        // dPadY: 99,
+                        throttle: 99
+                    };
                 }
             }
         });
@@ -285,9 +347,9 @@ GamePad.BUTTON_INDEX = {
     thumbL: 10,
     thumbR: 11,
     dpadUp: 12,
-    dpadRight: 13,
+    dpadDown: 13,
     dpadLeft: 14,
-    dpadDown: 15
+    dpadRight: 15,
 };
 GamePad.AXIS_INDEX = {
     lThumbX: 0,
@@ -296,5 +358,7 @@ GamePad.AXIS_INDEX = {
     rThumbY: 3,
     lTrigger: 99,
     rTrigger: 99,
-    throttle: 99
+    // dPadX: 99,
+    // dPadY: 99,
+    throttle: 99,
 };
