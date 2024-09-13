@@ -17,7 +17,7 @@ export default class CanvasApproach {
             throw new Error("No CanvasRenderingContext2D found");
         }
         this.canvas.width = Math.max(256, this.canvas.clientWidth * window.devicePixelRatio);
-        this.canvas.height = Math.ceil(this.canvas.width * this.maxY / this.maxX);
+        this.canvas.height = Math.ceil((this.canvas.width * this.maxY) / this.maxX);
         this.multiplier = this.canvas.width / this.maxX;
         this.ctx = ctx;
         this.ctx.scale(this.multiplier, this.multiplier);
@@ -30,15 +30,17 @@ export default class CanvasApproach {
     makeInfoBox() {
         const t = this.getNewCanvasTool(0, 0);
         const lineHeight = 7;
-        const ilsFrequency = this.airport.runways[0].ils.first ? this.airport.runways[0].ils.first.frequency : null;
+        const ilsFrequency = this.airport.runways[0].ils.first
+            ? this.airport.runways[0].ils.first.frequency
+            : null;
         const rows = {
-            first: !ilsFrequency ? this.maxX * 1 / 3 : this.maxX * 1 / 4,
-            second: !ilsFrequency ? this.maxX * 2 / 3 : this.maxX * 2 / 4,
-            third: !ilsFrequency ? -1 : this.maxX * 3 / 4,
-            firstCenter: !ilsFrequency ? this.maxX * 1 / 6 : this.maxX * 1 / 8,
-            secondCenter: !ilsFrequency ? this.maxX * 3 / 6 : this.maxX * 5 / 8,
-            thirdCenter: !ilsFrequency ? this.maxX * 5 / 6 : this.maxX * 7 / 8,
-            fourthCenter: !ilsFrequency ? -1 : this.maxX * 3 / 8
+            first: !ilsFrequency ? (this.maxX * 1) / 3 : (this.maxX * 1) / 4,
+            second: !ilsFrequency ? (this.maxX * 2) / 3 : (this.maxX * 2) / 4,
+            third: !ilsFrequency ? -1 : (this.maxX * 3) / 4,
+            firstCenter: !ilsFrequency ? (this.maxX * 1) / 6 : (this.maxX * 1) / 8,
+            secondCenter: !ilsFrequency ? (this.maxX * 3) / 6 : (this.maxX * 5) / 8,
+            thirdCenter: !ilsFrequency ? (this.maxX * 5) / 6 : (this.maxX * 7) / 8,
+            fourthCenter: !ilsFrequency ? -1 : (this.maxX * 3) / 8,
         };
         t.line(0, 27, this.maxX, 27).stroke();
         t.line(rows.first, 10, rows.first, 27).stroke();
@@ -46,28 +48,33 @@ export default class CanvasApproach {
         if (ilsFrequency) {
             t.line(rows.third, 10, rows.third, 27).stroke();
         }
-        t.textStyle(6, 'left');
-        t.text(1, lineHeight * 1, this.airport.name + ' (' + this.airport.code + ')');
-        t.textStyle(6, 'right', 'bold');
-        t.text(this.maxX - 1, lineHeight * 1, (ilsFrequency ? 'ILS ' : '') + 'RWY ' + CanvasTool.numPad(Math.round(this.airport.runways[0].heading.oppositeDegree / 10), 2));
-        t.textStyle(6, 'center');
-        t.text(rows.firstCenter, 3 + lineHeight * 2, (this.airport.hasTower ? "CT" : "UNICOM"));
-        t.text(rows.secondCenter, 3 + lineHeight * 2, ('APR CRS'));
-        t.text(rows.thirdCenter, 3 + lineHeight * 2, ('Elevation'));
+        t.textStyle(6, "left");
+        t.text(1, lineHeight * 1, this.airport.name + " (" + this.airport.code + ")");
+        t.textStyle(6, "right", "bold");
+        t.text(this.maxX - 1, lineHeight * 1, (ilsFrequency ? "ILS " : "") +
+            "RWY " +
+            CanvasTool.numPad(Math.round(this.airport.runways[0].heading.oppositeDegree / 10), 2));
+        t.textStyle(6, "center");
+        t.text(rows.firstCenter, 3 + lineHeight * 2, this.airport.hasTower ? "CT" : "UNICOM");
+        t.text(rows.secondCenter, 3 + lineHeight * 2, "APR CRS");
+        t.text(rows.thirdCenter, 3 + lineHeight * 2, "Elevation");
         if (ilsFrequency) {
             t.text(rows.fourthCenter, 3 + lineHeight * 2, "ILS");
         }
-        t.textStyle(6, 'center', 'bold');
+        t.textStyle(6, "center", "bold");
         t.text(rows.firstCenter, 3 + lineHeight * 3, CanvasTool.frequency(this.airport.frequency));
-        t.text(rows.secondCenter, 3 + lineHeight * 3, this.airport.runways[0].heading.oppositeDegree.toFixed() + '°');
+        t.text(rows.secondCenter, 3 + lineHeight * 3, this.airport.runways[0].heading.oppositeDegree.toFixed() + "°");
         if (this.airport.coordinates.elevation) {
             t.text(rows.thirdCenter, 3 + lineHeight * 3, this.airport.coordinates.elevation.toFixed());
         }
         if (ilsFrequency) {
             t.text(rows.fourthCenter, 3 + lineHeight * 3, CanvasTool.frequency(ilsFrequency));
         }
-        t.textStyle(4, 'right');
-        t.text(this.maxX - 3, this.maxY - 3, CanvasTool.frequency(this.airport.coordinates.x) + 'X | ' + CanvasTool.frequency(this.airport.coordinates.y) + 'Y');
+        t.textStyle(4, "right");
+        t.text(this.maxX - 3, this.maxY - 3, CanvasTool.frequency(this.airport.coordinates.x) +
+            "X | " +
+            CanvasTool.frequency(this.airport.coordinates.y) +
+            "Y");
         this.ctx.strokeRect(0, 10, this.maxX, this.maxY - 10);
     }
     makeAirport() {
@@ -127,11 +134,16 @@ export default class CanvasApproach {
                 [8 - x, +1.5],
             ]).fill();
             t.line(2 - x, 0, 8 - x, 0).stroke();
-            t.textStyle(4, bearing > 180 ? 'right' : 'left');
+            t.textStyle(4, bearing > 180 ? "right" : "left");
             if (bearing > 180) {
                 t.rotate(12 - x, 0, 180);
             }
-            t.text(12 - x, +1.5, navaid.code + ': ' + bearing.toFixed() + '° ' + navaid.coordinates.getDistance(this.airport.coordinates).toFixed(2) + 'NM');
+            t.text(12 - x, +1.5, navaid.code +
+                ": " +
+                bearing.toFixed() +
+                "° " +
+                navaid.coordinates.getDistance(this.airport.coordinates).toFixed(2) +
+                "NM");
             t.reset();
         });
         this.airport.runways.forEach((runway) => {
@@ -142,8 +154,14 @@ export default class CanvasApproach {
             t.polygonRaw([
                 [runwayX / 2.1, runwayY / 2],
                 [runwayX / 2.1, runwayY / 2 + 100 / CanvasApproach.FACTOR],
-                [runwayX / 2.1 - 100 / CanvasApproach.FACTOR, runwayY / 2 + 200 / CanvasApproach.FACTOR],
-                [runwayX / -2.1 + 100 / CanvasApproach.FACTOR, runwayY / 2 + 200 / CanvasApproach.FACTOR],
+                [
+                    runwayX / 2.1 - 100 / CanvasApproach.FACTOR,
+                    runwayY / 2 + 200 / CanvasApproach.FACTOR,
+                ],
+                [
+                    runwayX / -2.1 + 100 / CanvasApproach.FACTOR,
+                    runwayY / 2 + 200 / CanvasApproach.FACTOR,
+                ],
                 [runwayX / -2.1, runwayY / 2 + 100 / CanvasApproach.FACTOR],
                 [runwayX / -2.1, runwayY / 2],
             ]).stroke();
@@ -159,9 +177,9 @@ export default class CanvasApproach {
             this.ctx.fillRect(runwayX / -2, runwayY / -2, runwayX, runwayY);
             [0, 1].forEach((i) => {
                 t.textStyle(4);
-                const multiplier = (i === 0) ? 1 : -1;
+                const multiplier = i === 0 ? 1 : -1;
                 const posY = runwayX / 2;
-                const deg = (i === 0) ? runway.heading.oppositeDegree : runway.heading.degree;
+                const deg = i === 0 ? runway.heading.oppositeDegree : runway.heading.degree;
                 t.rotate(0, 0, multiplier * -90);
                 if (runway.slopeIndicators.get(i)) {
                     this.makeLight(-5, posY - 3, t, runway.slopeIndicators.get(i));
@@ -185,12 +203,14 @@ export default class CanvasApproach {
             if (invers) {
                 t.rotate(0, 0, 180);
             }
-            t.text(0, invers ? 5.5 : -2.5, runway.length.toFixed() + ' × ' + runway.width.toFixed(), CanvasApproach.OUTLINE);
+            t.text(0, invers ? 5.5 : -2.5, runway.length.toFixed() + " × " + runway.width.toFixed(), CanvasApproach.OUTLINE);
             t.reset();
         });
     }
     isShortApproach(approachLight) {
-        return approachLight === Runway.ODALS || approachLight === Runway.SALS || approachLight === Runway.MALS;
+        return (approachLight === Runway.ODALS ||
+            approachLight === Runway.SALS ||
+            approachLight === Runway.MALS);
     }
     // @see https://www.euroga.org/system/1/user_files/files/000/017/859/17859/1d13e220b/large/IMG_0075.PNG
     // @see https://www.flightlearnings.com/wp-content/uploads/2017/07/8-22a.jpg
@@ -215,25 +235,25 @@ export default class CanvasApproach {
                 t.line(x - 1, y, x - 3, y).stroke();
                 break;
             default:
-                t.textStyle(4, 'right');
-                t.text(x + 0.35, y + 1.4, 'A');
-                t.textStyle(3, 'left');
-                let text = '1';
+                t.textStyle(4, "right");
+                t.text(x + 0.35, y + 1.4, "A");
+                t.textStyle(3, "left");
+                let text = "1";
                 switch (label) {
                     case Runway.ALSF1:
-                        text = '1';
+                        text = "1";
                         break;
                     case Runway.SALS:
-                        text = '2';
+                        text = "2";
                         break;
                     case Runway.SSALR:
-                        text = '3';
+                        text = "3";
                         break;
                     case Runway.MALS:
-                        text = '4';
+                        text = "4";
                         break;
                     case Runway.MALSR:
-                        text = '5';
+                        text = "5";
                         break;
                 }
                 t.text(x + 0.35, y + 1.4, text);
@@ -253,11 +273,16 @@ export default class CanvasApproach {
         for (let i = 0; i <= (this.isShortApproach(label) ? 1500 : 2500); i += 250) {
             let width = 100;
             if (i === 0) {
-                width = (label === Runway.ALSF1 || label === Runway.ALSF2 || label === Runway.SALS) ? 450 : 0;
+                width =
+                    label === Runway.ALSF1 ||
+                        label === Runway.ALSF2 ||
+                        label === Runway.SALS
+                        ? 450
+                        : 0;
             }
             if (width > 0) {
-                if ((i > 1500 && (label === Runway.MALSR || label === Runway.SSALR))
-                    || label === Runway.ODALS) {
+                if ((i > 1500 && (label === Runway.MALSR || label === Runway.SSALR)) ||
+                    label === Runway.ODALS) {
                     t.line(x, y + i / CanvasApproach.FACTOR, x, y + (i + width) / CanvasApproach.FACTOR).stroke();
                 }
                 else {

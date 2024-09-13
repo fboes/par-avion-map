@@ -16,10 +16,14 @@ export default class Airport extends Point {
 
   public static ILS_RANGE = 10;
 
-  public constructor(public coordinates: Coordinates, protected randomizer: Randomizer) {
+  public constructor(
+    public coordinates: Coordinates,
+    protected randomizer: Randomizer,
+  ) {
     super(coordinates, randomizer);
 
-    this.frequency = this.randomizer.getInt(118, 136) + this.randomizer.getInt(0, 1) * 0.5;
+    this.frequency =
+      this.randomizer.getInt(118, 136) + this.randomizer.getInt(0, 1) * 0.5;
     this.hasBeacon = false;
     this.hasTower = false;
     if (this.randomizer.isRandTrue()) {
@@ -27,7 +31,6 @@ export default class Airport extends Point {
       this.hasTower = this.randomizer.isRandTrue(33);
     }
     this.hasFuelService = this.hasTower || !this.randomizer.isRandTrue(20);
-
   }
 
   public addRunway(heading: Degree) {
@@ -35,15 +38,34 @@ export default class Airport extends Point {
 
     [heading.degree, heading.oppositeDegree].forEach((h, key) => {
       const deg = new Degree(h);
-      let approachPoints = new Waypoint(this.coordinates.getNewCoordinates(deg, 4), this.randomizer);
-      approachPoints.code = this.code.slice(0, 3) + Math.round(deg.oppositeDegree / 10).toFixed().padStart(2, '0');
-      approachPoints.isSwitchLabelPosition = (key === 0)
-        ? (h > 280 || h < 130)
-        : (heading.oppositeDegree > 320 || heading.oppositeDegree < 40);
+      let approachPoints = new Waypoint(
+        this.coordinates.getNewCoordinates(deg, 4),
+        this.randomizer,
+      );
+      approachPoints.code =
+        this.code.slice(0, 3) +
+        Math.round(deg.oppositeDegree / 10)
+          .toFixed()
+          .padStart(2, "0");
+      approachPoints.isSwitchLabelPosition =
+        key === 0
+          ? h > 280 || h < 130
+          : heading.oppositeDegree > 320 || heading.oppositeDegree < 40;
       this.approachPoints.push(approachPoints);
+    });
 
-    })
+    this.isSwitchLabelPosition = heading.degree > 120 && heading.degree < 260;
+  }
 
-    this.isSwitchLabelPosition = (heading.degree > 120 && heading.degree < 260);
+  get rightPatternRunways(): Degree[] {
+    let runways: Degree[] = [];
+
+    this.runways.forEach((r) => {
+      r.rightPatternDirections.forEach((d) => {
+        runways.push(d);
+      });
+    });
+
+    return runways;
   }
 }

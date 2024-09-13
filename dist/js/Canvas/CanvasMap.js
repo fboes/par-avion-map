@@ -212,13 +212,17 @@ export default class CanvasMap {
                 t.rotate(0, 0, navaid.holdingPattern.direction.degree);
                 t.roundedRect(navaid.holdingPattern.isRight ? 0 : -HoldingPattern.WIDTH, -HoldingPattern.WIDTH / 2, HoldingPattern.WIDTH, HoldingPattern.LENGTH, HoldingPattern.WIDTH / 2).stroke();
                 this.makePointerArrow(t, 0, 0);
-                this.makePointerArrow(t, (navaid.holdingPattern.isRight
+                this.makePointerArrow(t, navaid.holdingPattern.isRight
                     ? HoldingPattern.WIDTH
-                    : -HoldingPattern.WIDTH), -HoldingPattern.LENGTH + HoldingPattern.WIDTH, -1);
-                const rot = navaid.holdingPattern.direction.isBetween(0, 180) ? -90 : 90;
+                    : -HoldingPattern.WIDTH, -HoldingPattern.LENGTH + HoldingPattern.WIDTH, -1);
+                const rot = navaid.holdingPattern.direction.isBetween(0, 180)
+                    ? -90
+                    : 90;
                 const y = (HoldingPattern.LENGTH - HoldingPattern.WIDTH) / 2;
                 if (navaid.coordinates.elevation) {
-                    const x = navaid.holdingPattern.isRight ? HoldingPattern.WIDTH / 2 : -HoldingPattern.WIDTH / 2;
+                    const x = navaid.holdingPattern.isRight
+                        ? HoldingPattern.WIDTH / 2
+                        : -HoldingPattern.WIDTH / 2;
                     t.rotate(x, y, rot);
                     t.textOutline(x, y + 0.2, navaid.coordinates.elevation.toFixed() + "ft");
                     t.rotate(x, y, -rot);
@@ -230,7 +234,9 @@ export default class CanvasMap {
                     t.rotate(x, y, -rot);
                 }
                 {
-                    const x = navaid.holdingPattern.isRight ? HoldingPattern.WIDTH : -HoldingPattern.WIDTH;
+                    const x = navaid.holdingPattern.isRight
+                        ? HoldingPattern.WIDTH
+                        : -HoldingPattern.WIDTH;
                     t.rotate(x, y, rot);
                     t.textOutline(x, y + 0.2, CanvasTool.numPad(Math.round(navaid.holdingPattern.direction.oppositeDegree), 3) + "°");
                     t.rotate(x, y, -rot);
@@ -238,8 +244,12 @@ export default class CanvasMap {
                 t.reset();
             }
             t.textMultiline(0, navaid.type === Navaid.NDB
-                ? navaid.isSwitchLabelPosition ? -3 : 2.7
-                : navaid.isSwitchLabelPosition ? -1.6 : 1.3, [
+                ? navaid.isSwitchLabelPosition
+                    ? -3
+                    : 2.7
+                : navaid.isSwitchLabelPosition
+                    ? -1.6
+                    : 1.3, [
                 navaid.name,
                 CanvasTool.frequency(navaid.frequency) + " " + navaid.code,
             ]);
@@ -249,7 +259,9 @@ export default class CanvasMap {
     makeAirports() {
         this.map.airports.forEach((airport, id) => {
             const t = this.getNewCanvasTool(airport.coordinates.x, airport.coordinates.y);
-            const baseColor = airport.hasTower ? this.colors.blue : this.colors.magenta;
+            const baseColor = airport.hasTower
+                ? this.colors.blue
+                : this.colors.magenta;
             t.style(baseColor);
             t.textStyle();
             t.circle(0, 0, 1).fill();
@@ -277,14 +289,29 @@ export default class CanvasMap {
                     this.ctx.stroke();
                     this.ctx.closePath();
                     t.setLineDash([]);
-                    this.makePointerArrow(t, (runway.trafficPatterns[0].isRight
+                    this.makePointerArrow(t, runway.trafficPatterns[0].isRight
                         ? -Runway.TRAFFICPATTERN_WIDTH
-                        : Runway.TRAFFICPATTERN_WIDTH), Runway.TRAFFICPATTERN_WIDTH - 0.4); // downwind leg
+                        : Runway.TRAFFICPATTERN_WIDTH, Runway.TRAFFICPATTERN_WIDTH - 0.4); // downwind leg
                     this.makePointerArrow(t, 0, -0.75 * Runway.TRAFFICPATTERN_LENGTH, -1); // outbound
                     t.polygon([
-                        [runway.trafficPatterns[0].isRight ? -Runway.TRAFFICPATTERN_WIDTH - 0.75 : Runway.TRAFFICPATTERN_WIDTH + 0.75, Runway.TRAFFICPATTERN_WIDTH * 2 - 0.25],
-                        [runway.trafficPatterns[0].isRight ? -Runway.TRAFFICPATTERN_WIDTH - 0.75 : Runway.TRAFFICPATTERN_WIDTH + 0.75, Runway.TRAFFICPATTERN_WIDTH * 2 + 0.1],
-                        [runway.trafficPatterns[0].isRight ? -Runway.TRAFFICPATTERN_WIDTH - 1.1 : Runway.TRAFFICPATTERN_WIDTH + 1.1, Runway.TRAFFICPATTERN_WIDTH * 2 - 0.25],
+                        [
+                            runway.trafficPatterns[0].isRight
+                                ? -Runway.TRAFFICPATTERN_WIDTH - 0.75
+                                : Runway.TRAFFICPATTERN_WIDTH + 0.75,
+                            Runway.TRAFFICPATTERN_WIDTH * 2 - 0.25,
+                        ],
+                        [
+                            runway.trafficPatterns[0].isRight
+                                ? -Runway.TRAFFICPATTERN_WIDTH - 0.75
+                                : Runway.TRAFFICPATTERN_WIDTH + 0.75,
+                            Runway.TRAFFICPATTERN_WIDTH * 2 + 0.1,
+                        ],
+                        [
+                            runway.trafficPatterns[0].isRight
+                                ? -Runway.TRAFFICPATTERN_WIDTH - 1.1
+                                : Runway.TRAFFICPATTERN_WIDTH + 1.1,
+                            Runway.TRAFFICPATTERN_WIDTH * 2 - 0.25,
+                        ],
                     ]).fill(); // entry
                     t.style(baseColor);
                 }
@@ -320,6 +347,7 @@ export default class CanvasMap {
                 ]).fill();
                 this.ctx.stroke();
             }
+            const rightPatternRunways = airport.rightPatternRunways;
             t.style(baseColor);
             t.textMultiline(0, airport.isSwitchLabelPosition ? -2 : 1.75, [
                 airport.name + " (" + airport.code + ")",
@@ -329,6 +357,14 @@ export default class CanvasMap {
                         ? " ILS " +
                             CanvasTool.frequency(airport.runways[0].ils.first.frequency)
                         : ""),
+                rightPatternRunways.length > 0
+                    ? "RP " +
+                        rightPatternRunways
+                            .map((rp) => {
+                            return (rp.degree / 10).toFixed(0).padStart(2, "0");
+                        })
+                            .join(", ")
+                    : "",
             ]);
             airport.approachPoints.forEach((approachPoint) => {
                 this.makeWaypoint(approachPoint);
@@ -399,7 +435,7 @@ export default class CanvasMap {
             t.line(0, radius, 0, radius - (i % 30 === 0 ? 0.4 : 0.2)).stroke();
             if (i % 90 === 0) {
                 t.rotate(0, centerDegRot, -i);
-                t.text(0, centerDegRot + 0.2, (i / 10).toFixed().padStart(2, '0'));
+                t.text(0, centerDegRot + 0.2, (i / 10).toFixed().padStart(2, "0"));
                 t.rotate(0, centerDegRot, i);
             }
             t.rotate(0, 0, 10);

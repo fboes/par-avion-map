@@ -8,16 +8,16 @@ export default class NavRadio {
         this._currentNavaidIndex = 0;
     }
     get label() {
-        return this.currentNavAid ? this.currentNavAid.code : '';
+        return this.currentNavAid ? this.currentNavAid.code : "";
     }
     get type() {
-        return this.currentNavAid ? this.currentNavAid.type : '';
+        return this.currentNavAid ? this.currentNavAid.type : "";
     }
     set coordinates(coordinates) {
         if (this.currentNavAid) {
             const distance = coordinates.getDistance(this.currentNavAid.coordinates);
             const bearing = new Degree(coordinates.getBearing(this.currentNavAid.coordinates));
-            this.inRange = (this.currentNavAid.range > distance);
+            this.inRange = this.currentNavAid.range > distance;
             if (this.inRange && this.currentNavAid instanceof NavaidIls) {
                 this.inRange = bearing.isBetween(this.currentNavAid.direction.oppositeDegree - 10, this.currentNavAid.direction.oppositeDegree + 10);
             }
@@ -42,13 +42,16 @@ export default class NavRadio {
                 this.course = new Degree(0);
                 break;
             case Navaid.ILS:
-                this.course = new Degree(this.currentNavAid instanceof NavaidIls ? this.currentNavAid.direction.oppositeDegree : 0);
+                this.course = new Degree(this.currentNavAid instanceof NavaidIls
+                    ? this.currentNavAid.direction.oppositeDegree
+                    : 0);
                 break;
         }
         this.coordinates = coordinates;
     }
     changeCurrentNavaid(increment, coordinates) {
-        this.setCurrentNavAid((this._currentNavaidIndex + increment + this.navAids.length) % this.navAids.length, coordinates);
+        this.setCurrentNavAid((this._currentNavaidIndex + increment + this.navAids.length) %
+            this.navAids.length, coordinates);
     }
     setCourse(course) {
         if (this.currentNavAid && this.currentNavAid.type === Navaid.VOR) {
@@ -78,12 +81,12 @@ export default class NavRadio {
         }
     }
     caluclateDeviation() {
-        if (this.currentNavAid
-            && (this.currentNavAid.type === Navaid.VOR || this.currentNavAid.type === Navaid.ILS)
-            && this.course
-            && this.bearing) {
+        if (this.currentNavAid &&
+            (this.currentNavAid.type === Navaid.VOR ||
+                this.currentNavAid.type === Navaid.ILS) &&
+            this.course &&
+            this.bearing) {
             this.setDeviation(this.course.degree - this.bearing.degree);
         }
     }
 }
-;

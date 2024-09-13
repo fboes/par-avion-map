@@ -10,7 +10,10 @@ export default class HoldingPattern extends Point {
   public static LENGTH = 4.9; // @180 kts & 1min / leg
   public static WIDTH = 1.9; // @180kts & 1min / leg
 
-  public constructor(public coordinates: Coordinates, protected randomizer: Randomizer) {
+  public constructor(
+    public coordinates: Coordinates,
+    protected randomizer: Randomizer,
+  ) {
     super(coordinates, randomizer);
 
     this.isRight = !this.randomizer.isRandTrue(20);
@@ -18,6 +21,9 @@ export default class HoldingPattern extends Point {
   }
 
   getCenterCoordinates(): Coordinates {
-    return this.coordinates.getNewCoordinates(new Degree(this.direction.oppositeDegree + (this.isRight ? -32 : 32)), 3.55 / 2);
+    return this.coordinates.getNewCoordinates(
+      new Degree(this.direction.oppositeDegree + (this.isRight ? -32 : 32)),
+      3.55 / 2,
+    );
   }
 }

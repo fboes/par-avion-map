@@ -3,7 +3,10 @@ import LogCoordinates from "../Types/LogCoordinates.js";
 export default class FlightLog {
   protected _coordinates: LogCoordinates[] = [];
 
-  constructor(coordinates: LogCoordinates, protected maxEntries = 3600) {
+  constructor(
+    coordinates: LogCoordinates,
+    protected maxEntries = 3600,
+  ) {
     this.push(coordinates);
   }
 

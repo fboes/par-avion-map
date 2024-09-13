@@ -17,28 +17,34 @@ export default class App {
         this.multiplier = 0;
         this.lastLogTimestamp = 0;
         this.elements = {
-            mapCanvas: document.getElementById('map'),
-            mapHsiCanvas: document.getElementById('map-hsi'),
-            hsiCanvas: document.getElementById('hsi'),
-            sixPackCanvas: document.getElementById('six-pack'),
-            airportsCanvases: document.querySelectorAll('.approaches canvas'),
-            seedInput: document.getElementById('seed'),
-            mapDimensionInput: document.getElementById('mapdimension'),
-            resolutionInput: document.getElementById('resolution'),
-            randomizeButton: document.getElementById('randomize'),
-            generateButton: document.getElementById('generate'),
-            changeLogCheckbox: document.getElementById('show-log')
+            mapCanvas: document.getElementById("map"),
+            mapHsiCanvas: document.getElementById("map-hsi"),
+            hsiCanvas: document.getElementById("hsi"),
+            sixPackCanvas: document.getElementById("six-pack"),
+            airportsCanvases: (document.querySelectorAll(".approaches canvas")),
+            seedInput: document.getElementById("seed"),
+            mapDimensionInput: (document.getElementById("mapdimension")),
+            resolutionInput: document.getElementById("resolution"),
+            randomizeButton: document.getElementById("randomize"),
+            generateButton: document.getElementById("generate"),
+            changeLogCheckbox: document.getElementById("show-log"),
         };
         this.gamepad = new XboxGamepad();
         this.generateMap();
     }
     generateMap() {
-        this.randomizer = new Randomizer(this.elements.seedInput ? this.elements.seedInput.value : ''),
-            this.randomizer.seed = this.elements.seedInput ? this.elements.seedInput.value : '';
+        (this.randomizer = new Randomizer(this.elements.seedInput ? this.elements.seedInput.value : "")),
+            (this.randomizer.seed = this.elements.seedInput
+                ? this.elements.seedInput.value
+                : "");
         this.elements.seedInput.value = this.randomizer.seed;
-        this.map = new LocationsMap(this.elements.mapDimensionInput ? this.elements.mapDimensionInput.valueAsNumber : 16, this.randomizer);
+        this.map = new LocationsMap(this.elements.mapDimensionInput
+            ? this.elements.mapDimensionInput.valueAsNumber
+            : 16, this.randomizer);
         this.randomizer.seed = this.randomizer.seed;
-        this.terrain = new TerrainMap(this.map, this.randomizer, this.elements.resolutionInput ? this.elements.resolutionInput.valueAsNumber : 4);
+        this.terrain = new TerrainMap(this.map, this.randomizer, this.elements.resolutionInput
+            ? this.elements.resolutionInput.valueAsNumber
+            : 4);
         this.randomizer.seed = this.randomizer.seed;
         this.weather = new Weather(this.map, this.randomizer);
         this.pushState();
@@ -48,8 +54,13 @@ export default class App {
         history.pushState({
             seed: this.randomizer.seed,
             dimension: this.map.mapDimension,
-            resolution: this.terrain.resolution
-        }, '', '#' + this.randomizer.seed + '-' + this.map.mapDimension + '-' + this.terrain.resolution);
+            resolution: this.terrain.resolution,
+        }, "", "#" +
+            this.randomizer.seed +
+            "-" +
+            this.map.mapDimension +
+            "-" +
+            this.terrain.resolution);
     }
     generateFromSeed(seed, dimension, resolution) {
         this.randomizer.seed = seed;
@@ -79,7 +90,7 @@ export default class App {
             this.multiplier = canvasMap.multiplier;
         }
         this.elements.airportsCanvases.forEach((airportCanvas, id) => {
-            airportCanvas.style.display = this.map.airports[id] ? 'block' : 'none';
+            airportCanvas.style.display = this.map.airports[id] ? "block" : "none";
             if (this.map.airports[id]) {
                 new CanvasApproach(airportCanvas, this.map.airports[id], this.map.navAids);
             }
@@ -87,11 +98,12 @@ export default class App {
     }
     onClickPosition(event) {
         const bound = this.elements.mapCanvas.getBoundingClientRect();
-        const clickCoordinates = new Coordinates((event.clientX - bound.left) / this.multiplier * window.devicePixelRatio, (event.clientY - bound.top) / this.multiplier * window.devicePixelRatio);
+        const clickCoordinates = new Coordinates(((event.clientX - bound.left) / this.multiplier) *
+            window.devicePixelRatio, ((event.clientY - bound.top) / this.multiplier) * window.devicePixelRatio);
         this.plane.hsi.headingSelect = new Degree(this.plane.coordinates.getBearing(clickCoordinates));
-        this.plane.navRadios.forEach((navRadio => {
+        this.plane.navRadios.forEach((navRadio) => {
             navRadio.setCourseByCoordinates(clickCoordinates);
-        }));
+        });
     }
     onRequestAnimationFrame(timestamp) {
         if (this.lastTimestamp && this.lastTimestamp !== timestamp) {
@@ -99,25 +111,41 @@ export default class App {
             if (this.gamepad) {
                 const gamepad = this.gamepad.getGamepadState();
                 if (gamepad !== null) {
-                    gamepad.buttons[XboxGamepad.BUTTON_INDEX.lBumper].triggered && this.plane.hsi.activateNextElement(-1);
-                    gamepad.buttons[XboxGamepad.BUTTON_INDEX.rBumper].triggered && this.plane.hsi.activateNextElement(+1);
-                    gamepad.buttons[XboxGamepad.BUTTON_INDEX.lTrigger].triggered
-                        && (this.plane.hsi.activeElement === Hsi.INTERACTIVE_NAV1_SOURCE || this.plane.hsi.activeElement === Hsi.INTERACTIVE_NAV2_SOURCE)
-                        && this.plane.hsi.navRadios[this.plane.hsi.activeElement === Hsi.INTERACTIVE_NAV1_SOURCE ? 0 : 1].changeCurrentNavaid(-1, this.plane.coordinates);
-                    gamepad.buttons[XboxGamepad.BUTTON_INDEX.rTrigger].triggered
-                        && (this.plane.hsi.activeElement === Hsi.INTERACTIVE_NAV1_SOURCE || this.plane.hsi.activeElement === Hsi.INTERACTIVE_NAV2_SOURCE)
-                        && this.plane.hsi.navRadios[this.plane.hsi.activeElement === Hsi.INTERACTIVE_NAV1_SOURCE ? 0 : 1].changeCurrentNavaid(1, this.plane.coordinates);
-                    if (gamepad.buttons[XboxGamepad.BUTTON_INDEX.lTrigger].value + gamepad.buttons[XboxGamepad.BUTTON_INDEX.rTrigger].value > 0) {
-                        const axis = (-gamepad.buttons[XboxGamepad.BUTTON_INDEX.lTrigger].value + gamepad.buttons[XboxGamepad.BUTTON_INDEX.rTrigger].value) * delta / 12;
+                    gamepad.buttons[XboxGamepad.BUTTON_INDEX.lBumper].triggered &&
+                        this.plane.hsi.activateNextElement(-1);
+                    gamepad.buttons[XboxGamepad.BUTTON_INDEX.rBumper].triggered &&
+                        this.plane.hsi.activateNextElement(+1);
+                    gamepad.buttons[XboxGamepad.BUTTON_INDEX.lTrigger].triggered &&
+                        (this.plane.hsi.activeElement === Hsi.INTERACTIVE_NAV1_SOURCE ||
+                            this.plane.hsi.activeElement === Hsi.INTERACTIVE_NAV2_SOURCE) &&
+                        this.plane.hsi.navRadios[this.plane.hsi.activeElement === Hsi.INTERACTIVE_NAV1_SOURCE
+                            ? 0
+                            : 1].changeCurrentNavaid(-1, this.plane.coordinates);
+                    gamepad.buttons[XboxGamepad.BUTTON_INDEX.rTrigger].triggered &&
+                        (this.plane.hsi.activeElement === Hsi.INTERACTIVE_NAV1_SOURCE ||
+                            this.plane.hsi.activeElement === Hsi.INTERACTIVE_NAV2_SOURCE) &&
+                        this.plane.hsi.navRadios[this.plane.hsi.activeElement === Hsi.INTERACTIVE_NAV1_SOURCE
+                            ? 0
+                            : 1].changeCurrentNavaid(1, this.plane.coordinates);
+                    if (gamepad.buttons[XboxGamepad.BUTTON_INDEX.lTrigger].value +
+                        gamepad.buttons[XboxGamepad.BUTTON_INDEX.rTrigger].value >
+                        0) {
+                        const axis = ((-gamepad.buttons[XboxGamepad.BUTTON_INDEX.lTrigger].value +
+                            gamepad.buttons[XboxGamepad.BUTTON_INDEX.rTrigger].value) *
+                            delta) /
+                            12;
                         switch (this.plane.hsi.activeElement) {
                             case Hsi.INTERACTIVE_NAV1_COURSE:
-                                this.plane.hsi.navRadios[0].course && this.plane.hsi.navRadios[0].course.add(axis);
+                                this.plane.hsi.navRadios[0].course &&
+                                    this.plane.hsi.navRadios[0].course.add(axis);
                                 break;
                             case Hsi.INTERACTIVE_NAV2_COURSE:
-                                this.plane.hsi.navRadios[1].course && this.plane.hsi.navRadios[1].course.add(axis);
+                                this.plane.hsi.navRadios[1].course &&
+                                    this.plane.hsi.navRadios[1].course.add(axis);
                                 break;
                             case Hsi.INTERACTIVE_HEADING:
-                                this.plane.hsi.headingSelect && this.plane.hsi.headingSelect.add(axis);
+                                this.plane.hsi.headingSelect &&
+                                    this.plane.hsi.headingSelect.add(axis);
                                 break;
                         }
                     }
@@ -125,7 +153,7 @@ export default class App {
                         this.plane.throttle = gamepad.axes.throttle * 100; // -1..+1 -> 0..100
                     }
                     else {
-                        this.plane.throttle -= (gamepad.axes.rThumbY * delta / 15);
+                        this.plane.throttle -= (gamepad.axes.rThumbY * delta) / 15;
                     }
                     this.plane.elevator = gamepad.axes.lThumbY * 45;
                     this.plane.ailerons = gamepad.axes.lThumbX * 45;

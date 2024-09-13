@@ -6,14 +6,14 @@ export default class CanvasMapHsi {
         this.plane = plane;
         this.map = map;
         this.colors = {
-            cyan: 'rgb(50,245,255)',
-            magenta: 'rgb(255,0,255)',
-            green: 'rgb(63,255,72)',
-            yellow: 'rgb(255,230,0,1)',
-            orange: 'rgb(63,255,72)',
-            pink: '#ff3385',
-            blue: '#3870ff',
-            turqoise: '#16FFE4',
+            cyan: "rgb(50,245,255)",
+            magenta: "rgb(255,0,255)",
+            green: "rgb(63,255,72)",
+            yellow: "rgb(255,230,0,1)",
+            orange: "rgb(63,255,72)",
+            pink: "#ff3385",
+            blue: "#3870ff",
+            turqoise: "#16FFE4",
         };
         const ctx = canvas.getContext("2d");
         if (!ctx) {
@@ -29,9 +29,9 @@ export default class CanvasMapHsi {
         this.ctx.setTransform(1, 0, 0, 1, 0, 0);
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         const t = this.getCanvasTool();
-        t.style('black').globalAlpha = CanvasMapHsi.ALPHA;
+        t.style("black").globalAlpha = CanvasMapHsi.ALPHA;
         t.circle(0, 0, 115).fill();
-        t.style('white', 'white', 2);
+        t.style("white", "white", 2);
         t.circle(0, 0, 65).stroke(); // around plane
         this.plane.hsi.navRadios.forEach((navRadio, index) => {
             this.drawNavRadio(navRadio, index);
@@ -61,23 +61,23 @@ export default class CanvasMapHsi {
         const circleDeviationPx = 61;
         const deviationMaxRangePx = 50;
         let deviation = null;
-        const maxDeviationDegrees = (navRadio.type === Navaid.ILS ? 2.5 : 10);
+        const maxDeviationDegrees = navRadio.type === Navaid.ILS ? 2.5 : 10;
         t.style(color, color, 2);
-        const align = index === 0 ? 'left' : 'right';
+        const align = index === 0 ? "left" : "right";
         this.ctx.save();
         this.ctx.beginPath();
         this.ctx.rect(-128, -128, 256, 256);
         this.ctx.arc(0, 0, 120, 0, Math.PI * 2);
-        this.ctx.clip('evenodd');
+        this.ctx.clip("evenodd");
         this.text(t, index === 0 ? -125 : +125, -112, navRadio.label, navRadio.type, align);
         if (navRadio.distance) {
-            this.text(t, index === 0 ? -125 : +125, 115, navRadio.distance.toFixed(2) + ' NM', 'DME', align);
+            this.text(t, index === 0 ? -125 : +125, 115, navRadio.distance.toFixed(2) + " NM", "DME", align);
         }
         if (navRadio.course) {
-            this.text(t, index === 0 ? -125 : +125, navRadio.distance ? 83 : 115, navRadio.course.degree.toFixed(0).padStart(3, '0') + '°', 'CRS', align);
+            this.text(t, index === 0 ? -125 : +125, navRadio.distance ? 83 : 115, navRadio.course.degree.toFixed(0).padStart(3, "0") + "°", "CRS", align);
         }
         else if (navRadio.bearing) {
-            this.text(t, index === 0 ? -125 : +125, navRadio.distance ? 83 : 115, navRadio.bearing.degree.toFixed(0).padStart(3, '0') + '°', 'BRG', align);
+            this.text(t, index === 0 ? -125 : +125, navRadio.distance ? 83 : 115, navRadio.bearing.degree.toFixed(0).padStart(3, "0") + "°", "BRG", align);
         }
         this.ctx.restore();
         if (navRadio.course) {
@@ -110,10 +110,12 @@ export default class CanvasMapHsi {
                     [currentDeviation + 3, -circleDeviationPx + 2],
                     [currentDeviation + 3, 2 - 50],
                     [currentDeviation + 0, -50 - 3],
-                    [currentDeviation - 3, 2 - 50]
+                    [currentDeviation - 3, 2 - 50],
                 ], 1, isTo ? 1 : -1)).fill();
                 if (navRadio.distance) {
-                    const distance = Math.min(10, navRadio.distance) / 10 * (circleDeviationPx - 3) * (isTo ? 1 : -1);
+                    const distance = (Math.min(10, navRadio.distance) / 10) *
+                        (circleDeviationPx - 3) *
+                        (isTo ? 1 : -1);
                     t.line(currentDeviation - 9, -distance, currentDeviation - 5, -distance).stroke();
                     t.line(currentDeviation + 9, -distance, currentDeviation + 5, -distance).stroke();
                 }
@@ -133,16 +135,16 @@ export default class CanvasMapHsi {
                 [-3, circleDeviationPx],
                 [3, circleDeviationPx],
                 [3, maxArrow - 2],
-                [-3, maxArrow - 2]
+                [-3, maxArrow - 2],
             ]).fill();
-            t.style('white', 'white', 2);
+            t.style("white", "white", 2);
             //t.textStyle(10);
             //t.text(deviationMaxRangePx, 18, String(maxDeviationDegrees) + '°');
             if (maxDeviationDegrees === 2.5) {
-                t.circle(1 / 2.5 * deviationMaxRangePx, 0, 5).stroke();
-                t.circle(2 / 2.5 * deviationMaxRangePx, 0, 5).stroke();
-                t.circle(-2 / 2.5 * deviationMaxRangePx, 0, 5).stroke();
-                t.circle(-1 / 2.5 * deviationMaxRangePx, 0, 5).stroke();
+                t.circle((1 / 2.5) * deviationMaxRangePx, 0, 5).stroke();
+                t.circle((2 / 2.5) * deviationMaxRangePx, 0, 5).stroke();
+                t.circle((-2 / 2.5) * deviationMaxRangePx, 0, 5).stroke();
+                t.circle((-1 / 2.5) * deviationMaxRangePx, 0, 5).stroke();
             }
             else {
                 t.circle(0.5 * deviationMaxRangePx, 0, 5).stroke();
@@ -150,9 +152,10 @@ export default class CanvasMapHsi {
                 t.circle(-deviationMaxRangePx, 0, 5).stroke();
                 t.circle(-0.5 * deviationMaxRangePx, 0, 5).stroke();
             }
-            t.rotate(0, 0, -1 * (navRadio.course.degree));
+            t.rotate(0, 0, -1 * navRadio.course.degree);
         }
-        if (navRadio.bearing && (navRadio.type === Navaid.NDB || CanvasMapHsi.VOR_SHOW_BRG)) {
+        if (navRadio.bearing &&
+            (navRadio.type === Navaid.NDB || CanvasMapHsi.VOR_SHOW_BRG)) {
             t.style(color, color, 2);
             if (deviation !== null) {
                 this.ctx.globalAlpha = Math.abs(deviation / 10);
@@ -164,14 +167,14 @@ export default class CanvasMapHsi {
                     [0, -maxArrow],
                     [5, 10 - maxArrow],
                     [5, maxArrow],
-                    [-5, maxArrow]
+                    [-5, maxArrow],
                 ]).stroke();
             }
             else {
                 maxArrow -= 40;
             }
             if (navRadio.distance && navRadio.type === Navaid.NDB) {
-                const distance = Math.min(10, navRadio.distance) / 10 * (maxArrow - 15);
+                const distance = (Math.min(10, navRadio.distance) / 10) * (maxArrow - 15);
                 t.line(-5, -distance, +5, -distance).stroke();
                 if (navRadio.course) {
                     t.line(0, -distance, 0, 0).stroke();
@@ -205,7 +208,7 @@ export default class CanvasMapHsi {
                 [0, y - 118],
                 [5, y - 125],
                 [10, y - 125],
-                [10, y - 119]
+                [10, y - 119],
             ]).fill();
             t.reset();
         }
@@ -213,7 +216,7 @@ export default class CanvasMapHsi {
     drawHeading() {
         const t = this.getCanvasTool();
         const ring = -104;
-        t.style('white', 'white', 2);
+        t.style("white", "white", 2);
         t.textStyle(15);
         for (let i = 0; i < 360; i += 5) {
             let length = 5;
@@ -225,19 +228,19 @@ export default class CanvasMapHsi {
                 let text;
                 switch (i) {
                     case 0:
-                        text = 'N';
+                        text = "N";
                         break;
                     case 90:
-                        text = 'E';
+                        text = "E";
                         break;
                     case 180:
-                        text = 'S';
+                        text = "S";
                         break;
                     case 270:
-                        text = 'W';
+                        text = "W";
                         break;
                     default:
-                        text = (i / 10).toFixed().padStart(2, '0');
+                        text = (i / 10).toFixed().padStart(2, "0");
                         break;
                 }
                 t.rotate(0, ring + 25, -i);
@@ -253,7 +256,7 @@ export default class CanvasMapHsi {
         const t = this.getCanvasTool();
         t.rotate(0, 0, this.plane.hsi.heading.degree);
         const y = 15;
-        t.style('white', 'white', 2);
+        t.style("white", "white", 2);
         t.line(0, -12, 0, +10).stroke();
         t.line(-10, 0, 10, 0).stroke();
         t.line(-6, +10, 6, +10).stroke();
@@ -275,11 +278,11 @@ export default class CanvasMapHsi {
     getCanvasTool() {
         return new CanvasTool(this.ctx, this.plane.coordinates.x * this.multiplier, this.plane.coordinates.y * this.multiplier, 1);
     }
-    text(t, x, y, main, label, align = 'left') {
+    text(t, x, y, main, label, align = "left") {
         const width = 80;
         const oldFillStyle = this.ctx.fillStyle;
-        t.style('black').globalAlpha = CanvasMapHsi.ALPHA;
-        this.ctx.fillRect(x - 2 - (align === 'left' ? 0 : width - 4), y - 16, width, 19 + (label ? 9 : 0));
+        t.style("black").globalAlpha = CanvasMapHsi.ALPHA;
+        this.ctx.fillRect(x - 2 - (align === "left" ? 0 : width - 4), y - 16, width, 19 + (label ? 9 : 0));
         this.ctx.fillStyle = oldFillStyle;
         this.ctx.globalAlpha = 1;
         if (label) {

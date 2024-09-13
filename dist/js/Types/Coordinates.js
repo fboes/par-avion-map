@@ -10,10 +10,10 @@ export default class Coordinates {
     }
     getNewCoordinates(degree, distance, elevation = null) {
         let rad = degree.rad;
-        return new Coordinates((Math.sin(rad) * distance) + this.x, (-Math.cos(rad) * distance) + this.y, elevation);
+        return new Coordinates(Math.sin(rad) * distance + this.x, -Math.cos(rad) * distance + this.y, elevation);
     }
     getBearing(coord2) {
-        let degree = Coordinates.rad2deg(Math.atan2((coord2.y - this.y), (coord2.x - this.x)));
+        let degree = Coordinates.rad2deg(Math.atan2(coord2.y - this.y, coord2.x - this.x));
         return (degree + 360 + 90) % 360;
     }
     static rad2deg(rad) {

@@ -9,7 +9,7 @@ export default class TerrainCoordinates {
         return new Coordinates(this.a / resolution, this.b / resolution, elevation);
     }
     getBearing(coord2) {
-        let degree = Coordinates.rad2deg(Math.atan2((coord2.b - this.b), (coord2.a - this.a)));
+        let degree = Coordinates.rad2deg(Math.atan2(coord2.b - this.b, coord2.a - this.a));
         return new Degree(degree + 90);
     }
     getDistance(coord2) {

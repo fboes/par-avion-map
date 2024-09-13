@@ -14,10 +14,16 @@ export default class Hsi {
         this.headingSelect = new Degree(heading);
     }
     activateNextElement(step = +1) {
-        this._activeElement = (this._activeElement + step + this.elements.length) % this.elements.length;
-        if ((this._activeElement === Hsi.INTERACTIVE_NAV1_COURSE && this.navRadios[0].course === undefined)
-            || (this._activeElement === Hsi.INTERACTIVE_NAV2_COURSE && this.navRadios[1].course === undefined)) {
-            this._activeElement = (this._activeElement + step + this.elements.length) % this.elements.length;
+        this._activeElement =
+            (this._activeElement + step + this.elements.length) %
+                this.elements.length;
+        if ((this._activeElement === Hsi.INTERACTIVE_NAV1_COURSE &&
+            this.navRadios[0].course === undefined) ||
+            (this._activeElement === Hsi.INTERACTIVE_NAV2_COURSE &&
+                this.navRadios[1].course === undefined)) {
+            this._activeElement =
+                (this._activeElement + step + this.elements.length) %
+                    this.elements.length;
         }
         return this.activeElement;
     }

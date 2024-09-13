@@ -7,7 +7,10 @@ export default class LogCoordinates {
   public heading: Degree;
   public altAglFt: number;
 
-  constructor(plane: Plane, public timestamp: number) {
+  constructor(
+    plane: Plane,
+    public timestamp: number,
+  ) {
     this.coordinates = plane.coordinates;
     this.heading = plane.heading;
     this.altAglFt = plane.altAglFt;

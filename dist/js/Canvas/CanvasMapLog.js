@@ -19,9 +19,9 @@ export default class CanvasMapLog {
         const altitudeMulti = 0.005;
         this.ctx.setTransform(1, 0, 0, 1, 0, 0);
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.strokeStyle = 'black';
-        this.ctx.fillStyle = 'white';
-        this.ctx.lineCap = 'round';
+        this.ctx.strokeStyle = "black";
+        this.ctx.fillStyle = "white";
+        this.ctx.lineCap = "round";
         this.ctx.globalAlpha = 1;
         if (this.showLog) {
             this.plane.flightLog.coordinates.forEach((c) => {
@@ -59,12 +59,12 @@ export default class CanvasMapLog {
         const alpha = this.showLog ? 1 : this.getAlpha();
         let t = this.getCanvasTool();
         t.rotate(0, 0, this.plane.hsi.heading.degree);
-        t.style('black', 'black');
+        t.style("black", "black");
         this.ctx.globalAlpha = alpha;
         t.polygon(PlaneCoords).fill();
         t = this.getCanvasTool(this.plane.altAglFt ? -this.plane.altAglFt * altitudeMulti : -2);
         t.rotate(0, 0, this.plane.hsi.heading.degree);
-        t.style(this.plane.isBroken ? 'red' : 'white', 'black', 0.25);
+        t.style(this.plane.isBroken ? "red" : "white", "black", 0.25);
         this.ctx.globalAlpha = alpha;
         t.polygon(PlaneCoords).fill();
         this.ctx.stroke();
@@ -76,7 +76,7 @@ export default class CanvasMapLog {
         this.map.airports.forEach((airport) => {
             distance = Math.min(distance, airport.coordinates.getDistance(this.plane.coordinates));
         });
-        return Math.min(1, Math.max(0, 1 - (distance / maxVisDistNm)));
+        return Math.min(1, Math.max(0, 1 - distance / maxVisDistNm));
     }
     getCanvasTool(offset = 0) {
         return new CanvasTool(this.ctx, this.plane.coordinates.x * this.multiplier, this.plane.coordinates.y * this.multiplier + offset, 1);

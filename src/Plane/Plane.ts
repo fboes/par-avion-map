@@ -8,9 +8,9 @@ import App from "../App.js";
 import LogCoordinates from "../Types/LogCoordinates.js";
 
 type Vector = {
-  groundSpeed: number,
-  altitudeChange: number,
-  heading: Degree,
+  groundSpeed: number;
+  altitudeChange: number;
+  heading: Degree;
 };
 
 export default class Plane {
@@ -22,7 +22,7 @@ export default class Plane {
   protected _throttle: number = 0;
   protected _speedKts: number = 0;
   protected _altAglFt: number = 0;
-  protected _fuel: number = 100
+  protected _fuel: number = 100;
   hsi: Hsi;
   navRadios: NavRadio[];
   flightLog: FlightLog;
@@ -67,25 +67,30 @@ export default class Plane {
 
   constructor(coordinates: Coordinates) {
     this._coordinates = coordinates;
-    this.navRadios = [
-      new NavRadio([]),
-      new NavRadio([]),
-    ]
+    this.navRadios = [new NavRadio([]), new NavRadio([])];
     this.hsi = new Hsi(0, this.navRadios);
     this.flightLog = new FlightLog(this.getLogCoordinates(0));
   }
 
-  move(delta: number, currentWeather: CurrentWeather, elevationHeight: number): boolean {
+  move(
+    delta: number,
+    currentWeather: CurrentWeather,
+    elevationHeight: number,
+  ): boolean {
     if (this.isBroken) {
       return false;
     }
 
-    this._speedKts = (this.fuel <= 0)
-      ? 0
-      : this._throttle / 100 * this.specifications.v.normalOperation;
+    this._speedKts =
+      this.fuel <= 0
+        ? 0
+        : (this._throttle / 100) * this.specifications.v.normalOperation;
 
-    this.isActive = this.isActive || (this._throttle > 0);
-    if (!this.coordinates.elevation || elevationHeight > this.coordinates.elevation) {
+    this.isActive = this.isActive || this._throttle > 0;
+    if (
+      !this.coordinates.elevation ||
+      elevationHeight > this.coordinates.elevation
+    ) {
       if (this._speedKts < 50) {
         this.coordinates.elevation = elevationHeight;
       } else {
@@ -99,42 +104,50 @@ export default class Plane {
       : elevationHeight;
     let radElevator = this.elevator * (Math.PI / 180);
 
-
     // TODO: This is oversimplified
-    this.changeHeading(this.ailerons * delta / 3000 * App.TIME_COMPRESSION);
+    this.changeHeading(((this.ailerons * delta) / 3000) * App.TIME_COMPRESSION);
     let vector: Vector = {
       groundSpeed: Math.cos(radElevator) * this._speedKts,
-      altitudeChange: Math.sin(radElevator) * this._speedKts * 1.68781 / 1000, // NM/h to ft/ms
+      altitudeChange: (Math.sin(radElevator) * this._speedKts * 1.68781) / 1000, // NM/h to ft/ms
       heading: this.heading,
-    }
+    };
 
     if (currentWeather.windSpeedKts > 0) {
       const radCourse = this.heading.rad;
       const deltaRad = currentWeather.windDirection.rad - radCourse;
-      const correctionRad = (deltaRad === 0 || deltaRad === Math.PI || vector.groundSpeed >= 0)
-        ? 0
-        : Math.asin(currentWeather.windSpeedKts * Math.sin(deltaRad) / vector.groundSpeed)
-        ;
+      const correctionRad =
+        deltaRad === 0 || deltaRad === Math.PI || vector.groundSpeed >= 0
+          ? 0
+          : Math.asin(
+              (currentWeather.windSpeedKts * Math.sin(deltaRad)) /
+                vector.groundSpeed,
+            );
       if (deltaRad === 0) {
         vector.groundSpeed += currentWeather.windSpeedKts;
       } else if (deltaRad === Math.PI) {
         vector.groundSpeed -= currentWeather.windSpeedKts;
       } else {
-        vector.groundSpeed = Math.round(Math.sin(deltaRad + correctionRad) * vector.groundSpeed / Math.sin(deltaRad));
+        vector.groundSpeed = Math.round(
+          (Math.sin(deltaRad + correctionRad) * vector.groundSpeed) /
+            Math.sin(deltaRad),
+        );
       }
 
       const correctionDeg = correctionRad / (Math.PI / 180);
 
       // TODO: Remove rudder from this equation
-      vector.heading = new Degree(this.heading.degree + correctionDeg + this.rudder);
+      vector.heading = new Degree(
+        this.heading.degree + correctionDeg + this.rudder,
+      );
     }
 
     this.coordinates = this._coordinates.getNewCoordinates(
       vector.heading,
-      vector.groundSpeed * delta / 3600000 * App.TIME_COMPRESSION,
-      this.coordinates.elevation + (vector.altitudeChange * 0.0666 * delta * App.TIME_COMPRESSION)
+      ((vector.groundSpeed * delta) / 3600000) * App.TIME_COMPRESSION,
+      this.coordinates.elevation +
+        vector.altitudeChange * 0.0666 * delta * App.TIME_COMPRESSION,
     );
-    this._fuel -= this._throttle * delta / 3600000 * App.TIME_COMPRESSION;
+    this._fuel -= ((this._throttle * delta) / 3600000) * App.TIME_COMPRESSION;
 
     return true;
   }
@@ -211,7 +224,7 @@ export default class Plane {
         maxFlapsExtended: 120, // vfe, white ends here
         maxLandingGearExtended: 120,
         normalOperation: 180, // vn0, yelow starts here
-        neverExceed: 220 // vne, red starts here
+        neverExceed: 220, // vne, red starts here
       },
       rate: {
         ailerons: 1, // aileron
@@ -225,8 +238,8 @@ export default class Plane {
         dragGear: 0,
         dragMaxFlaps: 0,
         lift: 0,
-        liftFlaps: 0
-      }
-    }
+        liftFlaps: 0,
+      },
+    };
   }
 }

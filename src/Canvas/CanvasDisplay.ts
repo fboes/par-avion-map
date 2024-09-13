@@ -9,7 +9,10 @@ export default class CanvasDisplay {
     if (!ctx) {
       throw new Error("No CanvasRenderingContext2D found");
     }
-    this.canvas.width = Math.max(128, this.canvas.clientWidth * window.devicePixelRatio);
+    this.canvas.width = Math.max(
+      128,
+      this.canvas.clientWidth * window.devicePixelRatio,
+    );
     this.canvas.height = this.canvas.width;
     this.multiplier = this.canvas.width / 256;
     this.ctx = ctx;
@@ -17,10 +20,10 @@ export default class CanvasDisplay {
 
   draw() {
     const t = new CanvasTool(this.ctx, 128, 128, this.multiplier);
-    this.ctx.clearRect(-128, -128, 256, 256)
-    t.style('black').globalAlpha = 0.8;
+    this.ctx.clearRect(-128, -128, 256, 256);
+    t.style("black").globalAlpha = 0.8;
     this.ctx.fillRect(-128, -128, 256, 256);
 
-    t.style('white', 'white', 2);
+    t.style("white", "white", 2);
   }
 }

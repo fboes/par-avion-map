@@ -1,21 +1,21 @@
 /* eslint-env worker, es6 */
 // @see https://pwabuilder.com
-'use strict';
+"use strict";
 
-const CACHE = 'par-avion-carte';
+const CACHE = "par-avion-carte";
 
-const offlineFallbackPage = './';
+const offlineFallbackPage = "./";
 
-self.addEventListener('install', function (event) {
+self.addEventListener("install", function (event) {
   event.waitUntil(
     caches.open(CACHE).then(function (cache) {
       return cache.add(offlineFallbackPage);
-    })
+    }),
   );
 });
 
-self.addEventListener('fetch', function (event) {
-  if (event.request.method !== 'GET') {
+self.addEventListener("fetch", function (event) {
+  if (event.request.method !== "GET") {
     return;
   }
 
@@ -27,7 +27,7 @@ self.addEventListener('fetch', function (event) {
       })
       .catch(function () {
         return fromCache(event.request);
-      })
+      }),
   );
 });
 
@@ -35,7 +35,7 @@ function fromCache(request) {
   return caches.open(CACHE).then(function (cache) {
     return cache.match(request).then(function (matching) {
       if (!matching || matching.status >= 400) {
-        return Promise.reject('no-match');
+        return Promise.reject("no-match");
       }
 
       return matching;

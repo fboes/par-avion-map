@@ -22,9 +22,12 @@ export default class TerrainMap {
         }
         const averageHeight = (this.elevationMin + this.elevationMax) / 2;
         this.elevations[0][0] = this.randElevation(averageHeight);
-        this.elevations[0][this.mapDimension - 1] = this.randElevation(averageHeight);
-        this.elevations[this.mapDimension - 1][0] = this.randElevation(averageHeight);
-        this.elevations[this.mapDimension - 1][this.mapDimension - 1] = this.randElevation(averageHeight);
+        this.elevations[0][this.mapDimension - 1] =
+            this.randElevation(averageHeight);
+        this.elevations[this.mapDimension - 1][0] =
+            this.randElevation(averageHeight);
+        this.elevations[this.mapDimension - 1][this.mapDimension - 1] =
+            this.randElevation(averageHeight);
         this.nextStep(this.mapDimension);
         this.map.navAids.forEach((navAid) => {
             const elevation = this.flattenTerrain(navAid.coordinates);
@@ -139,20 +142,25 @@ export default class TerrainMap {
         const flattenRadius = extraRadius > 5 ? 1 : 0.5;
         this.elevations.forEach((line, a) => {
             line.forEach((value, b) => {
-                const distance = Math.sqrt((a / this.resolution - coordinates.x) ** 2
-                    + (b / this.resolution - coordinates.y) ** 2);
+                const distance = Math.sqrt((a / this.resolution - coordinates.x) ** 2 +
+                    (b / this.resolution - coordinates.y) ** 2);
                 let delta = this.randomizer.getInt(280, 310) * distance;
                 if (distance > extraRadius) {
                     delta *= 2;
                 }
                 if (direction !== null) {
-                    const deltaRad = new Degree(new TerrainCoordinates(a, b).getCoordinates(this.resolution, null).getBearing(coordinates)).add(-direction).rad;
-                    delta *= (1 + Math.abs(Math.sin(deltaRad)));
+                    const deltaRad = new Degree(new TerrainCoordinates(a, b)
+                        .getCoordinates(this.resolution, null)
+                        .getBearing(coordinates)).add(-direction).rad;
+                    delta *= 1 + Math.abs(Math.sin(deltaRad));
                 }
                 if (distance < flattenRadius) {
                     this.elevations[a][b] = elevation;
                 }
-                else if (delta > 0 && delta < 10000 && distance < extraRadius && value > elevation + delta) {
+                else if (delta > 0 &&
+                    delta < 10000 &&
+                    distance < extraRadius &&
+                    value > elevation + delta) {
                     this.elevations[a][b] = elevation + delta;
                 }
             });
@@ -181,10 +189,14 @@ export default class TerrainMap {
         const co = coordinates.getTerrainCoordinates(this.resolution);
         const multiA = co.a % 1;
         const multiB = co.b % 1;
-        const leftElevation = this.getElevation(new TerrainCoordinates(Math.floor(co.a), Math.floor(co.b))) * (1 - multiB)
-            + this.getElevation(new TerrainCoordinates(Math.floor(co.a), Math.ceil(co.b))) * (multiB);
-        const rightElevation = this.getElevation(new TerrainCoordinates(Math.ceil(co.a), Math.floor(co.b))) * (1 - multiB)
-            + this.getElevation(new TerrainCoordinates(Math.ceil(co.a), Math.ceil(co.b))) * (multiB);
+        const leftElevation = this.getElevation(new TerrainCoordinates(Math.floor(co.a), Math.floor(co.b))) *
+            (1 - multiB) +
+            this.getElevation(new TerrainCoordinates(Math.floor(co.a), Math.ceil(co.b))) *
+                multiB;
+        const rightElevation = this.getElevation(new TerrainCoordinates(Math.ceil(co.a), Math.floor(co.b))) *
+            (1 - multiB) +
+            this.getElevation(new TerrainCoordinates(Math.ceil(co.a), Math.ceil(co.b))) *
+                multiB;
         return leftElevation * (1 - multiA) + rightElevation * multiA;
     }
     getElevation(coordinates) {
@@ -203,7 +215,10 @@ export default class TerrainMap {
         const elevation = this.getElevation(new TerrainCoordinates(x, y));
         if (x - 1 >= 0 && y + 1 < this.mapDimension) {
             const referenceHeight = this.getElevation(new TerrainCoordinates(x - 1, y + 1));
-            [[-1, 0], [0, 1],].forEach((otherPoint, id) => {
+            [
+                [-1, 0],
+                [0, 1],
+            ].forEach((otherPoint, id) => {
                 const otherReferenceHeight = this.getElevation(new TerrainCoordinates(x + otherPoint[0], y + otherPoint[1]));
                 let inclinitation = otherReferenceHeight - (elevation + referenceHeight) / 2;
                 if (id === 1) {
@@ -224,7 +239,8 @@ export default class TerrainMap {
         if (span === null) {
             span = this.mapDimension;
         }
-        const range = ((this.elevationMin + this.elevationMax) / 2) * Math.min(1, (span / this.mapDimension) * TerrainMap.JAGGEDNESS);
+        const range = ((this.elevationMin + this.elevationMax) / 2) *
+            Math.min(1, (span / this.mapDimension) * TerrainMap.JAGGEDNESS);
         return Math.round(average + this.randomizer.getInt(-range, range));
     }
 }

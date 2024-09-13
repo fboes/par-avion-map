@@ -1,47 +1,45 @@
 type XboxGamepadButton = {
-  triggered: boolean,
-  released: boolean,
-  pressed: boolean,
-  value: number
+  triggered: boolean;
+  released: boolean;
+  pressed: boolean;
+  value: number;
 };
 
 type XboxGamepad = {
-  axes: AxisIndex,
-  buttons: XboxGamepadButton[]
-}
+  axes: AxisIndex;
+  buttons: XboxGamepadButton[];
+};
 
 type ButtonIndex = {
-  a: number,
-  b: number,
-  x: number,
-  y: number,
-  lBumper: number,
-  rBumper: number,
-  lTrigger: number,
-  rTrigger: number,
-  window: number,
-  menu: number,
-  thumbL: number,
-  thumbR: number,
-  dpadUp: number,
-  dpadDown: number,
-  dpadLeft: number,
-  dpadRight: number,
+  a: number;
+  b: number;
+  x: number;
+  y: number;
+  lBumper: number;
+  rBumper: number;
+  lTrigger: number;
+  rTrigger: number;
+  window: number;
+  menu: number;
+  thumbL: number;
+  thumbR: number;
+  dpadUp: number;
+  dpadDown: number;
+  dpadLeft: number;
+  dpadRight: number;
 };
 
 type AxisIndex = {
-  lThumbX: number,
-  lThumbY: number,
-  rThumbX: number,
-  rThumbY: number,
-  lTrigger: number,
-  rTrigger: number,
+  lThumbX: number;
+  lThumbY: number;
+  rThumbX: number;
+  rThumbY: number;
+  lTrigger: number;
+  rTrigger: number;
   // dPadX: number,
   // dPadY: number,
-  throttle: number,
-}
-
-
+  throttle: number;
+};
 
 export default class GamePad {
   protected gamepadIndex: number | null = null;
@@ -73,28 +71,28 @@ export default class GamePad {
   protected triggeredKeys: Map<string, boolean>;
 
   static KEYS_CHECKED = [
-    'KeyA',
-    'KeyD',
-    'KeyW',
-    'KeyS',
-    'KeyQ',
-    'KeyE',
-    'KeyZ',
-    'KeyC',
-    'Comma',
-    'Period',
-    'ArrowLeft',
-    'ArrowRight',
-    'ArrowUp',
-    'ArrowDown',
-    'Delete',
-    'PageDown',
-    'Home',
-    'End',
-    'Escape',
-    'Space',
-    'ShiftLeft',
-    'ControlLeft',
+    "KeyA",
+    "KeyD",
+    "KeyW",
+    "KeyS",
+    "KeyQ",
+    "KeyE",
+    "KeyZ",
+    "KeyC",
+    "Comma",
+    "Period",
+    "ArrowLeft",
+    "ArrowRight",
+    "ArrowUp",
+    "ArrowDown",
+    "Delete",
+    "PageDown",
+    "Home",
+    "End",
+    "Escape",
+    "Space",
+    "ShiftLeft",
+    "ControlLeft",
     /*'AltLeft',
     'Slash',
     'Minus',
@@ -129,14 +127,22 @@ export default class GamePad {
     // dPadX: 99,
     // dPadY: 99,
     throttle: 99,
-  }
+  };
 
   constructor() {
     this.triggeredKeys = new Map();
-    document.addEventListener('keydown', (event) => { this.onKeydown(event); });
-    document.addEventListener('keyup', (event) => { this.onKeydown(event, false); });
-    window.addEventListener('gamepadconnected', () => { this.onGamepadConnected() });
-    window.addEventListener('gamepaddisconnected', () => { this.onGamepadConnected() });
+    document.addEventListener("keydown", (event) => {
+      this.onKeydown(event);
+    });
+    document.addEventListener("keyup", (event) => {
+      this.onKeydown(event, false);
+    });
+    window.addEventListener("gamepadconnected", () => {
+      this.onGamepadConnected();
+    });
+    window.addEventListener("gamepaddisconnected", () => {
+      this.onGamepadConnected();
+    });
   }
 
   onGamepadConnected() {
@@ -145,12 +151,16 @@ export default class GamePad {
 
   onKeydown(event: KeyboardEvent, isDown = true) {
     const tgt = event.target as HTMLInputElement;
-    if (GamePad.KEYS_CHECKED.indexOf(event.code) === -1 || !tgt || tgt.nodeName === 'INPUT') {
+    if (
+      GamePad.KEYS_CHECKED.indexOf(event.code) === -1 ||
+      !tgt ||
+      tgt.nodeName === "INPUT"
+    ) {
       //console.log(event.code)
       return;
     }
 
-    if (event.code !== 'ShiftLeft' && event.code !== 'ControlLeft') {
+    if (event.code !== "ShiftLeft" && event.code !== "ControlLeft") {
       event.preventDefault();
     }
     this.triggeredKeys.set(event.code, isDown);
@@ -168,29 +178,39 @@ export default class GamePad {
 
     let buttons = gamepad.buttons.map((button, index): XboxGamepadButton => {
       return this.getXboxGamepadButton(
-        button.pressed || (keyboardState.buttons[index] && keyboardState.buttons[index].pressed),
+        button.pressed ||
+          (keyboardState.buttons[index] &&
+            keyboardState.buttons[index].pressed),
         index,
-        button.value
+        button.value,
       );
     });
     if (!this.isStandardMapping) {
       {
         let index = GamePad.BUTTON_INDEX.lTrigger;
-        let axis = this.convertAxisToButtonValue(gamepad.axes[GamePad.AXIS_INDEX.lTrigger]);
+        let axis = this.convertAxisToButtonValue(
+          gamepad.axes[GamePad.AXIS_INDEX.lTrigger],
+        );
         buttons[index] = this.getXboxGamepadButton(
-          (axis > 0) || (keyboardState.buttons[index] && keyboardState.buttons[index].pressed),
+          axis > 0 ||
+            (keyboardState.buttons[index] &&
+              keyboardState.buttons[index].pressed),
           index,
-          axis
-        )
+          axis,
+        );
       }
       {
         let index = GamePad.BUTTON_INDEX.rTrigger;
-        let axis = this.convertAxisToButtonValue(gamepad.axes[GamePad.AXIS_INDEX.rTrigger]);
+        let axis = this.convertAxisToButtonValue(
+          gamepad.axes[GamePad.AXIS_INDEX.rTrigger],
+        );
         buttons[index] = this.getXboxGamepadButton(
-          (axis > 0) || (keyboardState.buttons[index] && keyboardState.buttons[index].pressed),
+          axis > 0 ||
+            (keyboardState.buttons[index] &&
+              keyboardState.buttons[index].pressed),
           index,
-          axis
-        )
+          axis,
+        );
       }
     }
     this.buttons = buttons;
@@ -198,19 +218,32 @@ export default class GamePad {
     return {
       buttons,
       axes: {
-        lThumbX: this.axisDeadzone(gamepad.axes[GamePad.AXIS_INDEX.lThumbX]) || keyboardState.axes.lThumbX,
-        lThumbY: this.axisDeadzone(gamepad.axes[GamePad.AXIS_INDEX.lThumbY]) || keyboardState.axes.lThumbY,
-        rThumbX: this.axisDeadzone(gamepad.axes[GamePad.AXIS_INDEX.rThumbX]) || keyboardState.axes.rThumbX,
-        rThumbY: this.axisDeadzone(gamepad.axes[GamePad.AXIS_INDEX.rThumbY]) || keyboardState.axes.rThumbY,
-        lTrigger: this.axisDeadzone(gamepad.axes[GamePad.AXIS_INDEX.lTrigger]) || keyboardState.axes.lTrigger,
-        rTrigger: this.axisDeadzone(gamepad.axes[GamePad.AXIS_INDEX.rTrigger]) || keyboardState.axes.rTrigger,
+        lThumbX:
+          this.axisDeadzone(gamepad.axes[GamePad.AXIS_INDEX.lThumbX]) ||
+          keyboardState.axes.lThumbX,
+        lThumbY:
+          this.axisDeadzone(gamepad.axes[GamePad.AXIS_INDEX.lThumbY]) ||
+          keyboardState.axes.lThumbY,
+        rThumbX:
+          this.axisDeadzone(gamepad.axes[GamePad.AXIS_INDEX.rThumbX]) ||
+          keyboardState.axes.rThumbX,
+        rThumbY:
+          this.axisDeadzone(gamepad.axes[GamePad.AXIS_INDEX.rThumbY]) ||
+          keyboardState.axes.rThumbY,
+        lTrigger:
+          this.axisDeadzone(gamepad.axes[GamePad.AXIS_INDEX.lTrigger]) ||
+          keyboardState.axes.lTrigger,
+        rTrigger:
+          this.axisDeadzone(gamepad.axes[GamePad.AXIS_INDEX.rTrigger]) ||
+          keyboardState.axes.rTrigger,
         // dPadX: this.axisDeadzone(gamepad.axes[GamePad.AXIS_INDEX.dPadX]) || keyboardState.axes.dPadX,
         // dPadY: this.axisDeadzone(gamepad.axes[GamePad.AXIS_INDEX.dPadY]) || keyboardState.axes.dPadY,
-        throttle: this.throttleDeadzone(gamepad.axes[GamePad.AXIS_INDEX.throttle])
-      }
-    }
+        throttle: this.throttleDeadzone(
+          gamepad.axes[GamePad.AXIS_INDEX.throttle],
+        ),
+      },
+    };
   }
-
 
   protected getGamepad(): Gamepad | null {
     if (this.gamepadIndex === null) {
@@ -223,64 +256,93 @@ export default class GamePad {
   protected getKeyboardState(): XboxGamepad {
     let buttons: XboxGamepadButton[] = [];
     for (let i = 0; i < 17; i++) {
-      let currentKeyCode = '';
+      let currentKeyCode = "";
       switch (i) {
-        case GamePad.BUTTON_INDEX.a: currentKeyCode = 'Space'; break;
+        case GamePad.BUTTON_INDEX.a:
+          currentKeyCode = "Space";
+          break;
         //case GamePad.BUTTON_INDEX.b: currentKeyCode = ''; break;
         //case GamePad.BUTTON_INDEX.x: currentKeyCode = ''; break;
         //case GamePad.BUTTON_INDEX.y: currentKeyCode = ''; break;
-        case GamePad.BUTTON_INDEX.lBumper: currentKeyCode = 'KeyZ'; break;
-        case GamePad.BUTTON_INDEX.rBumper: currentKeyCode = 'KeyC'; break;
-        case GamePad.BUTTON_INDEX.lTrigger: currentKeyCode = 'KeyQ'; break;
-        case GamePad.BUTTON_INDEX.rTrigger: currentKeyCode = 'KeyE'; break;
+        case GamePad.BUTTON_INDEX.lBumper:
+          currentKeyCode = "KeyZ";
+          break;
+        case GamePad.BUTTON_INDEX.rBumper:
+          currentKeyCode = "KeyC";
+          break;
+        case GamePad.BUTTON_INDEX.lTrigger:
+          currentKeyCode = "KeyQ";
+          break;
+        case GamePad.BUTTON_INDEX.rTrigger:
+          currentKeyCode = "KeyE";
+          break;
         //case GamePad.BUTTON_INDEX.window: currentKeyCode = ''; break;
-        case GamePad.BUTTON_INDEX.menu: currentKeyCode = 'Escape'; break;
+        case GamePad.BUTTON_INDEX.menu:
+          currentKeyCode = "Escape";
+          break;
         //case GamePad.BUTTON_INDEX.thumbL: currentKeyCode = ''; break;
         //case GamePad.BUTTON_INDEX.thumbR: currentKeyCode = ''; break;
-        case GamePad.BUTTON_INDEX.dpadUp: currentKeyCode = 'Home'; break;
-        case GamePad.BUTTON_INDEX.dpadDown: currentKeyCode = 'End'; break;
-        case GamePad.BUTTON_INDEX.dpadLeft: currentKeyCode = 'Delete'; break;
-        case GamePad.BUTTON_INDEX.dpadRight: currentKeyCode = 'PageDown'; break;
+        case GamePad.BUTTON_INDEX.dpadUp:
+          currentKeyCode = "Home";
+          break;
+        case GamePad.BUTTON_INDEX.dpadDown:
+          currentKeyCode = "End";
+          break;
+        case GamePad.BUTTON_INDEX.dpadLeft:
+          currentKeyCode = "Delete";
+          break;
+        case GamePad.BUTTON_INDEX.dpadRight:
+          currentKeyCode = "PageDown";
+          break;
       }
-      buttons.push(this.getXboxGamepadButton(currentKeyCode !== '' && this.triggeredKeys.get(currentKeyCode) === true, i));
+      buttons.push(
+        this.getXboxGamepadButton(
+          currentKeyCode !== "" &&
+            this.triggeredKeys.get(currentKeyCode) === true,
+          i,
+        ),
+      );
     }
 
     const xboxGamepad: XboxGamepad = {
       buttons,
       axes: {
-        lThumbX: this.keysToAxis('KeyA', 'KeyD'),
-        lThumbY: this.keysToAxis('KeyW', 'KeyS'),
-        rThumbX: this.keysToAxis('ArrowLeft', 'ArrowRight'),
-        rThumbY: this.keysToAxis('ArrowUp', 'ArrowDown'),
+        lThumbX: this.keysToAxis("KeyA", "KeyD"),
+        lThumbY: this.keysToAxis("KeyW", "KeyS"),
+        rThumbX: this.keysToAxis("ArrowLeft", "ArrowRight"),
+        rThumbY: this.keysToAxis("ArrowUp", "ArrowDown"),
         lTrigger: 0,
         rTrigger: 0,
         // dPadX: 0,
         // dPadY: 0,
-        throttle: 0
-      }
+        throttle: 0,
+      },
     };
 
     return xboxGamepad;
   }
 
-
   // check for freshly triggered buttons => last state != current state
-  protected getXboxGamepadButton(buttonPressed: boolean, index: number, buttonValue: number | undefined = undefined): XboxGamepadButton {
+  protected getXboxGamepadButton(
+    buttonPressed: boolean,
+    index: number,
+    buttonValue: number | undefined = undefined,
+  ): XboxGamepadButton {
     if (buttonValue === undefined) {
       buttonValue = buttonPressed ? 1 : 0;
     }
     const triggered = this.buttons[index]
-      ? (buttonPressed && this.buttons[index].pressed !== buttonPressed)
+      ? buttonPressed && this.buttons[index].pressed !== buttonPressed
       : buttonPressed;
     const released = this.buttons[index]
-      ? (!buttonPressed && this.buttons[index].pressed !== buttonPressed)
+      ? !buttonPressed && this.buttons[index].pressed !== buttonPressed
       : false;
     return {
       triggered,
       released,
       pressed: buttonPressed,
-      value: this.axisDeadzone(buttonValue)
-    }
+      value: this.axisDeadzone(buttonValue),
+    };
   }
 
   protected convertAxisToButtonValue(axisValue: number) {
@@ -313,15 +375,15 @@ export default class GamePad {
   }
 
   protected keysToAxis(keyCodeMinus: string, keyCodePlus: string) {
-    let maxAxis = this.triggeredKeys.get('ShiftLeft') ? 1 : 0.5;
-    maxAxis = this.triggeredKeys.get('ControlLeft') ? 0.25 : maxAxis;
+    let maxAxis = this.triggeredKeys.get("ShiftLeft") ? 1 : 0.5;
+    maxAxis = this.triggeredKeys.get("ControlLeft") ? 0.25 : maxAxis;
     let result = this.triggeredKeys.get(keyCodePlus) ? maxAxis : 0;
     result -= this.triggeredKeys.get(keyCodeMinus) ? maxAxis : 0;
     return result;
   }
 
   protected isButtonPressed(button: GamepadButton) {
-    return (button.value > 0.5);
+    return button.value > 0.5;
   }
 
   protected getBestGamepadIndex(): number | null {
@@ -333,10 +395,13 @@ export default class GamePad {
       if (gamepad === null) {
         return;
       }
-      this.isStandardMapping = (gamepad.mapping === 'standard');
+      this.isStandardMapping = gamepad.mapping === "standard";
 
-      if (!this.isStandardMapping && gamepad.id.match(/((combat)?stick|T\.1600)/i)) {
-        console.warn('Joystick with throttle detected', gamepad.id);
+      if (
+        !this.isStandardMapping &&
+        gamepad.id.match(/((combat)?stick|T\.1600)/i)
+      ) {
+        console.warn("Joystick with throttle detected", gamepad.id);
         if (bestQuality < 2) {
           const thrustmaster = gamepad.id.match(/T\.1600/i);
           bestQuality = 2;
@@ -371,11 +436,13 @@ export default class GamePad {
             // dPadX: 99,
             // dPadY: 99,
             throttle: thrustmaster ? 6 : 2,
-          }
+          };
         }
-      }
-      else if (!this.isStandardMapping) {
-        console.warn('Input device with non-standard mapping detected', gamepad.id);
+      } else if (!this.isStandardMapping) {
+        console.warn(
+          "Input device with non-standard mapping detected",
+          gamepad.id,
+        );
         if (bestQuality < 1) {
           bestQuality = 1;
           bestGamepadIndex = gamepad.index;
@@ -409,8 +476,8 @@ export default class GamePad {
             rTrigger: 5,
             // dPadX: 6,
             // dPadY: 7,
-            throttle: 99
-          }
+            throttle: 99,
+          };
 
           //GamePad.BUTTON_INDEX.lTrigger = 14;
           //GamePad.BUTTON_INDEX.rTrigger = 15;
@@ -449,13 +516,13 @@ export default class GamePad {
             rTrigger: 99,
             // dPadX: 99,
             // dPadY: 99,
-            throttle: 99
-          }
+            throttle: 99,
+          };
         }
       }
     });
 
-    console.log('New best gamepad', bestGamepadIndex);
+    console.log("New best gamepad", bestGamepadIndex);
 
     return bestGamepadIndex;
   }

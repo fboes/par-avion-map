@@ -30,12 +30,19 @@ export default class CanvasMap {
   protected ctx: CanvasRenderingContext2D;
   public multiplier: number;
 
-  constructor(protected canvas: HTMLCanvasElement, protected map: LocationsMap, protected terrain: TerrainMap) {
+  constructor(
+    protected canvas: HTMLCanvasElement,
+    protected map: LocationsMap,
+    protected terrain: TerrainMap,
+  ) {
     const ctx = canvas.getContext("2d");
     if (!ctx) {
       throw new Error("No CanvasRenderingContext2D found");
     }
-    this.canvas.width = Math.max(512, this.canvas.clientWidth * window.devicePixelRatio);
+    this.canvas.width = Math.max(
+      512,
+      this.canvas.clientWidth * window.devicePixelRatio,
+    );
     this.canvas.height = this.canvas.width;
     this.multiplier = this.canvas.width / map.mapDimension;
     this.ctx = ctx;
@@ -67,7 +74,7 @@ export default class CanvasMap {
             (a - 0.5) / this.terrain.resolution,
             (b - 0.5) / this.terrain.resolution,
             1 / this.terrain.resolution + 0.01,
-            1 / this.terrain.resolution + 0.01
+            1 / this.terrain.resolution + 0.01,
           );
         }
       }
@@ -79,21 +86,27 @@ export default class CanvasMap {
         if (inclinationColors[0]) {
           this.ctx.fillStyle = inclinationColors[0];
           t.polygon(
-            CanvasTool.scale([
-              [i, j],
-              [i - 1, j + 1],
-              [i - 1, j],
-            ], this.terrain.resolution)
+            CanvasTool.scale(
+              [
+                [i, j],
+                [i - 1, j + 1],
+                [i - 1, j],
+              ],
+              this.terrain.resolution,
+            ),
           ).fill();
         }
         if (inclinationColors[1]) {
           this.ctx.fillStyle = inclinationColors[1];
           t.polygon(
-            CanvasTool.scale([
-              [i, j],
-              [i - 1, j + 1],
-              [i, j + 1],
-            ], this.terrain.resolution)
+            CanvasTool.scale(
+              [
+                [i, j],
+                [i - 1, j + 1],
+                [i, j + 1],
+              ],
+              this.terrain.resolution,
+            ),
           ).fill();
         }
       }
@@ -108,7 +121,11 @@ export default class CanvasMap {
 
     this.ctx.lineWidth = 0.01;
     t.setLineDash([0.2, 0.1]);
-    t.circle(this.map.center.x, this.map.center.y, this.map.center.x - LocationsMap.PADDING).stroke();
+    t.circle(
+      this.map.center.x,
+      this.map.center.y,
+      this.map.center.x - LocationsMap.PADDING,
+    ).stroke();
     t.setLineDash([]);
 
     const offset = (this.map.mapDimension % 10) / 2;
@@ -136,19 +153,15 @@ export default class CanvasMap {
     }
 
     t.style("black");
-    t.textOutline(
-      this.map.center.x,
-      1.1,
-      "MAP: " + this.map.randomizer.seed
-    );
+    t.textOutline(this.map.center.x, 1.1, "MAP: " + this.map.randomizer.seed);
 
     t.textOutline(
       this.map.center.x,
       this.map.mapDimension - 0.7,
       (this.map.mapDimension / 2).toFixed() +
-      " / " +
-      this.map.mapDimension.toFixed() +
-      " NM"
+        " / " +
+        this.map.mapDimension.toFixed() +
+        " NM",
     );
   }
   makeMaximumElevationFigures() {
@@ -165,10 +178,10 @@ export default class CanvasMap {
             this.terrain.getHighestElevationNm(
               new Coordinates(i - 10, j - 10),
               11,
-              11
+              11,
             ),
-            this.map.getHighestObstruction(i - 10, j - 10, 10, 10)
-          )
+            this.map.getHighestObstruction(i - 10, j - 10, 10, 10),
+          ),
         );
         t.textStyle(1.5, "right", "bold");
         t.textOutline(i - 4.9, j - 4.5, elevation.thousand.toFixed());
@@ -198,7 +211,7 @@ export default class CanvasMap {
     this.map.obstructions.forEach((obstruction) => {
       const t = this.getNewCanvasTool(
         obstruction.coordinates.x,
-        obstruction.coordinates.y
+        obstruction.coordinates.y,
       );
 
       t.style(this.colors.blue);
@@ -247,9 +260,14 @@ export default class CanvasMap {
 
   makeNavaids() {
     this.map.navAids.forEach((navaid, id) => {
-      const t = this.getNewCanvasTool(navaid.coordinates.x, navaid.coordinates.y);
+      const t = this.getNewCanvasTool(
+        navaid.coordinates.x,
+        navaid.coordinates.y,
+      );
 
-      t.style(navaid.type === Navaid.VOR ? this.colors.blue : this.colors.magenta);
+      t.style(
+        navaid.type === Navaid.VOR ? this.colors.blue : this.colors.magenta,
+      );
       t.textStyle();
       t.circle(0, 0, 0.15).fill();
 
@@ -259,7 +277,9 @@ export default class CanvasMap {
         this.makeNavaidVor(navaid.coordinates.x, navaid.coordinates.y);
       }
 
-      t.style(navaid.type === Navaid.VOR ? this.colors.blue : this.colors.magenta);
+      t.style(
+        navaid.type === Navaid.VOR ? this.colors.blue : this.colors.magenta,
+      );
       if (navaid.hasDme) {
         this.ctx.strokeRect(-0.8, -0.7, 1.6, 1.4);
       }
@@ -271,45 +291,59 @@ export default class CanvasMap {
           -HoldingPattern.WIDTH / 2,
           HoldingPattern.WIDTH,
           HoldingPattern.LENGTH,
-          HoldingPattern.WIDTH / 2
+          HoldingPattern.WIDTH / 2,
         ).stroke();
         this.makePointerArrow(t, 0, 0);
         this.makePointerArrow(
           t,
-          (navaid.holdingPattern.isRight
+          navaid.holdingPattern.isRight
             ? HoldingPattern.WIDTH
-            : -HoldingPattern.WIDTH),
-          - HoldingPattern.LENGTH + HoldingPattern.WIDTH,
-          -1
+            : -HoldingPattern.WIDTH,
+          -HoldingPattern.LENGTH + HoldingPattern.WIDTH,
+          -1,
         );
 
-        const rot = navaid.holdingPattern.direction.isBetween(0, 180) ? -90 : 90;
+        const rot = navaid.holdingPattern.direction.isBetween(0, 180)
+          ? -90
+          : 90;
         const y = (HoldingPattern.LENGTH - HoldingPattern.WIDTH) / 2;
         if (navaid.coordinates.elevation) {
-          const x = navaid.holdingPattern.isRight ? HoldingPattern.WIDTH / 2 : -HoldingPattern.WIDTH / 2;
+          const x = navaid.holdingPattern.isRight
+            ? HoldingPattern.WIDTH / 2
+            : -HoldingPattern.WIDTH / 2;
           t.rotate(x, y, rot);
-          t.textOutline(x, y + 0.2, navaid.coordinates.elevation.toFixed() + "ft");
+          t.textOutline(
+            x,
+            y + 0.2,
+            navaid.coordinates.elevation.toFixed() + "ft",
+          );
           t.rotate(x, y, -rot);
         }
         {
           const x = 0;
           t.rotate(x, y, rot);
-          t.textOutline(x, y + 0.2,
+          t.textOutline(
+            x,
+            y + 0.2,
             CanvasTool.numPad(
               Math.round(navaid.holdingPattern.direction.degree),
-              3
-            ) + "°"
+              3,
+            ) + "°",
           );
           t.rotate(x, y, -rot);
         }
         {
-          const x = navaid.holdingPattern.isRight ? HoldingPattern.WIDTH : -HoldingPattern.WIDTH;
+          const x = navaid.holdingPattern.isRight
+            ? HoldingPattern.WIDTH
+            : -HoldingPattern.WIDTH;
           t.rotate(x, y, rot);
-          t.textOutline(x, y + 0.2,
+          t.textOutline(
+            x,
+            y + 0.2,
             CanvasTool.numPad(
               Math.round(navaid.holdingPattern.direction.oppositeDegree),
-              3
-            ) + "°"
+              3,
+            ) + "°",
           );
           t.rotate(x, y, -rot);
         }
@@ -320,23 +354,36 @@ export default class CanvasMap {
       t.textMultiline(
         0,
         navaid.type === Navaid.NDB
-          ? navaid.isSwitchLabelPosition ? -3 : 2.7
-          : navaid.isSwitchLabelPosition ? -1.6 : 1.3,
+          ? navaid.isSwitchLabelPosition
+            ? -3
+            : 2.7
+          : navaid.isSwitchLabelPosition
+            ? -1.6
+            : 1.3,
         [
           navaid.name,
           CanvasTool.frequency(navaid.frequency) + " " + navaid.code,
-        ]
+        ],
       );
 
-      this.makePin(navaid.coordinates.x - 0.75, navaid.coordinates.y - 1.7, id + 1);
+      this.makePin(
+        navaid.coordinates.x - 0.75,
+        navaid.coordinates.y - 1.7,
+        id + 1,
+      );
     });
   }
 
   makeAirports() {
     this.map.airports.forEach((airport, id) => {
-      const t = this.getNewCanvasTool(airport.coordinates.x, airport.coordinates.y);
+      const t = this.getNewCanvasTool(
+        airport.coordinates.x,
+        airport.coordinates.y,
+      );
 
-      const baseColor = airport.hasTower ? this.colors.blue : this.colors.magenta;
+      const baseColor = airport.hasTower
+        ? this.colors.blue
+        : this.colors.magenta;
       t.style(baseColor);
       t.textStyle();
       t.circle(0, 0, 1).fill();
@@ -363,7 +410,7 @@ export default class CanvasMap {
             -Runway.TRAFFICPATTERN_LENGTH / 2,
             Runway.TRAFFICPATTERN_WIDTH,
             Runway.TRAFFICPATTERN_LENGTH,
-            Runway.TRAFFICPATTERN_WIDTH / 3
+            Runway.TRAFFICPATTERN_WIDTH / 3,
           );
 
           t.lineRaw(
@@ -374,13 +421,13 @@ export default class CanvasMap {
             runway.trafficPatterns[0].isRight
               ? -Runway.TRAFFICPATTERN_WIDTH
               : Runway.TRAFFICPATTERN_WIDTH,
-            Runway.TRAFFICPATTERN_WIDTH
+            Runway.TRAFFICPATTERN_WIDTH,
           ); // entry
           t.lineRaw(
             0,
             0.5 * Runway.TRAFFICPATTERN_LENGTH,
             0,
-            0.7 * Runway.TRAFFICPATTERN_LENGTH
+            0.7 * Runway.TRAFFICPATTERN_LENGTH,
           ); // outbound
           this.ctx.stroke();
           this.ctx.closePath();
@@ -388,24 +435,44 @@ export default class CanvasMap {
           t.setLineDash([]);
           this.makePointerArrow(
             t,
-            (runway.trafficPatterns[0].isRight
+            runway.trafficPatterns[0].isRight
               ? -Runway.TRAFFICPATTERN_WIDTH
-              : Runway.TRAFFICPATTERN_WIDTH),
-            Runway.TRAFFICPATTERN_WIDTH - 0.4
+              : Runway.TRAFFICPATTERN_WIDTH,
+            Runway.TRAFFICPATTERN_WIDTH - 0.4,
           ); // downwind leg
-          this.makePointerArrow(t, 0, - 0.75 * Runway.TRAFFICPATTERN_LENGTH, -1); // outbound
+          this.makePointerArrow(t, 0, -0.75 * Runway.TRAFFICPATTERN_LENGTH, -1); // outbound
 
           t.polygon([
-            [runway.trafficPatterns[0].isRight ? -Runway.TRAFFICPATTERN_WIDTH - 0.75 : Runway.TRAFFICPATTERN_WIDTH + 0.75, Runway.TRAFFICPATTERN_WIDTH * 2 - 0.25],
-            [runway.trafficPatterns[0].isRight ? -Runway.TRAFFICPATTERN_WIDTH - 0.75 : Runway.TRAFFICPATTERN_WIDTH + 0.75, Runway.TRAFFICPATTERN_WIDTH * 2 + 0.1],
-            [runway.trafficPatterns[0].isRight ? -Runway.TRAFFICPATTERN_WIDTH - 1.1 : Runway.TRAFFICPATTERN_WIDTH + 1.1, Runway.TRAFFICPATTERN_WIDTH * 2 - 0.25],
+            [
+              runway.trafficPatterns[0].isRight
+                ? -Runway.TRAFFICPATTERN_WIDTH - 0.75
+                : Runway.TRAFFICPATTERN_WIDTH + 0.75,
+              Runway.TRAFFICPATTERN_WIDTH * 2 - 0.25,
+            ],
+            [
+              runway.trafficPatterns[0].isRight
+                ? -Runway.TRAFFICPATTERN_WIDTH - 0.75
+                : Runway.TRAFFICPATTERN_WIDTH + 0.75,
+              Runway.TRAFFICPATTERN_WIDTH * 2 + 0.1,
+            ],
+            [
+              runway.trafficPatterns[0].isRight
+                ? -Runway.TRAFFICPATTERN_WIDTH - 1.1
+                : Runway.TRAFFICPATTERN_WIDTH + 1.1,
+              Runway.TRAFFICPATTERN_WIDTH * 2 - 0.25,
+            ],
           ]).fill(); // entry
 
           t.style(baseColor);
         }
 
         this.ctx.fillStyle = "white";
-        this.ctx.fillRect(runway.width / 500 / -2, runway.length / 6076 / -2, runway.width / 500, runway.length / 6076);
+        this.ctx.fillRect(
+          runway.width / 500 / -2,
+          runway.length / 6076 / -2,
+          runway.width / 500,
+          runway.length / 6076,
+        );
 
         if (runway.ils.first) {
           t.style(baseColor);
@@ -440,15 +507,25 @@ export default class CanvasMap {
         this.ctx.stroke();
       }
 
+      const rightPatternRunways = airport.rightPatternRunways;
+
       t.style(baseColor);
       t.textMultiline(0, airport.isSwitchLabelPosition ? -2 : 1.75, [
         airport.name + " (" + airport.code + ")",
         (airport.hasTower ? "CT " : "UNICOM ") +
-        CanvasTool.frequency(airport.frequency) +
-        (airport.runways[0].ils.first
-          ? " ILS " +
-          CanvasTool.frequency(airport.runways[0].ils.first.frequency)
-          : ""),
+          CanvasTool.frequency(airport.frequency) +
+          (airport.runways[0].ils.first
+            ? " ILS " +
+              CanvasTool.frequency(airport.runways[0].ils.first.frequency)
+            : ""),
+        rightPatternRunways.length > 0
+          ? "RP " +
+            rightPatternRunways
+              .map((rp) => {
+                return (rp.degree / 10).toFixed(0).padStart(2, "0");
+              })
+              .join(", ")
+          : "",
       ]);
 
       airport.approachPoints.forEach((approachPoint) => {
@@ -458,7 +535,7 @@ export default class CanvasMap {
       this.makePin(
         airport.coordinates.x - 1.1,
         airport.coordinates.y - 1.75,
-        id + 1
+        id + 1,
       );
     });
   }
@@ -536,7 +613,7 @@ export default class CanvasMap {
       t.line(0, radius, 0, radius - (i % 30 === 0 ? 0.4 : 0.2)).stroke();
       if (i % 90 === 0) {
         t.rotate(0, centerDegRot, -i);
-        t.text(0, centerDegRot + 0.2, (i / 10).toFixed().padStart(2, '0'));
+        t.text(0, centerDegRot + 0.2, (i / 10).toFixed().padStart(2, "0"));
         t.rotate(0, centerDegRot, i);
       }
       t.rotate(0, 0, 10);
@@ -547,7 +624,7 @@ export default class CanvasMap {
   protected makeWaypoint(approachPoint: Waypoint) {
     const t = this.getNewCanvasTool(
       approachPoint.coordinates.x,
-      approachPoint.coordinates.y
+      approachPoint.coordinates.y,
     );
 
     t.style(this.colors.blue);
@@ -561,7 +638,7 @@ export default class CanvasMap {
     t.textOutline(
       0,
       approachPoint.isSwitchLabelPosition ? -0.5 : 0.9,
-      approachPoint.code
+      approachPoint.code,
     );
 
     t.style("white");

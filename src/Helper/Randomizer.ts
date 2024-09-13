@@ -1,14 +1,14 @@
 import Degree from "../Types/Degree.js";
 
 export default class Randomizer {
-  protected _seed: string = '';
+  protected _seed: string = "";
 
-  constructor(seed: string = '') {
+  constructor(seed: string = "") {
     this.seed = seed.toUpperCase();
   }
 
-  set seed(seed:string){
-    if (seed === '') {
+  set seed(seed: string) {
+    if (seed === "") {
       for (let i = 0; i < 5; i++) {
         seed += String.fromCharCode(Math.floor(Math.random() * 26 + 65)); // 65..90
       }
@@ -36,7 +36,7 @@ export default class Randomizer {
       return new Degree(main);
     }
 
-    let degree = this.getInt(main + range, main - range,);
+    let degree = this.getInt(main + range, main - range);
     return new Degree(degree);
   }
 
@@ -53,7 +53,7 @@ export default class Randomizer {
   }
 
   public isRandTrue(percentage = 50) {
-    return (this.random() <= (percentage / 100));
+    return this.random() <= percentage / 100;
   }
 
   public fromArray(list: any[]): any {
@@ -62,25 +62,25 @@ export default class Randomizer {
 
   // @see https://stackoverflow.com/questions/521295/seeding-the-random-number-generator-in-javascript
   protected xmur3(str: string): () => number {
-    for(var i = 0, h = 1779033703 ^ str.length; i < str.length; i++) {
+    for (var i = 0, h = 1779033703 ^ str.length; i < str.length; i++) {
       h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
-      h = h << 13 | h >>> 19;
+      h = (h << 13) | (h >>> 19);
     }
-    return function() {
+    return function () {
       h = Math.imul(h ^ (h >>> 16), 2246822507);
       h = Math.imul(h ^ (h >>> 13), 3266489909);
       return (h ^= h >>> 16) >>> 0;
-    }
+    };
   }
 
   // @see https://stackoverflow.com/questions/521295/seeding-the-random-number-generator-in-javascript
   protected mulberry32(a: number): () => number {
-    return function() {
-      var t = a += 0x6D2B79F5;
-      t = Math.imul(t ^ t >>> 15, t | 1);
-      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
-      return ((t ^ t >>> 14) >>> 0) / 4294967296;
-    }
+    return function () {
+      var t = (a += 0x6d2b79f5);
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
   }
 
   random(): number {

@@ -102,11 +102,32 @@ export default class CanvasTool {
     roundedRectRaw(x, y, width, height, radius) {
         return this.polygonRaw([
             [x + width - radius, y],
-            [x + width - radius * 0.45, y, x + width, y + radius * 0.45, x + width, y + radius,],
+            [
+                x + width - radius * 0.45,
+                y,
+                x + width,
+                y + radius * 0.45,
+                x + width,
+                y + radius,
+            ],
             [x + width, y + height - radius],
-            [x + width, y + height - radius * 0.45, x + width - radius * 0.45, y + height, x + width - radius, y + height,],
+            [
+                x + width,
+                y + height - radius * 0.45,
+                x + width - radius * 0.45,
+                y + height,
+                x + width - radius,
+                y + height,
+            ],
             [x + radius, y + height],
-            [x + radius * 0.45, y + height, x, y + height - radius * 0.45, x, y + height - radius,],
+            [
+                x + radius * 0.45,
+                y + height,
+                x,
+                y + height - radius * 0.45,
+                x,
+                y + height - radius,
+            ],
             [x, y + radius],
             [x, y + radius * 0.45, x + radius * 0.45, y, x + radius, y],
             [x + width - radius, y],
@@ -178,7 +199,9 @@ export default class CanvasTool {
             return points;
         }
         return points.map((point) => {
-            return point.map((c) => { return c / scale; });
+            return point.map((c) => {
+                return c / scale;
+            });
         });
     }
     static mirror(points, x = 1, y = 1) {
@@ -186,10 +209,7 @@ export default class CanvasTool {
             return points;
         }
         return points.map((point) => {
-            return [
-                point[0] / x,
-                point[1] / y
-            ];
+            return [point[0] / x, point[1] / y];
         });
     }
 }

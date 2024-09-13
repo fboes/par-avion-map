@@ -20,7 +20,7 @@ export default class Degree {
     isBetween(min, max) {
         min = (min + 360) % 360;
         max = (max + 360) % 360;
-        return (min > max)
+        return min > max
             ? min <= this._degree || this._degree <= max // searching over end of circle
             : min <= this._degree && this._degree <= max;
     }

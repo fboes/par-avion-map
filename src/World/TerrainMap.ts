@@ -20,14 +20,18 @@ export default class TerrainMap {
 
   // @see https://en.wikipedia.org/wiki/Diamond-square_algorithm
   // @see https://github.com/A1essandro/Diamond-And-Square/blob/master/src/DiamondAndSquare.php
-  public constructor(protected map: LocationsMap, protected randomizer: Randomizer, public resolution = 4) {
+  public constructor(
+    protected map: LocationsMap,
+    protected randomizer: Randomizer,
+    public resolution = 4,
+  ) {
     // Round up to nearest x^2 + 1
     this.mapDimension =
       Math.pow(
         2,
         Math.ceil(
-          Math.log(map.mapDimension * this.resolution - 1) / Math.log(2)
-        )
+          Math.log(map.mapDimension * this.resolution - 1) / Math.log(2),
+        ),
       ) + 1;
 
     this.elevations = Array(this.mapDimension);
@@ -37,9 +41,12 @@ export default class TerrainMap {
 
     const averageHeight = (this.elevationMin + this.elevationMax) / 2;
     this.elevations[0][0] = this.randElevation(averageHeight);
-    this.elevations[0][this.mapDimension - 1] = this.randElevation(averageHeight);
-    this.elevations[this.mapDimension - 1][0] = this.randElevation(averageHeight);
-    this.elevations[this.mapDimension - 1][this.mapDimension - 1] = this.randElevation(averageHeight);
+    this.elevations[0][this.mapDimension - 1] =
+      this.randElevation(averageHeight);
+    this.elevations[this.mapDimension - 1][0] =
+      this.randElevation(averageHeight);
+    this.elevations[this.mapDimension - 1][this.mapDimension - 1] =
+      this.randElevation(averageHeight);
 
     this.nextStep(this.mapDimension);
 
@@ -48,7 +55,14 @@ export default class TerrainMap {
       navAid.coordinates.elevation = elevation;
       if (navAid.holdingPattern) {
         const middleCoords = navAid.holdingPattern.getCenterCoordinates();
-        const maxHeight = Math.ceil(this.getHighestElevationNm(middleCoords, HoldingPattern.LENGTH / 2, HoldingPattern.LENGTH / 2) / 100) * 100;
+        const maxHeight =
+          Math.ceil(
+            this.getHighestElevationNm(
+              middleCoords,
+              HoldingPattern.LENGTH / 2,
+              HoldingPattern.LENGTH / 2,
+            ) / 100,
+          ) * 100;
         navAid.holdingPattern.coordinates.elevation = maxHeight + 1000;
       }
     });
@@ -59,7 +73,11 @@ export default class TerrainMap {
     });
 
     this.map.airports.forEach((airport) => {
-      const elevation = this.flattenTerrain(airport.coordinates, 10, airport.runways[0].heading.degree);
+      const elevation = this.flattenTerrain(
+        airport.coordinates,
+        10,
+        airport.runways[0].heading.degree,
+      );
       airport.coordinates.elevation = elevation;
     });
 
@@ -83,7 +101,10 @@ export default class TerrainMap {
 
   protected doSquare(a: number, b: number, range: number, halfRange: number) {
     if (!this.elevations[a][b] || this.elevations[a][b] === null) {
-      const average = this.getAverageSquareElevation(new TerrainCoordinates(a, b), halfRange);
+      const average = this.getAverageSquareElevation(
+        new TerrainCoordinates(a, b),
+        halfRange,
+      );
       this.elevations[a][b] = this.randElevation(average, range);
     }
 
@@ -97,7 +118,10 @@ export default class TerrainMap {
 
   protected doDiamond(a: number, b: number, range: number, halfRange: number) {
     if (!this.elevations[a][b] || this.elevations[a][b] === null) {
-      const average = this.getAverageDiamondElevation(new TerrainCoordinates(a, b), halfRange);
+      const average = this.getAverageDiamondElevation(
+        new TerrainCoordinates(a, b),
+        halfRange,
+      );
       this.elevations[a][b] = this.randElevation(average, range);
     }
 
@@ -116,10 +140,19 @@ export default class TerrainMap {
         const elevation = this.getElevation(new TerrainCoordinates(a, b));
 
         if (elevation > 2000) {
-          const highest = this.getHighestElevation(new TerrainCoordinates(a - searchRadius, b - searchRadius), searchDiameter, searchDiameter);
+          const highest = this.getHighestElevation(
+            new TerrainCoordinates(a - searchRadius, b - searchRadius),
+            searchDiameter,
+            searchDiameter,
+          );
 
           if (highest === elevation) {
-            this.addPeak(new TerrainCoordinates(a, b).getCoordinates(this.resolution, Math.ceil(elevation)));
+            this.addPeak(
+              new TerrainCoordinates(a, b).getCoordinates(
+                this.resolution,
+                Math.ceil(elevation),
+              ),
+            );
           }
         }
       }
@@ -135,7 +168,10 @@ export default class TerrainMap {
 
   // ---------------------------------------------------------------------------
 
-  protected getAverageSquareElevation(coordinates: TerrainCoordinates, range: number) {
+  protected getAverageSquareElevation(
+    coordinates: TerrainCoordinates,
+    range: number,
+  ) {
     let count = 0;
     let sum = 0;
 
@@ -150,7 +186,10 @@ export default class TerrainMap {
     return count ? sum / count : 0;
   }
 
-  protected getAverageDiamondElevation(coordinates: TerrainCoordinates, range: number) {
+  protected getAverageDiamondElevation(
+    coordinates: TerrainCoordinates,
+    range: number,
+  ) {
     let count = 0;
     let sum = 0;
 
@@ -181,16 +220,22 @@ export default class TerrainMap {
     return count ? sum / count : 0;
   }
 
-
-  protected flattenTerrain(coordinates: Coordinates, extraRadius = 1, direction: number | null = null) {
-    const elevation = Math.max(TerrainMap.MINIMUM_LAND, this.getElevationNm(coordinates));
+  protected flattenTerrain(
+    coordinates: Coordinates,
+    extraRadius = 1,
+    direction: number | null = null,
+  ) {
+    const elevation = Math.max(
+      TerrainMap.MINIMUM_LAND,
+      this.getElevationNm(coordinates),
+    );
     const flattenRadius = extraRadius > 5 ? 1 : 0.5;
 
     this.elevations.forEach((line, a) => {
       line.forEach((value, b) => {
         const distance = Math.sqrt(
-          (a / this.resolution - coordinates.x) ** 2
-          + (b / this.resolution - coordinates.y) ** 2
+          (a / this.resolution - coordinates.x) ** 2 +
+            (b / this.resolution - coordinates.y) ** 2,
         );
 
         let delta = this.randomizer.getInt(280, 310) * distance;
@@ -199,14 +244,21 @@ export default class TerrainMap {
         }
         if (direction !== null) {
           const deltaRad = new Degree(
-            new TerrainCoordinates(a, b).getCoordinates(this.resolution, null).getBearing(coordinates)
+            new TerrainCoordinates(a, b)
+              .getCoordinates(this.resolution, null)
+              .getBearing(coordinates),
           ).add(-direction).rad;
-          delta *= (1 + Math.abs(Math.sin(deltaRad)));
+          delta *= 1 + Math.abs(Math.sin(deltaRad));
         }
 
         if (distance < flattenRadius) {
           this.elevations[a][b] = elevation;
-        } else if (delta > 0 && delta < 10000 && distance < extraRadius && value > elevation + delta) {
+        } else if (
+          delta > 0 &&
+          delta < 10000 &&
+          distance < extraRadius &&
+          value > elevation + delta
+        ) {
           this.elevations[a][b] = elevation + delta;
         }
       });
@@ -215,15 +267,23 @@ export default class TerrainMap {
     return elevation;
   }
 
-  public getHighestElevationNm(coordinates: Coordinates, sliceX: number, sliceY: number) {
+  public getHighestElevationNm(
+    coordinates: Coordinates,
+    sliceX: number,
+    sliceY: number,
+  ) {
     return this.getHighestElevation(
       coordinates.getTerrainCoordinates(this.resolution),
       sliceX * this.resolution,
-      sliceY * this.resolution
+      sliceY * this.resolution,
     );
   }
 
-  public getHighestElevation(coordinates: TerrainCoordinates, sliceA: number, sliceB: number) {
+  public getHighestElevation(
+    coordinates: TerrainCoordinates,
+    sliceA: number,
+    sliceB: number,
+  ) {
     const x1 = this.clamp(coordinates.a);
     const y1 = this.clamp(coordinates.b);
 
@@ -248,11 +308,23 @@ export default class TerrainMap {
     const multiB = co.b % 1;
 
     const leftElevation =
-      this.getElevation(new TerrainCoordinates(Math.floor(co.a), Math.floor(co.b))) * (1 - multiB)
-      + this.getElevation(new TerrainCoordinates(Math.floor(co.a), Math.ceil(co.b))) * (multiB);
+      this.getElevation(
+        new TerrainCoordinates(Math.floor(co.a), Math.floor(co.b)),
+      ) *
+        (1 - multiB) +
+      this.getElevation(
+        new TerrainCoordinates(Math.floor(co.a), Math.ceil(co.b)),
+      ) *
+        multiB;
     const rightElevation =
-      this.getElevation(new TerrainCoordinates(Math.ceil(co.a), Math.floor(co.b))) * (1 - multiB)
-      + this.getElevation(new TerrainCoordinates(Math.ceil(co.a), Math.ceil(co.b))) * (multiB);
+      this.getElevation(
+        new TerrainCoordinates(Math.ceil(co.a), Math.floor(co.b)),
+      ) *
+        (1 - multiB) +
+      this.getElevation(
+        new TerrainCoordinates(Math.ceil(co.a), Math.ceil(co.b)),
+      ) *
+        multiB;
 
     return leftElevation * (1 - multiA) + rightElevation * multiA;
   }
@@ -269,9 +341,9 @@ export default class TerrainMap {
     return elevation <= 0
       ? 0
       : Math.max(
-        TerrainMap.MINIMUM_LAND,
-        Math.min(6000, Math.floor(elevation / step) * step)
-      );
+          TerrainMap.MINIMUM_LAND,
+          Math.min(6000, Math.floor(elevation / step) * step),
+        );
   }
 
   public getInclinationColors(x: number, y: number) {
@@ -279,23 +351,34 @@ export default class TerrainMap {
     const elevation = this.getElevation(new TerrainCoordinates(x, y));
 
     if (x - 1 >= 0 && y + 1 < this.mapDimension) {
-      const referenceHeight = this.getElevation(new TerrainCoordinates(x - 1, y + 1));
+      const referenceHeight = this.getElevation(
+        new TerrainCoordinates(x - 1, y + 1),
+      );
 
-      [[-1, 0], [0, 1],].forEach((otherPoint, id) => {
-        const otherReferenceHeight = this.getElevation(new TerrainCoordinates(x + otherPoint[0], y + otherPoint[1]));
-        let inclinitation = otherReferenceHeight - (elevation + referenceHeight) / 2;
+      [
+        [-1, 0],
+        [0, 1],
+      ].forEach((otherPoint, id) => {
+        const otherReferenceHeight = this.getElevation(
+          new TerrainCoordinates(x + otherPoint[0], y + otherPoint[1]),
+        );
+        let inclinitation =
+          otherReferenceHeight - (elevation + referenceHeight) / 2;
 
         if (id === 1) {
           inclinitation *= -1;
         }
 
-        const alpha = Math.max(0, Math.min(1, Math.abs(inclinitation * this.resolution) / 2000));
+        const alpha = Math.max(
+          0,
+          Math.min(1, Math.abs(inclinitation * this.resolution) / 2000),
+        );
         if (alpha > 0.05) {
           classes[id] = new HslColor(
             0,
             0,
             inclinitation >= 0 ? 0 : 1,
-            alpha
+            alpha,
           ).value;
         }
       });
@@ -313,7 +396,9 @@ export default class TerrainMap {
       span = this.mapDimension;
     }
 
-    const range = ((this.elevationMin + this.elevationMax) / 2) * Math.min(1, (span / this.mapDimension) * TerrainMap.JAGGEDNESS);
+    const range =
+      ((this.elevationMin + this.elevationMax) / 2) *
+      Math.min(1, (span / this.mapDimension) * TerrainMap.JAGGEDNESS);
 
     return Math.round(average + this.randomizer.getInt(-range, range));
   }

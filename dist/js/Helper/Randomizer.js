@@ -1,11 +1,11 @@
 import Degree from "../Types/Degree.js";
 export default class Randomizer {
-    constructor(seed = '') {
-        this._seed = '';
+    constructor(seed = "") {
+        this._seed = "";
         this.seed = seed.toUpperCase();
     }
     set seed(seed) {
-        if (seed === '') {
+        if (seed === "") {
             for (let i = 0; i < 5; i++) {
                 seed += String.fromCharCode(Math.floor(Math.random() * 26 + 65)); // 65..90
             }
@@ -43,7 +43,7 @@ export default class Randomizer {
         return this.getDegree(midDeg, range / 4);
     }
     isRandTrue(percentage = 50) {
-        return (this.random() <= (percentage / 100));
+        return this.random() <= percentage / 100;
     }
     fromArray(list) {
         return list[this.getInt(0, list.length - 1)];
@@ -52,7 +52,7 @@ export default class Randomizer {
     xmur3(str) {
         for (var i = 0, h = 1779033703 ^ str.length; i < str.length; i++) {
             h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
-            h = h << 13 | h >>> 19;
+            h = (h << 13) | (h >>> 19);
         }
         return function () {
             h = Math.imul(h ^ (h >>> 16), 2246822507);
@@ -63,10 +63,10 @@ export default class Randomizer {
     // @see https://stackoverflow.com/questions/521295/seeding-the-random-number-generator-in-javascript
     mulberry32(a) {
         return function () {
-            var t = a += 0x6D2B79F5;
-            t = Math.imul(t ^ t >>> 15, t | 1);
-            t ^= t + Math.imul(t ^ t >>> 7, t | 61);
-            return ((t ^ t >>> 14) >>> 0) / 4294967296;
+            var t = (a += 0x6d2b79f5);
+            t = Math.imul(t ^ (t >>> 15), t | 1);
+            t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+            return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
         };
     }
     random() {

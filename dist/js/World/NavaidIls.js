@@ -1,8 +1,8 @@
 import Navaid from "./Navaid.js";
 import Degree from "../Types/Degree.js";
 export default class NavaidIls extends Navaid {
-    constructor(coordinates, randomizer, type = '') {
-        super(coordinates, randomizer, 'ILS');
+    constructor(coordinates, randomizer, type = "") {
+        super(coordinates, randomizer, "ILS");
         this.coordinates = coordinates;
         this.randomizer = randomizer;
         this.direction = new Degree(0);

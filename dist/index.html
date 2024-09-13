@@ -1,261 +1,279 @@
 <!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Par Avion - Carte</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
 
-<head>
-  <meta charset="utf-8">
-  <title>Par Avion - Carte</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-    }
+      body {
+        background: #eee;
+        font-family: sans-serif;
+      }
 
-    body {
-      background: #eee;
-      font-family: sans-serif;
-    }
+      #container {
+        width: 98%;
+        max-width: 140vmin;
+        text-align: center;
+        margin: 0 auto;
+      }
 
-    #container {
-      width: 98%;
-      max-width: 140vmin;
-      text-align: center;
-      margin: 0 auto;
-    }
+      header,
+      h2 {
+        display: none;
+      }
 
-    header,
-    h2 {
-      display: none;
-    }
-
-    main {
-      background: white;
-      padding: 2%;
-      position: relative;
-    }
-
-    section {
-      position: relative;
-    }
-
-    section+* {
-      margin-top: 0.75em;
-    }
-
-    canvas {
-      width: 100%;
-      height: auto;
-    }
-
-    canvas#hsi,
-    canvas#six-pack {
-      width: 25%;
-      bottom: 1vmin;
-      position: absolute;
-    }
-
-    canvas#six-pack {
-      left: 0.5vmin;
-    }
-
-    canvas#hsi {
-      right: 0.5vmin;
-    }
-
-    canvas#map-hsi {
-      position: absolute;
-      top: 0;
-      left: 0;
-    }
-
-    .approaches div {
-      display: flex;
-      gap: 2vmin;
-      justify-content: center;
-      align-items: stretch;
-      flex-wrap: wrap
-    }
-
-    .approaches canvas {
-      flex: 1 1;
-      min-width: 10em;
-    }
-
-    input {
-      max-width: 4em;
-      text-transform: uppercase;
-    }
-
-    input,
-    button {
-      background: #ddd;
-      padding: 0.15em 0.5em 0.35em;
-      border-radius: 0.2em;
-      border: 1px solid #ccc;
-      margin-top: -0.1em;
-      font-size: inherit;
-      text-align: center;
-    }
-
-    button {
-      background: #007bff;
-      border: 1px outset #007bff;
-      color: white;
-      cursor: pointer;
-    }
-
-    button.secondary {
-      background: #5a6268;
-      border-color: #5a6268;
-    }
-
-    dt,
-    dd {
-      display: inline-block;
-      margin-left: 0.5em;
-    }
-
-    dt {
-      margin-left: 1em;
-    }
-
-    dt:after {
-      content: ":"
-    }
-
-    kbd {
-      display: inline-block;
-      border: 1px solid #ddd;
-      background: #eee;
-      padding: 0.1em 0.25em;
-      border-radius: 0.2em;
-    }
-
-
-    span {
-      display: inline-block;
-      padding: 0.25em 0.75em;
-    }
-
-    footer {
-      font-size: 0.55em;
-    }
-
-    footer a {
-      color: black;
-    }
-
-    @media (min-aspect-ratio: 1/1) {
       main {
+        background: white;
+        padding: 2%;
+        position: relative;
+      }
+
+      section {
+        position: relative;
+      }
+
+      section + * {
+        margin-top: 0.75em;
+      }
+
+      canvas {
+        width: 100%;
+        height: auto;
+      }
+
+      canvas#hsi,
+      canvas#six-pack {
+        width: 25%;
+        bottom: 1vmin;
+        position: absolute;
+      }
+
+      canvas#six-pack {
+        left: 0.5vmin;
+      }
+
+      canvas#hsi {
+        right: 0.5vmin;
+      }
+
+      canvas#map-hsi {
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+
+      .approaches div {
         display: flex;
         gap: 2vmin;
         justify-content: center;
         align-items: stretch;
-        flex-wrap: wrap
+        flex-wrap: wrap;
       }
 
-      section {
-        flex: 1 1 28.35%;
-      }
-
-      section.approaches div {
-        display: block;
-      }
-
-      section.map {
-        flex: 3 3 69%;
-      }
-
-      section.configuration {
-        flex: 100%;
-      }
-    }
-
-    @media screen {
-      main {
-        outline: 1px solid #ddd;
-        box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.5);
-        margin-bottom: 0.5em;
-      }
-    }
-
-    @media print {
-      section.configuration {
-        display: none;
-      }
-    }
-
-    @media (prefers-color-scheme: dark) {
-      body {
-        color: white;
-        background: black;
-      }
-
-      main {
-        background: #222;
-        outline-color: #111;
+      .approaches canvas {
+        flex: 1 1;
+        min-width: 10em;
       }
 
       input {
-        background: #666;
-        color: white;
+        max-width: 4em;
+        text-transform: uppercase;
       }
 
-      .footer {
-        color: white;
+      input,
+      button {
+        background: #ddd;
+        padding: 0.15em 0.5em 0.35em;
+        border-radius: 0.2em;
+        border: 1px solid #ccc;
+        margin-top: -0.1em;
+        font-size: inherit;
+        text-align: center;
       }
-    }
-  </style>
-  <link rel="icon" href="img/favicon-192x192.png" sizes="192x192" type="image/png" />
-  <meta name="theme-color" content="#eeeeee" />
-  <link rel="manifest" href="./manifest.json" />
-</head>
 
-<body>
-  <div id="container">
-    <header>
-      <h1>Par Avion - Carte</h1>
-    </header>
-    <main>
-      <section class="map">
-        <h2>Map</h2>
-        <canvas id="map" height="1280" width="1280"></canvas>
-        <canvas id="map-hsi" height="1280" width="1280"></canvas>
-        <canvas id="hsi" height="256" width="256"></canvas>
-        <canvas id="six-pack" height="256" width="256"></canvas>
-      </section>
-      <section class="approaches">
-        <h2>Approaches</h2>
-        <div>
-          <canvas id="airport-1" height="720" width="600"></canvas>
-          <canvas id="airport-2" height="720" width="600"></canvas>
-          <canvas id="airport-3" height="720" width="600"></canvas>
-        </div>
-      </section>
-      <section class="configuration">
-        <h2>Configuration</h2>
-        <span>
-          <label for="seed">Map Name</label>
-          <input name="seed" id="seed" type="text" />
-        </span>
-        <span>
-          <label for="mapdimension">Dimension (NM)</label>
-          <input name="mapdimension" id="mapdimension" type="number" min="18" max="48" step="2" value="28" />
-        </span>
-        <span>
-          <label for="resolution">Resolution (/NM)</label>
-          <input name="resolution" id="resolution" type="number" min="1" max="8" value="4" />
-        </span>
-        <span>
-          <button id="generate" class="secondary">Generate</button>
-          <button id="randomize">Randomize</button>
-        </span>
-        <span>
-          <label for="show-log">Show log</label>
-          <input name="show-log" id="show-log" type="checkbox" value="show" />
-        </span>
-      </section>
-      <!--section class="help">
+      button {
+        background: #007bff;
+        border: 1px outset #007bff;
+        color: white;
+        cursor: pointer;
+      }
+
+      button.secondary {
+        background: #5a6268;
+        border-color: #5a6268;
+      }
+
+      dt,
+      dd {
+        display: inline-block;
+        margin-left: 0.5em;
+      }
+
+      dt {
+        margin-left: 1em;
+      }
+
+      dt:after {
+        content: ":";
+      }
+
+      kbd {
+        display: inline-block;
+        border: 1px solid #ddd;
+        background: #eee;
+        padding: 0.1em 0.25em;
+        border-radius: 0.2em;
+      }
+
+      span {
+        display: inline-block;
+        padding: 0.25em 0.75em;
+      }
+
+      footer {
+        font-size: 0.55em;
+      }
+
+      footer a {
+        color: black;
+      }
+
+      @media (min-aspect-ratio: 1/1) {
+        main {
+          display: flex;
+          gap: 2vmin;
+          justify-content: center;
+          align-items: stretch;
+          flex-wrap: wrap;
+        }
+
+        section {
+          flex: 1 1 28.35%;
+        }
+
+        section.approaches div {
+          display: block;
+        }
+
+        section.map {
+          flex: 3 3 69%;
+        }
+
+        section.configuration {
+          flex: 100%;
+        }
+      }
+
+      @media screen {
+        main {
+          outline: 1px solid #ddd;
+          box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.5);
+          margin-bottom: 0.5em;
+        }
+      }
+
+      @media print {
+        section.configuration {
+          display: none;
+        }
+      }
+
+      @media (prefers-color-scheme: dark) {
+        body {
+          color: white;
+          background: black;
+        }
+
+        main {
+          background: #222;
+          outline-color: #111;
+        }
+
+        input {
+          background: #666;
+          color: white;
+        }
+
+        .footer {
+          color: white;
+        }
+      }
+    </style>
+    <link
+      rel="icon"
+      href="img/favicon-192x192.png"
+      sizes="192x192"
+      type="image/png"
+    />
+    <meta name="theme-color" content="#eeeeee" />
+    <link rel="manifest" href="./manifest.json" />
+  </head>
+
+  <body>
+    <div id="container">
+      <header>
+        <h1>Par Avion - Carte</h1>
+      </header>
+      <main>
+        <section class="map">
+          <h2>Map</h2>
+          <canvas id="map" height="1280" width="1280"></canvas>
+          <canvas id="map-hsi" height="1280" width="1280"></canvas>
+          <canvas id="hsi" height="256" width="256"></canvas>
+          <canvas id="six-pack" height="256" width="256"></canvas>
+        </section>
+        <section class="approaches">
+          <h2>Approaches</h2>
+          <div>
+            <canvas id="airport-1" height="720" width="600"></canvas>
+            <canvas id="airport-2" height="720" width="600"></canvas>
+            <canvas id="airport-3" height="720" width="600"></canvas>
+          </div>
+        </section>
+        <section class="configuration">
+          <h2>Configuration</h2>
+          <span>
+            <label for="seed">Map Name</label>
+            <input name="seed" id="seed" type="text" />
+          </span>
+          <span>
+            <label for="mapdimension">Dimension (NM)</label>
+            <input
+              name="mapdimension"
+              id="mapdimension"
+              type="number"
+              min="18"
+              max="48"
+              step="2"
+              value="28"
+            />
+          </span>
+          <span>
+            <label for="resolution">Resolution (/NM)</label>
+            <input
+              name="resolution"
+              id="resolution"
+              type="number"
+              min="1"
+              max="8"
+              value="4"
+            />
+          </span>
+          <span>
+            <button id="generate" class="secondary">Generate</button>
+            <button id="randomize">Randomize</button>
+          </span>
+          <span>
+            <label for="show-log">Show log</label>
+            <input name="show-log" id="show-log" type="checkbox" value="show" />
+          </span>
+        </section>
+        <!--section class="help">
         <h2>Help</h2>
         <dl>
           <dt><kbd>w</kbd> / <kbd>s</kbd></dt>
@@ -270,18 +288,19 @@
           <dd>Alter HSI element</dd>
         </dl>
       </section-->
-    </main>
-    <footer>
-      <a href="https://github.com/fboes/par-avion-map">https://github.com/fboes/par-avion-map</a>
-    </footer>
-  </div>
+      </main>
+      <footer>
+        <a href="https://github.com/fboes/par-avion-map"
+          >https://github.com/fboes/par-avion-map</a
+        >
+      </footer>
+    </div>
 
-  <script type="module" src="./js/index.js"></script>
-  <script>
-    if ('serviceWorker' in navigator && !navigator.serviceWorker.controller) {
-      navigator.serviceWorker.register('./sw.js');
-    }
-  </script>
-</body>
-
+    <script type="module" src="./js/index.js"></script>
+    <script>
+      if ("serviceWorker" in navigator && !navigator.serviceWorker.controller) {
+        navigator.serviceWorker.register("./sw.js");
+      }
+    </script>
+  </body>
 </html>

@@ -1,5 +1,10 @@
 export default class HslColor {
-  constructor(public hue: number, public saturation: number, public luminosity: number, public alpha: number) { }
+  constructor(
+    public hue: number,
+    public saturation: number,
+    public luminosity: number,
+    public alpha: number,
+  ) {}
 
   get value() {
     // hsla(0, 0%, 0%, 0.74)
